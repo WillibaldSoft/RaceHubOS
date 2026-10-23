@@ -6,6 +6,7 @@ import { AppProvider } from './context/AppContext'
 import { VoiceProvider } from './context/VoiceContext'
 import { TooltipProvider } from './components/ui/tooltip'
 import Layout from './components/Layout'
+import RaceScreenHost from './components/race/RaceScreen'
 
 // Lazy load all pages
 const Dashboard = lazy(() => import('./pages/Dashboard'))
@@ -22,6 +23,7 @@ const SessionsList = lazy(() => import('./pages/SessionsList'))
 const SessionDetail = lazy(() => import('./pages/SessionDetail'))
 const Stats = lazy(() => import('./pages/Stats'))
 const Settings = lazy(() => import('./pages/Settings'))
+const RaceScreenSettings = lazy(() => import('./components/race/RaceScreenSettings'))
 const Test = lazy(() => import('./pages/Test'))
 const FreeSessionPage = lazy(() => import('./pages/FreeSessionPage'))
 const BalancingPage = lazy(() => import('./pages/BalancingPage'))
@@ -35,6 +37,7 @@ function App() {
         <DeviceProvider>
           <VoiceProvider>
           <SessionProvider>
+          <RaceScreenHost />
           <TooltipProvider>
           <Routes>
           {/* Main layout with sidebar */}
@@ -61,6 +64,7 @@ function App() {
             {/* Utils */}
             <Route path="stats" element={<Suspense><Stats /></Suspense>} />
             <Route path="settings" element={<Suspense><Settings /></Suspense>} />
+            <Route path="settings/race-screen" element={<Suspense><RaceScreenSettings /></Suspense>} />
             <Route path="displays" element={<Suspense><Displays /></Suspense>} />
             <Route path="demo-displays" element={<Suspense><DriverDisplayDemo /></Suspense>} />
             <Route path="test" element={<Suspense><Test /></Suspense>} />
