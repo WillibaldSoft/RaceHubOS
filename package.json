@@ -1,6 +1,6 @@
 {
   "name": "racehubos",
-  "version": "1.24.1",
+  "version": "1.29.0",
   "description": "Open Source Race Management System for Carrera Digital 132/124",
   "private": true,
   "packageManager": "npm@10.9.2",
@@ -17,7 +17,7 @@
     "lint": "npm run lint --workspaces",
     "check": "node scripts/check-rules.mjs",
     "check:push": "node scripts/check-rules.mjs --push",
-    "hooks:install": "git config core.hooksPath .githooks && echo \"Hook pre-push installé : les règles sont vérifiées avant chaque push.\""
+    "hooks:install": "git config core.hooksPath .githooks && echo \"Hook pre-push install\u00e9 : les r\u00e8gles sont v\u00e9rifi\u00e9es avant chaque push.\""
   },
   "devDependencies": {
     "baseline-browser-mapping": "^2.11.19",

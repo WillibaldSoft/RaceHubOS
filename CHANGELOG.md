@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.29.0 — Optional offline Piper voices
+- Install German Thorsten, US English LJ Speech and French Siwis separately from RaceHubOS; existing Thorsten installations remain usable.
+- Select local voices automatically by interface language, or choose a voice explicitly. Missing or failed local voices fall back to browser speech without switching language.
+- Voice packages and synthesis remain local; no database migration or automatic model download is required by the app.
+
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
