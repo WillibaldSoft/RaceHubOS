@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.27.0] - 2026-10-23
+
+### Added
+- Import Cockpit-XP SQLite ZIP backups with a preview, explicit confirmation and an automatic backup before writing. Import selected drivers, cars, tracks and images without replacing existing race settings.
+- Keep imported vehicle technology, maintenance snapshots and reliably matched historical statistics labelled separately from current RaceHubOS results. Duplicate imports are skipped. Python 3 is required on the race computer.
+
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
