@@ -1,3 +1,7 @@
+import { speechDuration } from '../lib/speechDuration.mjs'
+import i18n from '../i18n'
+import { createSpeechPlayer } from '../lib/piperPlayer.mjs'
+import { browserVoice } from '../lib/piperSelection.mjs'
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
@@ -9,6 +13,18 @@ export function VoiceProvider({ children }) {
   const [podiumEnabled, setPodiumEnabled] = useState(true)
   const [minLaps, setMinLaps] = useState(3)
   const [voiceId, setVoiceId] = useState('')
+
+  const [localVoices, setLocalVoices] = useState([])
+  const localVoicesRef = useRef([])
+  const [voiceState, setVoiceState] = useState('idle')
+  const playerRef = useRef(null)
+  if (!playerRef.current) playerRef.current = createSpeechPlayer({ api: API_URL, onState: setVoiceState })
+  useEffect(() => {
+    fetch(`${API_URL}/api/voice/status`).then(r => r.json()).then(d => { localVoicesRef.current = Array.isArray(d.voices) ? d.voices : []; setLocalVoices(localVoicesRef.current) }).catch(() => {})
+    const stop = () => playerRef.current.cancel()
+    i18n.on('languageChanged', stop)
+    return () => { i18n.off('languageChanged', stop); stop() }
+  }, [])
 
   // Refs for access from socket listeners
   const bestLapEnabledRef = useRef(bestLapEnabled)
@@ -74,40 +90,10 @@ export function VoiceProvider({ children }) {
     }).catch(() => {})
   }, [])
 
-  // Get selected voice object
-  const getVoice = useCallback(() => {
-    if (!voiceIdRef.current) return null
-    return speechSynthesis.getVoices().find(v => v.voiceURI === voiceIdRef.current) || null
-  }, [])
+  const getVoice = useCallback(() => browserVoice(window.speechSynthesis?.getVoices() || [], voiceIdRef.current, i18n.resolvedLanguage), [])
+  const speak = useCallback((text, options = {}) => playerRef.current.speak(text, { language: i18n.resolvedLanguage, selection: voiceIdRef.current, voices: localVoicesRef.current, ...options }), [])
 
-  // Speak text with current settings
-  const speak = useCallback((text, { rate = 1.1, volume = 0.9, force = false } = {}) => {
-    try {
-      if (!force && speechSynthesis.speaking) return null
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.lang = 'fr-FR'
-      utterance.rate = rate
-      utterance.volume = volume
-      const voice = getVoice()
-      if (voice) utterance.voice = voice
-      speechSynthesis.speak(utterance)
-      return utterance
-    } catch {
-      return null
-    }
-  }, [getVoice])
-
-  // Format time for speech
-  const formatTimeVoice = useCallback((ms) => {
-    if (!ms) return ''
-    const s = ms / 1000
-    if (s >= 60) {
-      const min = Math.floor(s / 60)
-      const sec = (s % 60).toFixed(3).replace('.', ',')
-      return `${min} minute${min > 1 ? 's' : ''} ${sec}`
-    }
-    return `${s.toFixed(3).replace('.', ',')} secondes`
-  }, [])
+  const formatTimeVoice = useCallback(ms => speechDuration(ms, i18n.resolvedLanguage), [])
 
   return (
     <VoiceContext.Provider value={{
@@ -116,7 +102,7 @@ export function VoiceProvider({ children }) {
       minLaps, saveMinLaps,
       voiceId, saveVoiceId,
       bestLapEnabledRef, podiumEnabledRef, minLapsRef, voiceIdRef,
-      speak, getVoice, formatTimeVoice,
+      speak, getVoice, formatTimeVoice, localVoices, voiceState,
     }}>
       {children}
     </VoiceContext.Provider>
