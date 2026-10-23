@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.26.0] - 2026-10-23
+
+### Fixed
+- Recognize Scalextric lazy-loaded thumbnails without interpreting picture srcset lists as a single URL.
+
+### Added
+- Local vehicle catalogue for Carrera, Scalextric and Superslot with explicit data/image selection, source links and offline lookups after a manual update.
+- Original tyre references, independent article assignments and persistent 1:32/1:24 vehicle filters. Existing vehicle equipment, CU settings and race records are preserved.
+- Complete vehicle image previews and optional model year; catalogue controls are available in French, English and German.
+
 ## [1.24.1] - 2026-09-09
 
 ### Fixed
