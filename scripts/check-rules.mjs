@@ -400,7 +400,7 @@ rule('no-new-lint-errors', 'Aucune nouvelle erreur ESLint dans les fichiers modi
 
   const { ESLint } = await import('eslint');
   const eslint = new ESLint({ cwd: rootDir });
-  // This private installation already had extensions before adopting 1.25.2.
+  // This integration branch inherits extensions developed before adopting 1.25.2.
   // Compare their actual immutable source as well, rather than treating inherited
   // debt as newly introduced. An ancestor check prevents a future/external baseline.
   const baselineFile = 'local-carrera/integration-baseline.json';

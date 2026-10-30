@@ -17,3 +17,9 @@ node scripts/screenshots/prepare-demo.mjs /tmp/racehubos-screenshot-demo
 ```
 
 The script refuses to overwrite an existing database. Start the backend with DATABASE_URL pointing to that directory’s test.db and a separate PORT. Connect only the SIMULATOR device for screenshots. Never point this fixture at an installation database.
+
+![Original navigation and reset](screenshots/navigation.jpg)
+
+## Existing lint debt
+
+The initial integration snapshot is recorded in `local-carrera/integration-baseline.json`. The check compares changed files with both upstream and this public ancestor so inherited extension warnings remain distinguishable from newly introduced problems. This baseline is for the integration branch; topical upstream pull requests must satisfy upstream checks independently.

@@ -1,0 +1,4 @@
+{
+  "commit": "15e57771a5ead83761b6102934ca0596810ef388",
+  "purpose": "Public initial integration snapshot. Reject new lint problems against both upstream and the inherited extension source."
+}
