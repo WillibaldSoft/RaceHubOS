@@ -14,7 +14,7 @@ const CU_STATE = {
   LIGHTS_3: 3,
   LIGHTS_4: 4,
   LIGHTS_5: 5,
-  FALSE_START: 6,
+  LIGHTS_6: 6,
   GO: 7,
   STOPPED: 9,
 };
@@ -34,6 +34,7 @@ export class CarreraSimulator extends EventEmitter {
   constructor(io) {
     super();
     this.io = io;
+    this.isSimulator = true;
     this.connected = false; // Connection state
     this.isRunning = false;
     this.raceActive = false;
@@ -462,7 +463,7 @@ export class CarreraSimulator extends EventEmitter {
    * Start race (simulate START button press)
    * Matches real CU behavior:
    * - From STOPPED: first START → LIGHTS_1 (wait for second START)
-   * - From LIGHTS_1: second START → auto countdown 2→3→4→5→GO→RACING
+   * - From LIGHTS_1: second START → auto countdown 2→3→4→5→6→GO→RACING
    */
   async startRace() {
     if (this.cuState === CU_STATE.RACING) {
@@ -481,9 +482,9 @@ export class CarreraSimulator extends EventEmitter {
     }
 
     // From LIGHTS_1 (or any light state), do automatic countdown
-    if (this.cuState >= CU_STATE.LIGHTS_1 && this.cuState <= CU_STATE.LIGHTS_5) {
-      // Auto countdown: 2 → 3 → 4 → 5 → GO → RACING
-      for (let light = CU_STATE.LIGHTS_2; light <= CU_STATE.LIGHTS_5; light++) {
+    if (this.cuState >= CU_STATE.LIGHTS_1 && this.cuState <= CU_STATE.LIGHTS_6) {
+      // Auto countdown: 2 → 3 → 4 → 5 → 6 → GO → RACING
+      for (let light = CU_STATE.LIGHTS_2; light <= CU_STATE.LIGHTS_6; light++) {
         this.cuState = light;
         this.emitCuStatus();
         await this.delay(1000);

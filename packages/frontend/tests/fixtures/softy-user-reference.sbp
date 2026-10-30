@@ -1,0 +1,47 @@
+{
+  "file": "sbp",
+  "version": 1,
+  "name": "Froehlichring Referenzteil",
+  "last-change": "23.10.2026 21:40 Uhr",
+  "preview": "",
+  "items": [
+    {
+      "guid": "4187668d-ee71-440a-9bb2-6e400e017416",
+      "position": {
+        "x": 9998.888888888889,
+        "y": 9997.777777777777
+      },
+      "rotation": 0
+    }
+  ],
+  "floor": [
+    {
+      "x": 8000,
+      "y": 8000
+    },
+    {
+      "x": 12000,
+      "y": 8000
+    },
+    {
+      "x": 12000,
+      "y": 12000
+    },
+    {
+      "x": 8000,
+      "y": 12000
+    }
+  ],
+  "systems": [
+    {
+      "guid": "4af99ff1-11cd-4969-bb2d-d6ddb5f1c8aa",
+      "names": {
+        "de": "Carrera Evolution"
+      }
+    }
+  ],
+  "size": {
+    "width": 345,
+    "height": 198
+  }
+}

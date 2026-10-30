@@ -16,7 +16,8 @@
   "connection": {
     "connected": "Verbunden: {{device}}",
     "noDevice": "Kein Gerät verbunden",
-    "disconnect": "Trennen"
+    "disconnect": "Trennen",
+    "pending": "Die Verbindung wird noch aufgebaut. Der echte Status wird automatisch aktualisiert."
   },
   "devices": {
     "title": "Gerät auswählen",
@@ -52,7 +53,17 @@
     "adminMode": "Administratormodus",
     "adminModeDesc": "Anzeigen, Test, Simulator",
     "language": "Sprache",
-    "languageDesc": "Sprache der Oberfläche"
+    "languageDesc": "Sprache der Oberfläche",
+    "voiceRate": "Sprechtempo",
+    "voiceHint": "Ansagen auf Hundertstel gerundet; Messwerte bleiben millisekundengenau. Die Klangqualität hängt von der verfügbaren Browserstimme ab.",
+    "localVoice": "Thorsten – lokal (Piper)",
+    "localVoiceHint": "Deutsche neuronale Stimme direkt auf diesem Rechner. Nach der Installation offline und ohne Abo nutzbar. Bei blockiertem Ton einmal „Stimme testen“ drücken.",
+    "localVoiceError": "Die lokale Sprachausgabe konnte nicht abgespielt werden. Bitte „Stimme testen“ erneut drücken oder die Standardstimme auswählen.",
+    "localStates": {
+      "loading": "Ansage wird lokal erzeugt …",
+      "playing": "Ansage wird abgespielt …",
+      "done": "Letzte Ansage abgespielt."
+    }
   },
   "logs": {
     "title": "Protokolle",

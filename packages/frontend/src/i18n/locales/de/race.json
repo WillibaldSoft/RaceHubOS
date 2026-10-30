@@ -133,5 +133,45 @@
     "toConfigure_other": "{{count}} Regler zu konfigurieren",
     "toConfigureWithSlots_one": "{{count}} Regler zu konfigurieren ({{slots}})",
     "toConfigureWithSlots_other": "{{count}} Regler zu konfigurieren ({{slots}})"
+  },
+  "voice": {
+    "bestLap": "Neue Bestzeit für {{name}}: {{time}}.",
+    "car": "Auto {{number}}",
+    "places": ["Erster Platz", "Zweiter Platz", "Dritter Platz"],
+    "minutes_one": "{{count}} Minute",
+    "minutes_other": "{{count}} Minuten",
+    "seconds": "{{value}} Sekunden",
+    "podium": "{{place}}: {{name}} mit {{time}}."
+  },
+  "dnf": "Nicht im Ziel",
+  "fuel": {
+    "title": "Tankanzeige · Regler 1",
+    "level": "Tankstand Regler 1",
+    "value": "CU-Wert {{value}} von 15",
+    "scale": "CU-Skala 0–15; keine Literangabe. Der Balken zeigt den gemeldeten Stufenwert.",
+    "mode": "Tankmodus: {{mode}}",
+    "modes": {
+      "unknown": "unbekannt",
+      "off": "AUS",
+      "on": "ON",
+      "real": "REAL"
+    },
+    "noData": "Keine aktuellen Daten",
+    "noPit": "Pit-Lane-Sensor nicht erkannt",
+    "inPit": "Boxenstatus aktiv",
+    "onTrack": "Boxenstatus inaktiv",
+    "stale": "Keine aktuellen CU-Daten. Die letzte Messung wird nicht als aktueller Tankstand angezeigt.",
+    "switchOn": "Für den Tanktest den FUEL-Schiebeschalter an der CU auf ON stellen. Der Start bleibt bis dahin gesperrt.",
+    "useOn": "Für diesen ersten Test ON statt REAL wählen.",
+    "empty": "Tank leer – zum Nachtanken in die Box fahren.",
+    "low": "Tank niedrig – Boxenstopp vorbereiten.",
+    "refuel": "Nach dem Tanksensor anhalten und die Weichentaste gedrückt halten. Prüfe, ob der Tankwert steigt."
+  },
+  "lapSpeed": {
+    "label": "Berechnete Durchschnittsgeschwindigkeit der letzten Runde",
+    "short": "Ø Runde",
+    "lap": "Runde {{number}}",
+    "noLength": "Keine gültige Streckenlänge hinterlegt.",
+    "explanation": "Schätzung aus Rundenzeit und {{length}} m mittlerer Spurlänge. Spurwechsel und Boxenwege werden nicht erfasst; keine Höchstgeschwindigkeit."
   }
 }

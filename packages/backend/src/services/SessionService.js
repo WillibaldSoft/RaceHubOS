@@ -22,6 +22,7 @@ export class SessionService extends EventEmitter {
     this.io = io;
     this.prisma = createPrismaClient();
     this.syncService = null;
+    this._resetJobs = new Map();
 
     // Session state
     this.activeSessionId = null;
@@ -57,6 +58,14 @@ export class SessionService extends EventEmitter {
    * Handle lap data from SyncService
    * @param {{ controller: number, timestamp: number, lapTime: number, sector: number }} data
    */
+  handleSector(controller, sectors) {
+    if (!this.isActive()) return;
+    const driver = this.getDriverByController(controller);
+    if (!driver || this.hasDriverFinished(driver)) return;
+    driver.sectors = sectors;
+    this.emitLeaderboard();
+  }
+
   async handleLap(data) {
     const { controller, lapTime, sector } = data;
 
@@ -141,7 +150,8 @@ export class SessionService extends EventEmitter {
     this.recalculatePositions(controller);
 
     // 3. Save to DB
-    await this.saveLap(driver, lapTime);
+    driver.sectors = data.sectors || null;
+    await this.saveLap(driver, lapTime, data.sectors);
     await this.updateSessionDriver(driver);
 
     // 4. Emit leaderboard
@@ -261,6 +271,19 @@ export class SessionService extends EventEmitter {
       crossings: sd.totalLaps || 0, // Track line crossings (first doesn't count as lap)
     }));
 
+    await Promise.all(
+      this.sessionDrivers.map(async (driver) => {
+        const lap = await this.prisma.lap.findFirst({
+          where: { sessionId: session.id, controller: driver.controller, deletedAt: null },
+          orderBy: { lapNumber: 'desc' },
+        });
+        driver.sectors =
+          lap?.sector1 != null
+            ? { sector1: lap.sector1, sector2: lap.sector2, sector3: lap.sector3, completed: true }
+            : null;
+      })
+    );
+
     // Load lap history for balancing sessions (needed for chart data)
     this.lapHistory = new Map();
     if (session.type === SessionType.BALANCING) {
@@ -336,12 +359,10 @@ export class SessionService extends EventEmitter {
     // Start polling to receive CU status and lap data
     this.syncService?.startPolling();
 
-    // Put CU in L1 state (waiting for START)
-    await this.syncService?.prepareRace();
-
-    // Apply each car's profile (speed/brake/fuel) to the CU
-    // Done AFTER prepareRace so the START press isn't blocked by 18 setword commands
+    // Finish configuration before showing ready lights. No profile writes may
+    // queue in front of status polls while the driver starts the countdown.
     await this.applyCarConfigs();
+    await this.syncService?.prepareRace();
 
     // Start heartbeat
     this.startHeartbeat();
@@ -372,6 +393,7 @@ export class SessionService extends EventEmitter {
 
     const previousStatus = this.sessionStatus;
     this.sessionStatus = 'paused';
+    this.syncService?.resetSectorTiming?.();
 
     // Stop CU/Simulator
     await this.syncService?.stopRace();
@@ -423,6 +445,7 @@ export class SessionService extends EventEmitter {
    * Reset for new session
    */
   async resetForNewSession() {
+    await this.syncService?.reset();
     this.stopHeartbeat();
 
     // Keep sessionDrivers for leaderboard queries until new session loads
@@ -445,8 +468,6 @@ export class SessionService extends EventEmitter {
       clearTimeout(this.gracePeriodTimer);
       this.gracePeriodTimer = null;
     }
-
-    await this.syncService?.reset();
   }
 
   // ==================== Hardware Control ====================
@@ -886,12 +907,12 @@ export class SessionService extends EventEmitter {
     // Emit internal event for other services (ChampionshipManager)
     super.emit('sessionFinished', { sessionId, championshipId });
 
-    // Stop CU/Simulator
-    await this.syncService?.stopRace();
-
-    // Reset state
-    await this.resetForNewSession();
-    this._finishing = false;
+    try {
+      await this.syncService?.stopRace();
+      await this.resetForNewSession();
+    } finally {
+      this._finishing = false;
+    }
   }
 
   /**
@@ -962,7 +983,7 @@ export class SessionService extends EventEmitter {
 
   // ==================== DB Operations ====================
 
-  async saveLap(driver, lapTime) {
+  async saveLap(driver, lapTime, sectors = null) {
     await this.prisma.lap.create({
       data: {
         sessionId: this.activeSessionId,
@@ -973,6 +994,9 @@ export class SessionService extends EventEmitter {
         phase: this.currentPhase,
         lapNumber: driver.totalLaps,
         lapTime: lapTime,
+        sector1: sectors?.completed ? sectors.sector1 : null,
+        sector2: sectors?.completed ? sectors.sector2 : null,
+        sector3: sectors?.completed ? sectors.sector3 : null,
       },
     });
   }
@@ -1097,7 +1121,15 @@ export class SessionService extends EventEmitter {
    * - Practice: soft delete laps (for stats)
    * - Qualif/Race: hard delete laps
    */
-  async resetSession(sessionId) {
+  resetSession(sessionId) {
+    this._resetJobs ||= new Map();
+    if (this._resetJobs.has(sessionId)) return this._resetJobs.get(sessionId);
+    const job = this._resetSession(sessionId).finally(() => this._resetJobs.delete(sessionId));
+    this._resetJobs.set(sessionId, job);
+    return job;
+  }
+
+  async _resetSession(sessionId) {
     const session = await this.prisma.session.findUnique({
       where: { id: sessionId },
     });
@@ -1106,13 +1138,11 @@ export class SessionService extends EventEmitter {
       throw new Error(`Session ${sessionId} not found`);
     }
 
-    // Stop if this is the active session
+    // Confirm hardware stop before clearing the live session state.
+    await this.syncService?.stopRace();
     if (this.activeSessionId === sessionId) {
       await this.resetForNewSession();
     }
-
-    // Send stop signal to CU/Simulator
-    await this.syncService?.stopRace();
 
     // Soft delete laps (keep for stats)
     await this.prisma.lap.updateMany({
@@ -1228,6 +1258,18 @@ export class SessionService extends EventEmitter {
 
   isActive() {
     return ['active', 'paused', 'finishing'].includes(this.sessionStatus);
+  }
+
+  clearAfterDataRestore() {
+    this.stopHeartbeat();
+    this.activeSessionId = null;
+    this.activeTrackId = null;
+    this.sessionStatus = null;
+    this.sessionConfig = null;
+    this.sessionDrivers = [];
+    this.lapHistory = new Map();
+    this.previousPositions.clear();
+    this.displayedDeltas.clear();
   }
 
   async close() {

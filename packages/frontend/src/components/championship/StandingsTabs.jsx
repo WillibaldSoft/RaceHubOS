@@ -1,3 +1,4 @@
+import { formatDecimal } from '../../lib/formatDecimal'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlaskConical, Clock, Flag } from 'lucide-react'
@@ -208,7 +209,7 @@ export default function StandingsTabs({ standings = {}, drivers = [], activeTab 
                         <LapTime time={standing.lapTime || standing.bestTime} size="sm" />
                         {gap !== null && (
                           <span className="font-mono text-xs text-muted-foreground w-16 text-right">
-                            +{(gap.value / 1000).toFixed(3)}
+                            +{formatDecimal(gap.value / 1000)}
                           </span>
                         )}
                       </>
@@ -219,7 +220,7 @@ export default function StandingsTabs({ standings = {}, drivers = [], activeTab 
                         <LapTime time={standing.bestTime} size="sm" />
                         {gap !== null && (
                           <span className="font-mono text-xs text-muted-foreground w-16 text-right">
-                            +{(gap.value / 1000).toFixed(3)}
+                            +{formatDecimal(gap.value / 1000)}
                           </span>
                         )}
                       </>
@@ -249,7 +250,7 @@ export default function StandingsTabs({ standings = {}, drivers = [], activeTab 
                               >
                                 {gap.type === 'laps'
                                   ? t('standings.gapLaps', { count: gap.value })
-                                  : `+${(gap.value / 1000).toFixed(3)}`}
+                                  : `+${formatDecimal(gap.value / 1000)}`}
                               </span>
                               <div className="font-mono text-[10px] text-muted-foreground">
                                 <LapTime time={standing.totalTime || standing.raceTotalTime} size="xs" />

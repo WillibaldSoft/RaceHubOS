@@ -67,5 +67,12 @@
       "sessionStarted": "Session démarrée : {{id}}...",
       "sessionStopped": "Session arrêtée : {{id}}..."
     }
+  },
+  "connection": {
+    "live": "CU en direct",
+    "waiting": "CU connecté – attente de données",
+    "stale": "Données CU périmées",
+    "serverDisconnected": "Connexion au serveur interrompue",
+    "cuDisconnected": "CU déconnecté"
   }
 }

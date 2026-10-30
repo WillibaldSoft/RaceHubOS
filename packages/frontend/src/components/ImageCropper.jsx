@@ -61,7 +61,7 @@ export default function ImageCropper({ image, onCropComplete, onCancel, cropShap
             className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-2"
           >
             <X className="w-5 h-5" />
-            Annuler
+            {t('cancel')}
           </button>
           <button
             type="button"
@@ -69,7 +69,7 @@ export default function ImageCropper({ image, onCropComplete, onCancel, cropShap
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
           >
             <Check className="w-5 h-5" />
-            Valider
+            {t('confirm')}
           </button>
         </div>
       </div>
@@ -105,9 +105,7 @@ export default function ImageCropper({ image, onCropComplete, onCancel, cropShap
             />
             <span className="text-white text-sm font-medium w-12 text-right">{Math.round(zoom * 100)}%</span>
           </div>
-          <p className="text-gray-400 text-sm mt-4 text-center">
-            Glissez l'image pour la repositionner • Utilisez le zoom pour ajuster la taille
-          </p>
+          <p className="text-gray-400 text-sm mt-4 text-center">{t('imageHint')}</p>
         </div>
       </div>
     </div>,

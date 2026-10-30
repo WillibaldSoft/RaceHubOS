@@ -1,3 +1,6 @@
+import { randomUUID } from 'node:crypto';
+import { SectorTiming } from '../lib/sectorTiming.js';
+
 /**
  * SyncService - Synchronisation hardware CU/Simulator
  *
@@ -14,18 +17,44 @@ export class SyncService {
     this.sessionService = null;
 
     // Timestamps pour calcul lapTime
+    this.sectors = new SectorTiming();
+    this.sectorSessionKey = null;
     this.lastTimestamps = new Map(); // controller -> timestamp
 
     // CU status & polling
     this.cuStatus = null;
     this.pollInterval = 500;
     this.pollTimer = null;
+    this._polling = false;
+    this._pollGeneration = 0;
+    this._pollInFlight = null;
+    this.lastStatusAt = null;
+    this.serverId = randomUUID();
+    this.revision = 0;
+    this._lastStatusSignature = null;
+    this._lastStatusBroadcastAt = 0;
 
     // Bound handlers for cleanup
-    this._onTimer = (event) => this.handleTimerEvent(event);
+    this._timerProcessing = Promise.resolve();
+    this._onTimer = (event) => {
+      this._timerProcessing = this._timerProcessing
+        .then(() => this.handleTimerEvent(event))
+        .catch((error) => console.warn('[SyncService] Timer processing failed:', error.message));
+    };
     this._onStatus = (status) => this.handleStatus(status);
-    this._onConnected = () => this.io?.emit('cu:connected');
-    this._onDisconnected = () => this.io?.emit('cu:disconnected');
+    this._onConnected = () => {
+      this.publishDevice();
+      this.io?.emit('cu:connected');
+    };
+    this._onDisconnected = () => {
+      this.cuStatus = null;
+      this.lastStatusAt = null;
+      this.sectors.reset();
+      this.lastTimestamps.clear();
+      this.sectorSessionKey = null;
+      this.publishDevice();
+      this.io?.emit('cu:disconnected');
+    };
   }
 
   setSessionService(sessionService) {
@@ -50,7 +79,12 @@ export class SyncService {
 
     // Clear state
     this.lastTimestamps.clear();
+    this.sectors.reset();
+    this.sectorSessionKey = null;
     this.cuStatus = null;
+    this.lastStatusAt = null;
+    this._lastStatusSignature = null;
+    this._lastStatusBroadcastAt = 0;
 
     // Set new device
     this.source = device;
@@ -58,6 +92,7 @@ export class SyncService {
     if (device) {
       this.setupListeners();
     }
+    this.publishDevice();
   }
 
   /**
@@ -86,6 +121,23 @@ export class SyncService {
    */
   async handleTimerEvent(event) {
     const { controller, timestamp, sector } = event;
+    if (
+      !Number.isInteger(controller) ||
+      controller < 0 ||
+      controller > 5 ||
+      !Number.isFinite(timestamp) ||
+      timestamp <= 0 ||
+      ![1, 2, 3].includes(sector)
+    )
+      return;
+    const session = this.sessionService;
+    const running = session?.isActive() && session.sessionStatus !== 'paused';
+    const key = running ? `${session.activeSessionId}:${session.currentPhase}` : null;
+    if (key !== this.sectorSessionKey) {
+      this.sectors.reset();
+      this.lastTimestamps.clear();
+      this.sectorSessionKey = key;
+    }
     const isFinishLine = sector === 1;
 
     let lapTime = 0;
@@ -95,16 +147,20 @@ export class SyncService {
       if (lapTime >= 0) {
         this.lastTimestamps.set(controller, timestamp);
       } else {
-        lapTime = 0; // CU glitch, treat as first pass
+        lapTime = 0; // Restart all controller baselines after a CU clock reset.
+        this.lastTimestamps.clear();
+        this.lastTimestamps.set(controller, timestamp);
+        this.sectors.reset();
       }
     }
 
     // Emit raw timer (for frontend logs/footer)
     this.io?.emit('cu:timer', { controller, timestamp, lapTime, sector, isFinishLine });
 
-    // Only forward finish line crossings to SessionService
-    if (isFinishLine && this.sessionService?.isActive()) {
-      await this.sessionService.handleLap({ controller, timestamp, lapTime, sector });
+    const sectors = key ? this.sectors.push(event) : null;
+    if (sectors && !isFinishLine) session.handleSector?.(controller, sectors);
+    if (isFinishLine && running) {
+      await session.handleLap({ controller, timestamp, lapTime, sector, sectors });
     }
   }
 
@@ -114,18 +170,28 @@ export class SyncService {
   handleStatus(status) {
     const wasInLights = this.isInLightsSequence(this.cuStatus);
     const isInLights = this.isInLightsSequence(status);
-    const isNowRacing = status?.start === 0;
-    const wasNotRacing = this.cuStatus?.start !== 0;
+    const isNowRacing = status?.start === 0 || status?.start === 7;
+    const wasNotRacing = this.cuStatus?.start >= 1 && this.cuStatus?.start <= 6;
 
     const wasNotInLights = !wasInLights;
     const isFirstLight = status?.start === 1;
 
     this.cuStatus = status;
-    this.io?.emit('cu:status', status);
+    this.lastStatusAt = Date.now();
+    this.revision++;
+    const snapshot = this.getDeviceSnapshot();
+    const signature = JSON.stringify(status);
+    if (signature !== this._lastStatusSignature || this.lastStatusAt - this._lastStatusBroadcastAt >= 2000) {
+      this._lastStatusSignature = signature;
+      this._lastStatusBroadcastAt = this.lastStatusAt;
+      this.io?.emit('cu:status', { ...status, ...snapshot, lastStatus: undefined });
+    }
 
-    // Reset CU when entering 1/5 lights (clean slate before race)
+    // Clear software timing only. Hardware writes during physical START delay polling.
     if (isFirstLight && wasNotInLights) {
-      this.reset();
+      this.lastTimestamps.clear();
+      this.resetSectorTiming();
+      this.io?.emit('cu:reset');
     }
 
     // Detect transition to racing (GO!) - start the timer
@@ -149,37 +215,52 @@ export class SyncService {
   // ==================== Polling ====================
 
   setPollInterval(ms) {
-    if (this.pollInterval === ms) return;
+    // The active loop reads this value after the current request; never start a
+    // second loop from inside the status handler of an in-flight request.
     this.pollInterval = ms;
-
-    if (this.pollTimer) {
-      this.stopPolling();
-      this.startPolling();
-    }
   }
 
   startPolling() {
-    if (this.pollTimer || !this.source) return;
-
+    if (this._polling || !this.source) return;
+    this._polling = true;
+    const generation = ++this._pollGeneration;
+    const source = this.source;
+    const valid = () => this._polling && generation === this._pollGeneration && source === this.source;
     const poll = async () => {
+      this.pollTimer = null;
+      if (!valid()) return;
+      let result;
       try {
-        if (this.source?.poll && this.source?.isConnected?.()) {
-          await this.source.poll();
+        // A previous generation may still be waiting for a BLE response.
+        if (this._pollInFlight) await this._pollInFlight.catch(() => {});
+        if (!valid()) return;
+        if (source.poll && source.isConnected?.()) {
+          const request = Promise.resolve().then(async () => {
+            const reply = await source.poll();
+            if (reply?.type === 'timer') await this._timerProcessing;
+            return reply;
+          });
+          this._pollInFlight = request;
+          try {
+            result = await request;
+          } finally {
+            if (this._pollInFlight === request) this._pollInFlight = null;
+          }
         }
       } catch (error) {
         console.warn('[SyncService] Poll error:', error.message);
       }
-      this.pollTimer = setTimeout(poll, this.pollInterval);
+      // Drain pending lap events promptly, then return to the normal status rate.
+      if (valid()) this.pollTimer = setTimeout(poll, result?.type === 'timer' ? 0 : this.pollInterval);
     };
-
-    poll();
+    void poll();
   }
 
   stopPolling() {
-    if (this.pollTimer) {
-      clearTimeout(this.pollTimer);
-      this.pollTimer = null;
-    }
+    this._polling = false;
+    this._pollGeneration++;
+    if (this.pollTimer) clearTimeout(this.pollTimer);
+    this.pollTimer = null;
   }
 
   // ==================== CU Control ====================
@@ -193,12 +274,11 @@ export class SyncService {
 
     // Stop polling and wait for any in-flight poll to settle
     this.stopPolling();
-    await new Promise((r) => setTimeout(r, 1000));
+    if (this._pollInFlight) await this._pollInFlight.catch(() => {});
 
     // Send START — CU will respond with 'T' ack
     await this.source.start();
-    // Wait for CU to process and discard stale BLE responses
-    await new Promise((r) => setTimeout(r, 1000));
+    // START acknowledgement has arrived; read the next live status immediately.
 
     // Resume polling — next poll should see L1
     this.startPolling();
@@ -232,8 +312,16 @@ export class SyncService {
     }
   }
 
+  resetSectorTiming() {
+    this.lastTimestamps.clear();
+    this.sectors.reset();
+    this.sectorSessionKey = null;
+  }
+
   async reset() {
     this.lastTimestamps.clear();
+    this.sectors.reset();
+    this.sectorSessionKey = null;
     this.io?.emit('cu:reset');
     if (this.source?.reset) {
       await this.source.reset();
@@ -244,6 +332,28 @@ export class SyncService {
   }
 
   // ==================== Getters ====================
+
+  getDeviceSnapshot() {
+    const connected = this.isConnected();
+    const simulator = this.source?.isSimulator === true;
+    return {
+      available: true,
+      connected,
+      deviceType: this.source ? (simulator ? 'simulator' : 'controlUnit') : null,
+      deviceAddress: this.source ? (simulator ? 'SIMULATOR' : this.source.address || null) : null,
+      lastStatus: connected ? this.cuStatus : null,
+      lastStatusAt: connected ? this.lastStatusAt : null,
+      serverTime: Date.now(),
+      serverId: this.serverId,
+      revision: this.revision,
+      pollInterval: this.pollInterval,
+    };
+  }
+
+  publishDevice() {
+    this.revision++;
+    this.io?.emit('cu:device', this.getDeviceSnapshot());
+  }
 
   getCuStatus() {
     return this.cuStatus;

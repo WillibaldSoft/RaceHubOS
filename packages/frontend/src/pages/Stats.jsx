@@ -1,3 +1,5 @@
+import CockpitHistory from '../components/CockpitHistory'
+import { formatDecimal } from '../lib/formatDecimal'
 import { useState, useEffect, useMemo, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -99,7 +101,7 @@ export default function Stats() {
 
   function formatTime(ms) {
     if (!ms) return '-'
-    return (ms / 1000).toFixed(3) + 's'
+    return formatDecimal(ms / 1000) + 's'
   }
 
   const columns = useMemo(
@@ -207,7 +209,7 @@ export default function Stats() {
                 style={{ backgroundColor: car?.color || '#666' }}
               >
                 {car?.img ? (
-                  <img src={getImgUrl(car.img)} alt="" className="w-full h-full object-cover" />
+                  <img src={getImgUrl(car.img)} alt="" className="w-full h-full object-contain p-1" />
                 ) : (
                   car?.brand?.charAt(0)
                 )}
@@ -333,6 +335,7 @@ export default function Stats() {
       icon={<BarChart3 />}
       color="indigo"
       preferenceKey="stats"
+      toolbar={<CockpitHistory />}
       data={laptimes}
       totalCount={totalCount}
       columns={columns}

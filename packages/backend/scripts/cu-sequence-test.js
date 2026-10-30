@@ -131,12 +131,12 @@ async function main() {
     // Show status changes
     const startStates = [
       'RACING',
+      'READY',
       'LIGHTS_1',
       'LIGHTS_2',
       'LIGHTS_3',
       'LIGHTS_4',
       'LIGHTS_5',
-      'FALSE_START',
       'GO',
       '?',
       'STOPPED',

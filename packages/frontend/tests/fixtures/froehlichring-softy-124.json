@@ -1,0 +1,553 @@
+{
+  "kind": "racehubos.track-plan",
+  "version": 1,
+  "trackExtras": [
+    {
+      "kind": "pitEntry",
+      "placement": { "xMm": 172.4999999999998, "yMm": 99.00000000000033, "headingDegrees": -180 },
+      "level": 0,
+      "paintOrder": 83,
+      "anchor": 0
+    },
+    {
+      "kind": "single",
+      "placement": { "xMm": 172.50000000000009, "yMm": -49.49999999999967, "headingDegrees": 0 },
+      "level": 0,
+      "paintOrder": 85,
+      "anchor": 0,
+      "hidden": true
+    },
+    {
+      "kind": "single",
+      "placement": { "xMm": 517.4999999999998, "yMm": 148.50000000000009, "headingDegrees": 0 },
+      "level": 0,
+      "paintOrder": 87,
+      "anchor": 0
+    },
+    {
+      "kind": "pitEntry",
+      "placement": { "xMm": 862.4999999999997, "yMm": 197.99999999999983, "headingDegrees": -180 },
+      "level": 0,
+      "paintOrder": 89,
+      "anchor": 0
+    },
+    {
+      "kind": "single",
+      "placement": { "xMm": 1207.4999999999998, "yMm": 148.50000000000048, "headingDegrees": 0 },
+      "level": 0,
+      "paintOrder": 91,
+      "anchor": 0
+    },
+    {
+      "kind": "single",
+      "placement": { "xMm": 1207.4999999999995, "yMm": 247.50000000000048, "headingDegrees": 0 },
+      "level": 0,
+      "paintOrder": 93,
+      "anchor": 0
+    },
+    {
+      "kind": "pitExit",
+      "placement": { "xMm": 1552.4999999999995, "yMm": 198.00000000000023, "headingDegrees": -180 },
+      "level": 0,
+      "paintOrder": 95,
+      "anchor": 0
+    },
+    {
+      "kind": "pitExit",
+      "placement": { "xMm": 172.4999999999998, "yMm": 99.00000000000033, "headingDegrees": -180 },
+      "level": 0,
+      "paintOrder": 97,
+      "anchor": 5
+    },
+    {
+      "kind": "single",
+      "placement": { "xMm": 172.50000000000009, "yMm": -49.49999999999967, "headingDegrees": 0 },
+      "level": 0,
+      "paintOrder": 99,
+      "anchor": 5,
+      "hidden": true
+    },
+    {
+      "kind": "pitBorderEntry",
+      "placement": { "xMm": 172.49999999999983, "yMm": 198.00000000000034, "headingDegrees": -180 },
+      "level": 0,
+      "paintOrder": 83,
+      "anchor": 0
+    },
+    {
+      "kind": "pitBorderEntry",
+      "placement": { "xMm": 862.4999999999997, "yMm": 296.99999999999983, "headingDegrees": -180 },
+      "level": 0,
+      "paintOrder": 89,
+      "anchor": 0
+    },
+    {
+      "kind": "pitBorderExit",
+      "placement": { "xMm": 1552.4999999999998, "yMm": 297.0000000000002, "headingDegrees": -180 },
+      "level": 0,
+      "paintOrder": 95,
+      "anchor": 0
+    },
+    {
+      "kind": "pitBorderExit",
+      "placement": { "xMm": 172.49999999999986, "yMm": 198.00000000000034, "headingDegrees": -180 },
+      "level": 0,
+      "paintOrder": 97,
+      "anchor": 5
+    },
+    {
+      "kind": "borderStandard",
+      "placement": { "xMm": 517.4999999999995, "yMm": 247.50000000000009, "headingDegrees": 0 },
+      "level": 0,
+      "paintOrder": 87,
+      "anchor": 0
+    },
+    {
+      "kind": "borderStandard",
+      "placement": { "xMm": 1207.4999999999993, "yMm": 346.50000000000045, "headingDegrees": 0 },
+      "level": 0,
+      "paintOrder": 93,
+      "anchor": 0
+    }
+  ],
+  "softyImport": { "paintOrder": true, "items": 62, "crossings": 3, "bays": 2, "unassigned": 0 },
+  "freePlacement": true,
+  "pieces": [
+    {
+      "paintOrder": 82,
+      "borders": { "left": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": 0, "yMm": 0, "headingDegrees": 179.9999999999999 },
+      "type": "Pit_stop_weiche_anfang",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 76,
+      "borders": { "left": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -345, "yMm": 9.094947017729282e-13, "headingDegrees": 179.9999999999999 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 78,
+      "borders": { "left": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -690, "yMm": 1.8189894035458565e-12, "headingDegrees": 179.9999999999999 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 80,
+      "placement": { "xMm": -1035, "yMm": 1.8189894035458565e-12, "headingDegrees": 179.9999999999999 },
+      "type": "Control_unit",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 0,
+      "borders": { "left": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -1380.0000000122081, "yMm": 3.4560798667371273e-10, "headingDegrees": -180 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 96,
+      "borders": { "left": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -1725.0000000122081, "yMm": 3.637978807091713e-12, "headingDegrees": 179.9999999999999 },
+      "type": "Pit_stop_weiche_ende",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 2,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2300.6077691985543, "yMm": 30.360088776786142, "headingDegrees": -15 },
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 4,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2300.6077691985543, "yMm": 30.360088776786142, "headingDegrees": 165 },
+      "type": "Viertelgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 6,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2383.9188717159864, "yMm": 52.6832314168787, "headingDegrees": 165 },
+      "type": "Kurve_1_60_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 8,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2670.7988421238397, "yMm": -24.186024978570458, "headingDegrees": -135 },
+      "type": "Kurve_1_60_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 10,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2747.668098519289, "yMm": -311.0659953864242, "headingDegrees": -75 },
+      "type": "Kurve_2_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 12,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2619.552671193541, "yMm": -532.9684247480172, "headingDegrees": -45 },
+      "type": "Kurve_3_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 14,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2308.88927008731, "yMm": -712.3300230040641, "headingDegrees": -15 },
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 16,
+      "borders": { "left": { "startCap": false, "endCap": true }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2078.2815009009637, "yMm": -742.6901117805037, "headingDegrees": 0 },
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 18,
+      "borders": { "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -1847.673731714618, "yMm": -712.3300230040641, "headingDegrees": 15 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 20,
+      "borders": { "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -1514.4293216448896, "yMm": -623.0374524436947, "headingDegrees": 15 },
+      "type": "DigitaleDoppelweiche_1",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 22,
+      "borders": { "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -1181.184911575161, "yMm": -533.7448818833254, "headingDegrees": 15 },
+      "type": "DigitaleDoppelweiche_2",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 24,
+      "borders": { "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -847.9405015054326, "yMm": -444.4523113229552, "headingDegrees": 15 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 26,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": true } },
+      "placement": { "xMm": -227.92828403528074, "yMm": -432.4463802208611, "headingDegrees": 134.9166238076906 },
+      "type": "Kurve_1_60_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 28,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -100.510414678909, "yMm": -654.7500856423367, "headingDegrees": 104.8200515858357 },
+      "type": "Kurve_2_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 30,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -102.19008908798696, "yMm": -1013.4693497051057, "headingDegrees": 74.731719032392 },
+      "type": "Kurve_3_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 32,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -283.335755281958, "yMm": -1323.0958655835047, "headingDegrees": 44.67041449960118 },
+      "type": "Kurve_3_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 34,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -468.74316951025594, "yMm": -1463.5443221389005, "headingDegrees": 29.64438830326037 },
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 36,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -684.1885254408953, "yMm": -1551.2083216343394, "headingDegrees": 14.641244299363507 },
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 38,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -914.9728845264481, "yMm": -1580.195522276826, "headingDegrees": -0.3409701156635947 },
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 40,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -1145.4154231818784, "yMm": -1548.6057363064183, "headingDegrees": -15.30563385828168 },
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 42,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -1359.9057283371367, "yMm": -1458.6302552350721, "headingDegrees": -30.25732188811287 },
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 44,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -1359.9057283371385, "yMm": -1458.6302552350717, "headingDegrees": 149.74267811188702 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 46,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -1657.9067648555038, "yMm": -1284.7901498681586, "headingDegrees": 149.74267811188702 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 48,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -1955.90780137387, "yMm": -1110.9500445012454, "headingDegrees": 149.74267811188702 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 50,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2253.908837892236, "yMm": -937.1099391343323, "headingDegrees": 149.74267811188702 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 100,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2736.010211346305, "yMm": -621.1123712838162, "headingDegrees": -45.174380588084546 },
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 102,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2877.3170080871387, "yMm": -436.35829854261465, "headingDegrees": -60.089894253955094 },
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 104,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2970.1012913067416, "yMm": -89.84219718038548, "headingDegrees": -90.00993962900338 },
+      "type": "Kurve_3_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 106,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2904.0001053245383, "yMm": 157.7156427018981, "headingDegrees": -119.94994690091028 },
+      "type": "Kurve_2_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 108,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2647.016367036859, "yMm": 306.60606635529984, "headingDegrees": -179.91299138283807 },
+      "type": "Kurve_1_60_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 110,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -2399.4058844788005, "yMm": 240.7023502020993, "headingDegrees": 150.09575144718883 },
+      "type": "Kurve_2_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 112,
+      "borders": { "left": { "startCap": true, "endCap": false }, "right": { "startCap": true, "endCap": false } },
+      "placement": { "xMm": -2145.338406835169, "yMm": -12.540711933188504, "headingDegrees": 120.09310961217795 },
+      "type": "Kurve_3_30_rechts",
+      "level": 1,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 114,
+      "placement": { "xMm": -2145.338406835169, "yMm": -12.540711933188504, "headingDegrees": -59.906890387822045 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 116,
+      "placement": { "xMm": -1972.353098625459, "yMm": -311.0387573934422, "headingDegrees": -59.906890387822045 },
+      "type": "DigitaleDoppelweiche_1",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 118,
+      "placement": { "xMm": -1799.3677904157494, "yMm": -609.5368028536959, "headingDegrees": -59.906890387822045 },
+      "type": "DigitaleDoppelweiche_2",
+      "level": 1,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 120,
+      "placement": { "xMm": -1626.3824822060396, "yMm": -908.0348483139496, "headingDegrees": -59.906890387822045 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 122,
+      "placement": { "xMm": -1453.39717399633, "yMm": -1206.5328937742033, "headingDegrees": -59.906890387822045 },
+      "type": "Standardgerade",
+      "level": 1,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 52,
+      "borders": { "left": { "startCap": true, "endCap": false }, "right": { "startCap": true, "endCap": false } },
+      "placement": { "xMm": -1280.411865786621, "yMm": -1505.0309392344575, "headingDegrees": -59.85173869304066 },
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 54,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -1138.3383434232055, "yMm": -1689.1960619989713, "headingDegrees": -44.792055353733474 },
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 56,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -953.293519032829, "yMm": -1830.121897692612, "headingDegrees": -29.733917156989605 },
+      "type": "Kurve_3_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 58,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": -606.3660856625411, "yMm": -1921.3561439544092, "headingDegrees": 0.30828243890891827 },
+      "type": "Kurve_3_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 60,
+      "borders": { "left": { "startCap": false, "endCap": true }, "right": { "startCap": false, "endCap": true } },
+      "placement": { "xMm": -260.37065218564385, "yMm": -1826.6487433513526, "headingDegrees": 30.320552759515067 },
+      "type": "Kurve_2_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 62,
+      "placement": { "xMm": -80.20456993312018, "yMm": -1644.4553469803172, "headingDegrees": 60.32055275951507 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 64,
+      "placement": { "xMm": 90.62116123518717, "yMm": -1344.7161777501128, "headingDegrees": 60.32055275951507 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 66,
+      "placement": { "xMm": 261.44689240349453, "yMm": -1044.9770085199088, "headingDegrees": 60.32055275951507 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 68,
+      "placement": { "xMm": 432.2726235718019, "yMm": -745.2378392897044, "headingDegrees": 60.32055275951507 },
+      "type": "Kurvenweiche_rechts_ai_1",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 70,
+      "borders": { "left": { "startCap": true, "endCap": false }, "right": { "startCap": true, "endCap": false } },
+      "placement": { "xMm": 603.0983547401102, "yMm": -445.4986700595, "headingDegrees": 60.17146507497296 },
+      "type": "Kurvenweiche_rechts_ai_2",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 72,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": 602.2095449239778, "yMm": -148.50000000000182, "headingDegrees": 119.99999999999989 },
+      "type": "Kurve_1_60_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "paintOrder": 74,
+      "borders": { "left": { "startCap": false, "endCap": false }, "right": { "startCap": false, "endCap": false } },
+      "placement": { "xMm": 345, "yMm": -9.094947017729282e-13, "headingDegrees": 179.9999999999999 },
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    }
+  ],
+  "pit": { "enabled": true, "entry": 0, "merge": 5, "spacingMm": 345, "bayLengthMm": 1035, "native": true },
+  "measuredLaneLengthsM": null,
+  "geometryProfile": "prototype",
+  "startHeadingDegrees": 0,
+  "laneLengthsM": [16.867399720613978, 16.86739972061398],
+  "calculatedLaneLengthsM": [16.867399720613978, 16.86739972061398]
+}

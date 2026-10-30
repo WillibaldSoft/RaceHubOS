@@ -1,3 +1,5 @@
+import { tx, useExtensions } from '../../i18n/extensions'
+import { formatDecimal } from '../../lib/formatDecimal'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -42,6 +44,7 @@ function computeTrend(laps) {
 }
 
 export default function BalancingChart({ entries = [], maxLapTime = null }) {
+  useExtensions()
   const { t } = useTranslation('balancing')
   const { chartData, cars, medians } = useMemo(() => {
     const cars = []
@@ -180,7 +183,7 @@ export default function BalancingChart({ entries = [], maxLapTime = null }) {
               <Tooltip
                 formatter={(value, name) => {
                   const car = cars.find((c) => c.key === name)
-                  return [t('chart.tooltipValue', { value: value.toFixed(3) }), car?.name || name]
+                  return [t('chart.tooltipValue', { value: formatDecimal(value) }), car?.name || name]
                 }}
                 labelFormatter={(label) => t('chart.tooltipLapLabel', { lap: label })}
               />
@@ -275,7 +278,7 @@ export default function BalancingChart({ entries = [], maxLapTime = null }) {
                       <LapTime time={bestMedianWindow} size="md" highlight />
                       {deltaToFastest > 0 && (
                         <div className="text-xs font-mono text-red-400 mt-0.5">
-                          +{(deltaToFastest / 1000).toFixed(3)}
+                          +{formatDecimal(deltaToFastest / 1000)}
                         </div>
                       )}
                     </div>

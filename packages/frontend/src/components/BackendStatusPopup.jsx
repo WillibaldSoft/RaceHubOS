@@ -1,6 +1,7 @@
+import { cuStartState } from '@racehubos/shared'
+import { formatDecimal } from '../lib/formatDecimal'
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import i18n from '../i18n'
 import { io } from 'socket.io-client'
 import { Server, Zap, Wifi, WifiOff, Trash2 } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet'
@@ -21,15 +22,14 @@ const LOG_COLORS = {
 
 function cuStateLabel(t, start) {
   if (start === 0) return t('cuState.racing')
-  if (start >= 1 && start <= 5) return t('cuState.lights', { n: start })
-  if (start === 6) return t('cuState.falseStart')
+  if (start >= 1 && start <= 6) return t('cuState.lights', { n: cuStartState(start).count })
   if (start === 7) return t('cuState.go')
   if (start === 8 || start === 9) return t('cuState.stopped')
   return t('footer.unknown')
 }
 
 export default function BackendStatusPopup({ isOpen, onClose }) {
-  const { t } = useTranslation('layout')
+  const { t, i18n } = useTranslation('layout')
   const [backendStatus, setBackendStatus] = useState(null)
   const [cuStatus, setCuStatus] = useState(null)
   const [simulatorStatus, setSimulatorStatus] = useState(null)
@@ -108,7 +108,7 @@ export default function BackendStatusPopup({ isOpen, onClose }) {
         'info',
         t('statusPopup.logs.lap', {
           label: lap.driver?.name || `Ctrl ${lap.controller}`,
-          time: (lap.lapTime / 1000).toFixed(3),
+          time: formatDecimal(lap.lapTime / 1000),
         })
       )
     )

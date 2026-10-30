@@ -133,5 +133,45 @@
     "toConfigure_other": "{{count}} manettes à configurer",
     "toConfigureWithSlots_one": "{{count}} manette à configurer ({{slots}})",
     "toConfigureWithSlots_other": "{{count}} manettes à configurer ({{slots}})"
+  },
+  "voice": {
+    "bestLap": "Nouveau meilleur tour pour {{name}} : {{time}}.",
+    "car": "Voiture {{number}}",
+    "places": ["premier", "deuxième", "troisième"],
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes",
+    "seconds": "{{value}} secondes",
+    "podium": "{{place}} : {{name}}, {{time}}."
+  },
+  "dnf": "Non terminé",
+  "fuel": {
+    "title": "Carburant · Manette 1",
+    "level": "Carburant manette 1",
+    "value": "Valeur CU {{value}} sur 15",
+    "scale": "Échelle CU 0–15, pas des litres. La barre indique le niveau reçu.",
+    "mode": "Mode carburant : {{mode}}",
+    "modes": {
+      "unknown": "inconnu",
+      "off": "OFF",
+      "on": "ON",
+      "real": "REAL"
+    },
+    "noData": "Aucune donnée récente",
+    "noPit": "Capteur Pit Lane non détecté",
+    "inPit": "État des stands actif",
+    "onTrack": "État des stands inactif",
+    "stale": "Aucune donnée CU récente. La dernière mesure ne représente pas le niveau actuel.",
+    "switchOn": "Pour le test, placer le commutateur FUEL du CU sur ON. Le départ reste bloqué jusque-là.",
+    "useOn": "Choisir ON au lieu de REAL pour ce premier test.",
+    "empty": "Réservoir vide – rentrer aux stands.",
+    "low": "Carburant faible – préparer un arrêt.",
+    "refuel": "Après le capteur, arrêter la voiture et maintenir le bouton de changement de voie. Vérifier que le niveau monte."
+  },
+  "lapSpeed": {
+    "label": "Vitesse moyenne calculée du dernier tour",
+    "short": "Moy. tour",
+    "lap": "Tour {{number}}",
+    "noLength": "Aucune longueur de circuit valide.",
+    "explanation": "Estimation du temps au tour et de la longueur moyenne des voies de {{length}} m. Changements de voie et stands non suivis ; pas une vitesse maximale."
   }
 }

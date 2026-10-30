@@ -24,18 +24,7 @@ function elapsed() {
   return Date.now() - startTime;
 }
 
-const STATES = [
-  'RACING',
-  'LIGHTS_1',
-  'LIGHTS_2',
-  'LIGHTS_3',
-  'LIGHTS_4',
-  'LIGHTS_5',
-  'FALSE_START',
-  'GO',
-  '?',
-  'STOPPED',
-];
+const STATES = ['RACING', 'READY', 'LIGHTS_1', 'LIGHTS_2', 'LIGHTS_3', 'LIGHTS_4', 'LIGHTS_5', 'GO', '?', 'STOPPED'];
 
 let lastStart = -1;
 

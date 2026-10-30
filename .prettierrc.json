@@ -6,7 +6,15 @@
   "overrides": [
     {
       "files": "packages/frontend/**",
-      "options": { "semi": false }
+      "options": {
+        "semi": false
+      }
+    },
+    {
+      "files": "addons/track-planner/**/*.{js,jsx}",
+      "options": {
+        "semi": false
+      }
     }
   ]
 }

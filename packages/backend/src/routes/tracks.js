@@ -1,3 +1,4 @@
+import { TRACK_PLAN_KIND, readTrackPlan, trackPlanFields } from '@racehubos/shared';
 import express from 'express';
 import { createPrismaClient } from '../lib/prisma.js';
 import { softDeleteTrack, restoreTrack } from '../lib/softDelete.js';
@@ -5,6 +6,18 @@ import { withImageUrl, withNestedImageUrls } from '../utils/imageUrl.js';
 
 const router = express.Router();
 const prisma = createPrismaClient();
+function planFields(layout) {
+  if (typeof layout !== 'string') return layout == null ? null : false;
+  let parsed;
+  try {
+    parsed = JSON.parse(layout);
+  } catch {
+    return layout.includes(TRACK_PLAN_KIND) ? false : null;
+  }
+  if (parsed?.kind !== TRACK_PLAN_KIND) return null;
+  const plan = readTrackPlan(parsed);
+  return plan?.pieces.length ? trackPlanFields(plan) : false;
+}
 
 // GET /api/tracks - List all tracks
 router.get('/', async (req, res) => {
@@ -101,7 +114,13 @@ router.get('/:id', async (req, res) => {
           select: { id: true, name: true, color: true, img: true },
         },
         car: {
-          select: { id: true, brand: true, model: true, color: true, img: true },
+          select: {
+            id: true,
+            brand: true,
+            model: true,
+            color: true,
+            img: true,
+          },
         },
         session: {
           select: { type: true },
@@ -148,6 +167,8 @@ router.post('/', async (req, res) => {
       });
     }
 
+    const planned = planFields(layout);
+    if (planned === false) return res.status(400).json({ success: false, error: 'Invalid track plan' });
     const track = await prisma.track.create({
       data: {
         name: name.trim(),
@@ -156,6 +177,7 @@ router.post('/', async (req, res) => {
         length: length || null,
         corners: corners || null,
         color: color || '#9333ea',
+        ...(planned || {}),
       },
     });
 
@@ -201,6 +223,10 @@ router.put('/:id', async (req, res) => {
     if (bestLap !== undefined) updateData.bestLap = bestLap;
     if (bestLapBy !== undefined) updateData.bestLapBy = bestLapBy;
 
+    // Metadata-only edits preserve the saved layout and an explicit manual distance.
+    const planned = layout === undefined ? null : planFields(layout);
+    if (planned === false) return res.status(400).json({ success: false, error: 'Invalid track plan' });
+    Object.assign(updateData, planned || {});
     const track = await prisma.track.update({
       where: { id },
       data: updateData,

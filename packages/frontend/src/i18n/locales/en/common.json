@@ -1,7 +1,6 @@
 {
   "close": "Close",
   "cancel": "Cancel",
-  "confirm": "Confirm",
   "save": "Save",
   "saving": "Saving...",
   "delete": "Delete",
@@ -78,6 +77,13 @@
   "edit": "Edit",
   "exportExcel": "Export to Excel",
   "exportSelection": "Export ({{count}})",
+  "all": "All",
+  "items": "items",
+  "confirm": "Confirm",
+  "imageHint": "Drag the image to reposition it; use the zoom to adjust the size.",
+  "pageError": "This view could not be loaded.",
+  "reload": "Reload page",
+  "loadingView": "Loading view...",
   "items_one": "item",
   "items_other": "items"
 }

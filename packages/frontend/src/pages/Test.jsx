@@ -1,3 +1,6 @@
+import { cuStartState } from '@racehubos/shared'
+import { tx, useExtensions } from '../i18n/extensions'
+import { formatDecimal } from '../lib/formatDecimal'
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { io } from 'socket.io-client'
@@ -25,6 +28,7 @@ const autoAssignControllers = (drivers, cars, currentConfig) => {
 }
 
 export default function Test() {
+  useExtensions()
   const { t, i18n } = useTranslation('test')
   const [logs, setLogs] = useState([])
   const [connected, setConnected] = useState(false)
@@ -222,7 +226,7 @@ export default function Test() {
 
     socket.on('cu:timer', (data) => {
       if (data.isFinishLine) {
-        const lapTimeStr = data.lapTime > 0 ? ` - Lap: ${(data.lapTime / 1000).toFixed(3)}s` : ' (first pass)'
+        const lapTimeStr = data.lapTime > 0 ? ` - Lap: ${formatDecimal(data.lapTime / 1000)}s` : ' (first pass)'
         addLog('lap', 'BLE', `Car ${data.controller} Finish${lapTimeStr}`, data)
         if (data.lapTime > 0) {
           updateLeaderboard({ controller: data.controller, lapTime: data.lapTime })
@@ -351,7 +355,7 @@ export default function Test() {
 
   const formatTime = (ms) => {
     if (!ms) return '-'
-    return (ms / 1000).toFixed(3) + 's'
+    return formatDecimal(ms / 1000) + 's'
   }
 
   const getLogColor = (type) => {
@@ -422,8 +426,8 @@ export default function Test() {
     if (!cuStatus) return { text: t('raceState.unknown'), color: 'gray' }
     const start = cuStatus.start
     if (start === 0) return { text: t('raceState.racing'), color: 'green' }
-    if (start >= 1 && start <= 5) return { text: t('raceState.lights', { count: start }), color: 'yellow' }
-    if (start === 6) return { text: t('raceState.falseStart'), color: 'red' }
+    if (start >= 1 && start <= 6)
+      return { text: t('raceState.lights', { count: cuStartState(start).count }), color: 'yellow' }
     if (start === 7) return { text: t('raceState.go'), color: 'green' }
     if (start >= 8) return { text: t('raceState.stopped'), color: 'red' }
     return { text: t('raceState.state', { state: start }), color: 'gray' }

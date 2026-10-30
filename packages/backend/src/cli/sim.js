@@ -7,7 +7,7 @@ import { io } from 'socket.io-client';
 const API_URL = process.env.API_URL || 'http://localhost:3000';
 const WS_URL = process.env.WS_URL || 'http://localhost:3000';
 
-const CU_STATES = ['RACING', 'L1', 'L2', 'L3', 'L4', 'L5', 'FALSE_START', 'GO', '?', 'STOPPED'];
+const CU_STATES = ['RACING', 'READY', 'L1', 'L2', 'L3', 'L4', 'L5', 'GO', '?', 'STOPPED'];
 
 const socket = io(WS_URL);
 

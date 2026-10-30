@@ -1,3 +1,4 @@
+import { formatDecimal } from '../lib/formatDecimal'
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -11,7 +12,7 @@ const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 function formatLap(ms) {
   if (!ms) return '-'
-  return `${(ms / 1000).toFixed(3)}s`
+  return `${formatDecimal(ms / 1000)}s`
 }
 
 function DriverAvatar({ driver, size = 'size-8' }) {

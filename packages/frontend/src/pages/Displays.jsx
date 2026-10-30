@@ -1,3 +1,5 @@
+import { tx, useExtensions } from '../i18n/extensions'
+import { formatDecimal } from '../lib/formatDecimal'
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Users, Flag, Settings, Layers, AlertTriangle, Clock, RefreshCw, Trophy, FlaskConical } from 'lucide-react'
@@ -96,6 +98,7 @@ const COMPONENT_USAGE = {
 }
 
 export default function Displays() {
+  useExtensions()
   const { t } = useTranslation('displays')
   const [activeTab, setActiveTab] = useState('drivers')
   const [drivers, setDrivers] = useState([])
@@ -204,6 +207,7 @@ export default function Displays() {
 
 // Usage badge component
 function UsageBadge({ componentName }) {
+  useExtensions()
   const { t } = useTranslation('displays')
   const usage = COMPONENT_USAGE[componentName] || []
   if (usage.length === 0) {
@@ -229,6 +233,7 @@ function UsageBadge({ componentName }) {
 
 // Section header component
 function SectionHeader({ title, description, componentName, code }) {
+  useExtensions()
   return (
     <div className="flex items-start justify-between mb-4">
       <div>
@@ -247,6 +252,7 @@ function SectionHeader({ title, description, componentName, code }) {
 
 // Drivers Displays Tab
 function DriversDisplays({ drivers, selectedDrivers, toggleDriver, loading }) {
+  useExtensions()
   const { t } = useTranslation('displays')
 
   if (loading) {
@@ -411,6 +417,7 @@ function DriversDisplays({ drivers, selectedDrivers, toggleDriver, loading }) {
 
 // Race Displays Tab
 function RaceDisplays({ drivers, cars, loading }) {
+  useExtensions()
   const { t } = useTranslation('displays')
 
   if (loading) return <LoadingState />
@@ -539,6 +546,7 @@ function RaceDisplays({ drivers, cars, loading }) {
 
 // Championship Displays Tab
 function ChampionshipDisplays({ drivers, cars, loading }) {
+  useExtensions()
   const { t } = useTranslation('displays')
   const [sessionType, setSessionType] = useState(SessionType.PRACTICE)
 
@@ -568,7 +576,7 @@ function ChampionshipDisplays({ drivers, cars, loading }) {
           laps: 5,
           bestLap: 5050 + idx * 120,
           lastLap: 5100 + idx * 150,
-          gap: idx === 0 ? null : `+${(idx * 0.12).toFixed(3)}s`,
+          gap: idx === 0 ? null : `+${formatDecimal(idx * 0.12)}s`,
         }))
       case SessionType.RACE:
         return baseData.map((entry, idx) => ({
@@ -635,7 +643,7 @@ function ChampionshipDisplays({ drivers, cars, loading }) {
                 }`}
               >
                 <Icon className="w-5 h-5" />
-                {label}
+                {tx(label)}
               </button>
             ))}
           </div>
@@ -812,6 +820,7 @@ function ChampionshipDisplays({ drivers, cars, loading }) {
 
 // CRUD Displays Tab
 function CRUDDisplays({ drivers, cars, tracks, loading }) {
+  useExtensions()
   const { t } = useTranslation('displays')
   const [showModal, setShowModal] = useState(false)
   const [view, setView] = useState('grid')
@@ -985,6 +994,7 @@ function CRUDDisplays({ drivers, cars, tracks, loading }) {
 
 // Config Displays Tab
 function ConfigDisplays({ drivers, cars, loading }) {
+  useExtensions()
   const { t } = useTranslation('displays')
 
   if (loading) return <LoadingState />
@@ -1048,6 +1058,7 @@ function ConfigDisplays({ drivers, cars, loading }) {
 
 // Unused Components Tab
 function UnusedDisplays({ drivers, cars, loading }) {
+  useExtensions()
   const { t } = useTranslation('displays')
 
   if (loading) return <LoadingState />
@@ -1186,6 +1197,7 @@ function UnusedDisplays({ drivers, cars, loading }) {
 
 // Loading state component
 function LoadingState() {
+  useExtensions()
   const { t } = useTranslation('displays')
   return (
     <div className="flex items-center justify-center py-12">

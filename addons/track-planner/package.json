@@ -1,0 +1,8 @@
+{
+  "name": "@racehubos/track-planner-addon",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Optional track-planner add-on and independent offline planner",
+  "license": "Apache-2.0"
+}

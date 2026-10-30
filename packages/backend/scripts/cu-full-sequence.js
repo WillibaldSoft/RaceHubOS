@@ -16,18 +16,7 @@ if (!fs.existsSync(logsDir)) fs.mkdirSync(logsDir, { recursive: true });
 const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 const logFile = path.join(logsDir, `cu-full-sequence-${timestamp}.json`);
 
-const STATES = [
-  'RACING',
-  'LIGHTS_1',
-  'LIGHTS_2',
-  'LIGHTS_3',
-  'LIGHTS_4',
-  'LIGHTS_5',
-  'FALSE_START',
-  'GO',
-  '?',
-  'STOPPED',
-];
+const STATES = ['RACING', 'READY', 'LIGHTS_1', 'LIGHTS_2', 'LIGHTS_3', 'LIGHTS_4', 'LIGHTS_5', 'GO', '?', 'STOPPED'];
 
 const log = { startTime: new Date().toISOString(), sequence: [], events: [] };
 const startTime = Date.now();

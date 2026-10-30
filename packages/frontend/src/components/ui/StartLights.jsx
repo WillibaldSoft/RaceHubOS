@@ -1,3 +1,4 @@
+import { cuStartState } from '@racehubos/shared'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -14,7 +15,8 @@ export default function StartLights({ onCancel }) {
 
   const [showGo, setShowGo] = useState(false)
   const [visible, setVisible] = useState(false)
-  const prevStart = useRef(cuStart)
+  const hideTimer = useRef(null)
+  const lights = cuStartState(cuStart)
   const wasInSequence = useRef(false)
 
   const audioCtxRef = useRef(null)
@@ -36,21 +38,11 @@ export default function StartLights({ onCancel }) {
     } catch {}
   }, [])
 
-  // Play sound on each light change
+  // Sound follows observed CU changes; it never predicts the next lamp.
   useEffect(() => {
-    if (cuStart >= 1 && cuStart <= 5) {
-      playBeep(600, 0.2)
-    } else if ((cuStart === 7 || cuStart === 0) && wasInSequence.current) {
-      playBeep(1200, 0.5)
-    } else if (cuStart === 6) {
-      playBeep(300, 0.4)
-    }
+    if (cuStart >= 2 && cuStart <= 6) playBeep(600, 0.2)
   }, [cuStart, playBeep])
-
-  const handleCancel = useCallback(() => {
-    if (onCancel) onCancel()
-  }, [onCancel])
-
+  const handleCancel = useCallback(() => onCancel?.(), [onCancel])
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') handleCancel()
@@ -61,42 +53,35 @@ export default function StartLights({ onCancel }) {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [handleCancel])
+  }, [handleCancel, cuStart, startRace])
 
   useEffect(() => {
-    if (cuStart >= 1 && cuStart <= 5) {
+    if (cuStart >= 1 && cuStart <= 6) {
+      clearTimeout(hideTimer.current)
       wasInSequence.current = true
-    }
-  }, [cuStart])
-
-  useEffect(() => {
-    if (cuStart >= 1 && cuStart <= 7) {
       setVisible(true)
-    } else if (cuStart === 0 && wasInSequence.current) {
-      const timer = setTimeout(() => {
-        setVisible(false)
-        wasInSequence.current = false
-      }, 2500)
-      return () => clearTimeout(timer)
-    } else {
-      setVisible(false)
-    }
-    prevStart.current = cuStart
-  }, [cuStart])
-
-  useEffect(() => {
-    const wasLights = prevStart.current >= 1 && prevStart.current <= 7
-    if ((cuStart === 7 || cuStart === 0) && wasLights && wasInSequence.current) {
+      setShowGo(false)
+    } else if ((cuStart === 7 || cuStart === 0) && wasInSequence.current) {
+      wasInSequence.current = false
       setShowGo(true)
-      const timer = setTimeout(() => setShowGo(false), 2500)
-      return () => clearTimeout(timer)
+      setVisible(true)
+      hideTimer.current = setTimeout(() => {
+        setVisible(false)
+        setShowGo(false)
+      }, 2500)
+    } else if (cuStart !== 7 && cuStart !== 0) {
+      clearTimeout(hideTimer.current)
+      wasInSequence.current = false
+      setVisible(false)
+      setShowGo(false)
     }
   }, [cuStart])
+  useEffect(() => () => clearTimeout(hideTimer.current), [])
 
   if (!visible && !showGo) return null
 
-  const isLightsOn = cuStart >= 1 && cuStart <= 5
-  const isFalseStart = cuStart === 6
+  const isLightsOn = cuStart >= 1 && cuStart <= 6
+  const isFalseStart = lights.falseStart
   const showStartButton = cuStart === 1
 
   return (
@@ -136,7 +121,7 @@ export default function StartLights({ onCancel }) {
             {[1, 2, 3, 4, 5].map((light) => (
               <LightColumn
                 key={light}
-                active={isLightsOn && cuStart >= light}
+                active={isLightsOn && lights.count >= light}
                 isFalseStart={isFalseStart}
                 isGo={showGo && !isFalseStart}
                 index={light}
@@ -151,7 +136,7 @@ export default function StartLights({ onCancel }) {
           {isLightsOn && !showStartButton && (
             <div className="text-center">
               <span className="text-6xl font-black text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,0.8)] animate-pulse tabular-nums">
-                {cuStart}
+                {lights.count}
               </span>
               <span className="text-4xl font-bold text-red-400/60 ml-2">/ 5</span>
             </div>
@@ -221,7 +206,7 @@ function LightColumn({ active, isFalseStart, isGo, index }) {
           key={i}
           className={`relative w-14 h-14 rounded-full transition-all duration-300 ${glowColor}`}
           style={{
-            transitionDelay: isLit ? `${index * 50}ms` : '0ms',
+            transitionDelay: '0ms',
           }}
         >
           {/* Light base */}

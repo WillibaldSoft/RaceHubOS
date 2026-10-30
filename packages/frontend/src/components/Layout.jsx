@@ -1,3 +1,5 @@
+import { cuStartState } from '@racehubos/shared'
+import { formatDecimal } from '../lib/formatDecimal'
 import { useState, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -7,7 +9,9 @@ import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import AppSidebar from './AppSidebar'
+import { RaceAlertDisplay } from '../context/RaceAlertsContext'
 import BackendStatusPopup from './BackendStatusPopup'
+import CuConnectionNotice from './CuConnectionNotice'
 import { allNavItems, navLabel } from '../lib/navItems'
 import { useDevice, SIMULATOR_ADDRESS } from '../context/DeviceContext'
 import { useApp } from '../context/AppContext'
@@ -17,8 +21,7 @@ const API_URL = import.meta.env.VITE_API_URL || ''
 
 function cuStateLabel(t, start) {
   if (start === 0) return t('cuState.racing')
-  if (start >= 1 && start <= 5) return t('cuState.lights', { n: start })
-  if (start === 6) return t('cuState.falseStart')
+  if (start >= 1 && start <= 6) return t('cuState.lights', { n: cuStartState(start).count })
   if (start === 7) return t('cuState.go')
   if (start === 8 || start === 9) return t('cuState.stopped')
   return t('footer.unknown')
@@ -97,7 +100,7 @@ function PageHeader() {
 export default function Layout() {
   const { t } = useTranslation('layout')
   const { sidebarOpen, setSidebarOpen } = useApp()
-  const { cuStatus, connected: cuConnected, deviceAddress, lastTimer } = useDevice()
+  const { cuStatus, connected: cuConnected, connectionState, deviceAddress, lastTimer } = useDevice()
   const isSimulator = deviceAddress === SIMULATOR_ADDRESS
   const [statusPopupOpen, setStatusPopupOpen] = useState(false)
   const [backendConnected, setBackendConnected] = useState(true)
@@ -136,14 +139,18 @@ export default function Layout() {
           </header>
 
           <div className="flex-1 overflow-auto">
+            <CuConnectionNotice />
+            <RaceAlertDisplay />
             <Outlet />
           </div>
         </PageHeaderProvider>
 
         <footer className="flex h-8 shrink-0 items-center gap-1 border-t px-4 text-xs font-mono text-muted-foreground">
-          <div className={`size-1.5 rounded-full ${cuConnected ? 'bg-green-500' : 'bg-red-500'}`} />
+          <div
+            className={`size-1.5 rounded-full ${connectionState === 'live' ? 'bg-green-500' : ['waiting', 'stale'].includes(connectionState) ? 'bg-amber-500' : 'bg-red-500'}`}
+          />
           <span className={cuConnected ? (isSimulator ? 'text-purple-400' : 'text-green-500') : 'text-red-500'}>
-            {t(cuConnected ? (isSimulator ? 'footer.simulator' : 'footer.cu') : 'footer.noCu')}
+            {t(`connection.${connectionState}`)}
           </span>
           <span className="text-muted-foreground/40 mx-1">|</span>
           <span
@@ -155,17 +162,17 @@ export default function Layout() {
                   : 'text-muted-foreground'
             }
           >
-            {cuStateLabel(t, cuStatus?.start)}
+            {cuStateLabel(t, cuConnected ? cuStatus?.start : null)}
           </span>
           <span className="text-muted-foreground/40 mx-1">|</span>
-          <span>{t('footer.mode', { mode: cuStatus?.mode ?? '-' })}</span>
-          {lastTimer && (
+          <span>{t('footer.mode', { mode: (cuConnected ? cuStatus?.mode : null) ?? '-' })}</span>
+          {cuConnected && lastTimer && (
             <>
               <span className="text-muted-foreground/40 mx-1">|</span>
               <span className="text-blue-400">C{lastTimer.controller + 1}</span>
               {lastTimer.isFinishLine ? (
                 <span className="text-green-500 ml-1">
-                  {lastTimer.lapTime > 0 ? `${(lastTimer.lapTime / 1000).toFixed(3)}s` : t('footer.lapStart')}
+                  {lastTimer.lapTime > 0 ? `${formatDecimal(lastTimer.lapTime / 1000)}s` : t('footer.lapStart')}
                 </span>
               ) : (
                 <span className="text-yellow-500 ml-1">S{lastTimer.sector}</span>

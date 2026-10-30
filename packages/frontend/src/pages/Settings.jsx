@@ -1,3 +1,14 @@
+import RaceSoundsSettings from '../components/race/RaceSoundsSettings'
+import FeatureSettings from '../addons/FeatureSettings'
+import { tx, useExtensions, locale } from '../i18n/extensions'
+import '../i18n/piperVoices'
+import { CarreraCatalogSettings } from '../components/car/CarreraCatalog'
+import { formatDecimal } from '../lib/formatDecimal'
+import { Link } from 'react-router-dom'
+import NavigationSettings from '../components/NavigationSettings'
+import { TrackExtrasSettings } from '../components/race/TrackExtras'
+import RaceAlertsSettings from '../components/race/RaceAlertsSettings'
+import DataSettings from '../components/DataSettings'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { io } from 'socket.io-client'
@@ -7,6 +18,7 @@ import { useVoice } from '../context/VoiceContext'
 import { voicesByLanguage } from '../lib/speech'
 import { LANGUAGES } from '../i18n'
 import {
+  ChevronDown,
   Wifi,
   Cpu,
   CheckCircle,
@@ -34,7 +46,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const API_URL = import.meta.env.VITE_API_URL || ''
 const WS_URL = import.meta.env.VITE_WS_URL || ''
 
+function SettingsSection({ title, children }) {
+  return (
+    <details className="group rounded-xl border bg-card">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-xl p-5 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring [&::-webkit-details-marker]:hidden">
+        <h2 className="text-xl font-semibold">{title}</h2>
+        <ChevronDown aria-hidden="true" className="size-5 shrink-0 transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="border-t [&>section]:border-0 [&>section]:rounded-none">{children}</div>
+    </details>
+  )
+}
+
 export default function Settings() {
+  useExtensions()
   const { t, i18n } = useTranslation('settings')
   const {
     connected,
@@ -60,6 +85,14 @@ export default function Settings() {
     voiceId: bestLapVoiceId,
     saveVoiceId,
     speak,
+    rate: voiceRate,
+    saveRate,
+    gain: voiceGain,
+    saveGain,
+    localAvailable,
+    localVoices,
+    voiceError,
+    voiceState,
   } = useVoice()
   const [voices, setVoices] = useState([])
 
@@ -152,7 +185,10 @@ export default function Settings() {
       if (!json.success) throw new Error(json.error)
       return json.data
     } catch (err) {
-      setReferenceMessage({ type: 'error', text: t('referenceDriver.error', { message: err.message }) })
+      setReferenceMessage({
+        type: 'error',
+        text: t('referenceDriver.error', { message: err.message }),
+      })
       return null
     } finally {
       setReferenceBusy(null)
@@ -176,19 +212,27 @@ export default function Settings() {
     )
     if (driver) {
       setReferenceDriver(driver)
-      setReferenceMessage({ type: 'success', text: t('referenceDriver.created') })
+      setReferenceMessage({
+        type: 'success',
+        text: t('referenceDriver.created'),
+      })
       loadReferenceDriver()
     }
   }
 
   async function handleMigrateBalancing() {
     const result = await callReference('migrate', () =>
-      fetch(`${API_URL}/api/drivers/reference/migrate-balancing`, { method: 'POST' })
+      fetch(`${API_URL}/api/drivers/reference/migrate-balancing`, {
+        method: 'POST',
+      })
     )
     if (result) {
       setReferenceMessage({
         type: 'success',
-        text: t('referenceDriver.migrated', { count: result.laps, name: result.driver.name }),
+        text: t('referenceDriver.migrated', {
+          count: result.laps,
+          name: result.driver.name,
+        }),
       })
     }
   }
@@ -219,16 +263,30 @@ export default function Settings() {
 
   async function applyUpdate() {
     setUpdating(true)
-    setUpdateProgress({ step: 0, message: t('update.starting'), status: 'running' })
+    setUpdateProgress({
+      step: 0,
+      message: t('update.starting'),
+      status: 'running',
+    })
     try {
-      const res = await fetch(`${API_URL}/api/update/apply`, { method: 'POST' })
+      const res = await fetch(`${API_URL}/api/update/apply`, {
+        method: 'POST',
+      })
       const data = await res.json()
       if (!data.success) {
-        setUpdateProgress({ step: 0, message: data.error || t('update.genericError'), status: 'error' })
+        setUpdateProgress({
+          step: 0,
+          message: data.error || t('update.genericError'),
+          status: 'error',
+        })
         setUpdating(false)
       }
     } catch {
-      setUpdateProgress({ step: 0, message: t('update.connectionError'), status: 'error' })
+      setUpdateProgress({
+        step: 0,
+        message: t('update.connectionError'),
+        status: 'error',
+      })
       setUpdating(false)
     }
   }
@@ -294,6 +352,7 @@ export default function Settings() {
 
   useEffect(() => {
     loadVoices()
+    if (!window.speechSynthesis) return
     speechSynthesis.addEventListener('voiceschanged', loadVoices)
     return () => speechSynthesis.removeEventListener('voiceschanged', loadVoices)
   }, [loadVoices])
@@ -315,9 +374,19 @@ export default function Settings() {
 
     socket.on('cu:timer', (data) => {
       if (data.isFinishLine && data.lapTime > 0) {
-        addLogEntry(t('logs.controllerLap', { n: data.controller + 1, time: (data.lapTime / 1000).toFixed(3) }))
+        addLogEntry(
+          t('logs.controllerLap', {
+            n: data.controller + 1,
+            time: formatDecimal(data.lapTime / 1000),
+          })
+        )
       } else if (!data.isFinishLine) {
-        addLogEntry(t('logs.controllerSector', { n: data.controller + 1, sector: data.sector }))
+        addLogEntry(
+          t('logs.controllerSector', {
+            n: data.controller + 1,
+            sector: data.sector,
+          })
+        )
       }
     })
 
@@ -333,7 +402,9 @@ export default function Settings() {
     const result = await connect(address)
     addLogEntry(
       result.success
-        ? t('logs.connectedTo', { device: address === SIMULATOR_ADDRESS ? t('glossary:simulator') : address })
+        ? t('logs.connectedTo', {
+            device: address === SIMULATOR_ADDRESS ? t('glossary:simulator') : address,
+          })
         : t('logs.errorWith', { error: result.error })
     )
   }
@@ -361,6 +432,39 @@ export default function Settings() {
 
   return (
     <div className="p-4 space-y-4">
+      <SettingsSection title={tx('Renngeräusche')}>
+        <RaceSoundsSettings />
+      </SettingsSection>
+      <SettingsSection title={tx('Tankwarnungen und Unterbrechungen')}>
+        <RaceAlertsSettings />
+      </SettingsSection>
+      <SettingsSection title={t('addons:title')}>
+        <FeatureSettings />
+      </SettingsSection>
+      <SettingsSection title={tx('Zwischenzeiten und Boxenplan')}>
+        <TrackExtrasSettings />
+      </SettingsSection>
+      <SettingsSection title={tx('Autokatalog: Carrera, Scalextric und Superslot')}>
+        <CarreraCatalogSettings />
+      </SettingsSection>
+      <SettingsSection title={tx('Datensicherung und Rücksicherung')}>
+        <DataSettings />
+      </SettingsSection>
+      <SettingsSection title={tx('Navigationssymbole anpassen')}>
+        <NavigationSettings />
+      </SettingsSection>
+      <Link
+        to="/settings/race-screen"
+        className="flex items-center justify-between rounded-xl border bg-card p-5 hover:bg-accent"
+      >
+        <div>
+          <h2 className="text-xl font-semibold">{tx('Rennbildschirm anpassen')}</h2>
+          <p className="text-sm text-muted-foreground">
+            {tx('Erste Fahrerzeile als Vorlage, automatische Höhenaufteilung und Vorschau für 1–6 Fahrer.')}
+          </p>
+        </div>
+        <span aria-hidden="true">→</span>
+      </Link>
       {/* Update Section */}
       <Card>
         <CardContent>
@@ -388,7 +492,9 @@ export default function Settings() {
               <div className="flex items-center justify-between p-3 bg-blue-500/10 rounded-lg border border-blue-500/30">
                 <div>
                   <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                    {t('update.newVersionAvailable', { version: updateInfo.latestVersion })}
+                    {t('update.newVersionAvailable', {
+                      version: updateInfo.latestVersion,
+                    })}
                   </p>
                 </div>
                 <Button size="sm" onClick={applyUpdate}>
@@ -558,8 +664,14 @@ export default function Settings() {
               {[
                 { label: t('cuStatus.start'), value: cuStatus.start },
                 { label: t('cuStatus.mode'), value: cuStatus.mode || '-' },
-                { label: t('cuStatus.display'), value: cuStatus.display || '-' },
-                { label: t('cuStatus.fuel'), value: cuStatus.fuel?.join(', ') || '-' },
+                {
+                  label: t('cuStatus.display'),
+                  value: cuStatus.display || '-',
+                },
+                {
+                  label: t('cuStatus.fuel'),
+                  value: cuStatus.fuel?.join(', ') || '-',
+                },
               ].map((s) => (
                 <div key={s.label}>
                   <p className="text-xs text-muted-foreground">{s.label}</p>
@@ -586,6 +698,9 @@ export default function Settings() {
             </div>
             <button
               onClick={toggleTheme}
+              role="switch"
+              aria-checked={isDark}
+              aria-label={t('appearance.themeNight')}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isDark ? 'bg-blue-600' : 'bg-muted'}`}
             >
               <span
@@ -612,6 +727,7 @@ export default function Settings() {
             </div>
             <button
               onClick={() => handleDefaultViewChange(defaultViewMode === 'grid' ? 'list' : 'grid')}
+              aria-label={t('appearance.defaultView')}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${defaultViewMode === 'grid' ? 'bg-green-600' : 'bg-muted'}`}
             >
               <span
@@ -632,6 +748,9 @@ export default function Settings() {
             </div>
             <button
               onClick={handleBestLapVoiceToggle}
+              role="switch"
+              aria-checked={bestLapEnabled}
+              aria-label={t('appearance.bestLapVoice')}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${bestLapEnabled ? 'bg-orange-600' : 'bg-muted'}`}
             >
               <span
@@ -671,6 +790,9 @@ export default function Settings() {
             </div>
             <button
               onClick={handlePodiumVoiceToggle}
+              role="switch"
+              aria-checked={podiumEnabled}
+              aria-label={t('appearance.podiumVoice')}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${podiumEnabled ? 'bg-yellow-600' : 'bg-muted'}`}
             >
               <span
@@ -683,14 +805,27 @@ export default function Settings() {
             <div className="flex items-center gap-2 pl-7">
               {/* One voice per interface language, the language's default voice unless chosen */}
               <Select
-                value={voices.some((v) => v.voiceURI === bestLapVoiceId) ? bestLapVoiceId : '_default'}
+                value={
+                  bestLapVoiceId.startsWith('_piper') || voices.some((v) => v.voiceURI === bestLapVoiceId)
+                    ? bestLapVoiceId
+                    : '_default'
+                }
                 onValueChange={(v) => handleVoiceChange(v === '_default' ? '' : v)}
               >
-                <SelectTrigger className="flex-1">
+                <SelectTrigger data-testid="voice-selector" className="flex-1">
                   <SelectValue placeholder={t('appearance.defaultVoice')} />
                 </SelectTrigger>
                 <SelectContent position="popper" sideOffset={4} className="max-h-52 overflow-y-auto">
                   <SelectItem value="_default">{t('appearance.defaultVoice')}</SelectItem>
+                  <SelectItem value="_piper-auto">{t('piperVoices:auto')}</SelectItem>
+                  {localVoices.map((v) => (
+                    <SelectItem key={v.id} value={'_piper:' + v.id}>
+                      {v.name} · {v.locale} · Piper
+                    </SelectItem>
+                  ))}
+                  {bestLapVoiceId === '_piper-thorsten' && (
+                    <SelectItem value="_piper-thorsten">Thorsten · de-DE · Piper</SelectItem>
+                  )}
                   {voices.map((v) => (
                     <SelectItem key={v.voiceURI} value={v.voiceURI}>
                       {v.name} ({v.lang})
@@ -699,12 +834,73 @@ export default function Settings() {
                 </SelectContent>
               </Select>
               <button
+                data-testid="voice-test"
                 onClick={testVoice}
                 className="size-8 shrink-0 rounded border border-border flex items-center justify-center hover:bg-muted"
                 title={t('appearance.testVoice')}
               >
                 <Play className="size-3.5" />
               </button>
+            </div>
+          )}
+
+          {(bestLapEnabled || podiumEnabled) && (
+            <div className="pl-7 space-y-2">
+              {bestLapVoiceId.startsWith('_piper') && (
+                <label className="block text-sm" htmlFor="voice-gain">
+                  {tx('Sprachverstärkung:')} {Math.round(voiceGain * 100)} %
+                  <input
+                    id="voice-gain"
+                    className="block w-64"
+                    type="range"
+                    min="1"
+                    max="4"
+                    step="0.25"
+                    value={voiceGain}
+                    onChange={(e) => saveGain(e.target.value)}
+                  />
+                  <span className="text-xs text-muted-foreground">
+                    {tx(
+                      '200 % ist die Rennvoreinstellung. Die lokale Stimme wird mit weicher Spitzenbegrenzung verstärkt. Warnlautstärke und Lautsprecherpegel wirken zusätzlich.'
+                    )}
+                  </span>
+                </label>
+              )}
+              <label htmlFor="voice-rate" className="text-sm font-medium">
+                {t('appearance.voiceRate')}
+              </label>
+              <select
+                id="voice-rate"
+                value={String(voiceRate)}
+                onChange={(e) => saveRate(e.target.value)}
+                className="block rounded border border-border bg-background px-3 py-2 text-sm"
+              >
+                {[0.8, 0.9, 0.95, 1, 1.1, 1.2].map((value) => (
+                  <option key={value} value={value}>
+                    {value.toLocaleString(i18n.language)}×
+                  </option>
+                ))}
+              </select>
+              <p className="text-xs text-muted-foreground">
+                {t(bestLapVoiceId === '_piper-thorsten' ? 'appearance.localVoiceHint' : 'appearance.voiceHint')}
+              </p>
+              <p data-testid="piper-voice-status" role="status" className="text-xs text-muted-foreground">
+                {t(
+                  'piperVoices:' +
+                    (voiceState === 'unavailable'
+                      ? 'unavailable'
+                      : voiceState === 'fallback'
+                        ? 'fallback'
+                        : localVoices.length
+                          ? 'available'
+                          : 'missing')
+                )}
+              </p>
+              {voiceError && (
+                <p role="alert" className="text-sm text-red-600">
+                  {t('appearance.localVoiceError')}
+                </p>
+              )}
             </div>
           )}
 

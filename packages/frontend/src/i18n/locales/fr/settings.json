@@ -16,7 +16,8 @@
   "connection": {
     "connected": "Connecté: {{device}}",
     "noDevice": "Aucun appareil connecté",
-    "disconnect": "Déconnecter"
+    "disconnect": "Déconnecter",
+    "pending": "Connexion en cours. L’état réel sera actualisé automatiquement."
   },
   "devices": {
     "title": "Sélectionner un appareil",
@@ -48,11 +49,21 @@
     "podiumVoiceDesc": "Résultats vocaux en fin de session",
     "defaultVoice": "Voix par défaut",
     "testVoice": "Tester la voix",
-    "testVoicePhrase": "Meilleur tour, Anselme, 6,142 secondes",
+    "testVoicePhrase": "Nouveau meilleur tour pour le pilote test : 8,23 secondes.",
     "adminMode": "Mode administrateur",
     "adminModeDesc": "Displays, Test, Simulateur",
     "language": "Langue",
-    "languageDesc": "Langue de l'interface"
+    "languageDesc": "Langue de l'interface",
+    "voiceRate": "Vitesse de parole",
+    "voiceHint": "Temps annoncés au centième, mesures conservées à la milliseconde. La qualité dépend des voix du navigateur.",
+    "localVoice": "Thorsten – local (Piper)",
+    "localVoiceHint": "Voix neuronale allemande sur cet ordinateur, hors ligne après installation et sans abonnement. Si le son est bloqué, cliquer sur Tester la voix.",
+    "localVoiceError": "Lecture locale impossible. Réessayer Tester la voix ou sélectionner la voix par défaut.",
+    "localStates": {
+      "loading": "Génération locale de la voix…",
+      "playing": "Lecture en cours…",
+      "done": "Dernière annonce lue."
+    }
   },
   "logs": {
     "title": "Logs",

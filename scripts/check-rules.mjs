@@ -400,6 +400,17 @@ rule('no-new-lint-errors', 'Aucune nouvelle erreur ESLint dans les fichiers modi
 
   const { ESLint } = await import('eslint');
   const eslint = new ESLint({ cwd: rootDir });
+  // This private installation already had extensions before adopting 1.25.2.
+  // Compare their actual immutable source as well, rather than treating inherited
+  // debt as newly introduced. An ancestor check prevents a future/external baseline.
+  const baselineFile = 'local-carrera/integration-baseline.json';
+  const localBase = exists(baselineFile) ? JSON.parse(read(baselineFile)).commit : null;
+  if (
+    localBase &&
+    (!/^[a-f0-9]{40}$/.test(localBase) || git(['merge-base', '--is-ancestor', localBase, 'HEAD']) === null)
+  )
+    return ['La référence locale de lint doit être un commit ancêtre de HEAD'];
+
   const countByRule = (messages) =>
     messages.reduce((acc, m) => acc.set(m.ruleId, (acc.get(m.ruleId) ?? 0) + 1), new Map());
 
@@ -411,6 +422,13 @@ rule('no-new-lint-errors', 'Aucune nouvelle erreur ESLint dans les fichiers modi
     const [before] =
       previous === null ? [{ messages: [] }] : await eslint.lintText(previous, { filePath: path.join(rootDir, file) });
     const counts = countByRule(before.messages);
+    const localSource = localBase ? git(['show', `${localBase}:${file}`]) : null;
+    if (localSource !== null) {
+      const [localBefore] = await eslint.lintText(localSource, { filePath: path.join(rootDir, file) });
+      for (const [ruleId, n] of countByRule(localBefore.messages))
+        counts.set(ruleId, Math.max(counts.get(ruleId) ?? 0, n));
+    }
+
     for (const [ruleId, n] of countByRule(after.messages)) {
       const was = counts.get(ruleId) ?? 0;
       if (n > was) offenders.push(`${file} — ${ruleId ?? 'erreur de syntaxe'} : ${was} → ${n}`);

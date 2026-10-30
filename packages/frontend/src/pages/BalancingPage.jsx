@@ -251,6 +251,7 @@ export default function BalancingPage() {
   const handleResetSession = async (sessionId) => {
     const result = await resetSession(sessionId)
     if (result.success) await fetchStandings()
+    return result
   }
 
   const isSessionActive =

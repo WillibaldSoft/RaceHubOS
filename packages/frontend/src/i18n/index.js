@@ -43,4 +43,11 @@ i18n
     },
   })
 
+const updateDocumentLanguage = () => {
+  document.documentElement.lang = i18n.resolvedLanguage || 'de'
+}
+i18n.on('initialized', updateDocumentLanguage)
+i18n.on('languageChanged', updateDocumentLanguage)
+updateDocumentLanguage()
+
 export default i18n

@@ -1,3 +1,9 @@
+import { formatDecimal } from '../lib/formatDecimal'
+import { readTrackPlan } from '@racehubos/shared'
+import { SavedRoomPlan } from '../components/tracks/SavedRoomPlan'
+import TrackImageExport from '../components/tracks/TrackImageExport'
+import { TrackPlanPreview } from '../components/tracks/TrackPlanPreview'
+import { TrackPlanSummary } from '../components/tracks/TrackPlanSummary'
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -23,6 +29,7 @@ export default function TrackProfile() {
   const [loading, setLoading] = useState(true)
   const [resetting, setResetting] = useState(false)
   const [showEdit, setShowEdit] = useState(false)
+  const [showCopy, setShowCopy] = useState(false)
   const [showResetConfirm, setShowResetConfirm] = useState(false)
 
   useEffect(() => {
@@ -46,7 +53,9 @@ export default function TrackProfile() {
     setShowResetConfirm(false)
     setResetting(true)
     try {
-      const res = await fetch(`${API_URL}/api/tracks/${id}/reset-stats`, { method: 'POST' })
+      const res = await fetch(`${API_URL}/api/tracks/${id}/reset-stats`, {
+        method: 'POST',
+      })
       if (res.ok) loadTrack()
     } catch (error) {
       console.error('Failed to reset stats:', error)
@@ -113,7 +122,7 @@ export default function TrackProfile() {
               {track.name}
             </h1>
             <div className="text-xs text-muted-foreground flex items-center gap-3">
-              {track.length && <span>{track.length}m</span>}
+              {track.length && <span>{formatDecimal(track.length)}m</span>}
               {track.corners && <span>{t('profile.cornersCount', { count: track.corners })}</span>}
               <span>
                 {track._count?.sessions || 0} {t('glossary:session', { count: track._count?.sessions || 0 })}
@@ -122,7 +131,12 @@ export default function TrackProfile() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setShowEdit(true)}>
+          {readTrackPlan(track.layout) && (
+            <Button data-testid="copy-track" variant="outline" size="sm" onClick={() => setShowCopy(true)}>
+              {t('room.copy')}
+            </Button>
+          )}
+          <Button data-testid="edit-track" variant="outline" size="sm" onClick={() => setShowEdit(true)}>
             <Pencil className="size-4" />
           </Button>
           <Button
@@ -138,12 +152,23 @@ export default function TrackProfile() {
         </div>
       </div>
 
+      {showCopy && (
+        <TrackFormModal
+          referenceTrack={track}
+          onClose={(saved) => {
+            setShowCopy(false)
+            if (saved?.id) navigate(`/tracks/${saved.id}`)
+          }}
+        />
+      )}
+
       {showEdit && (
         <TrackFormModal
           track={track}
-          onClose={() => {
+          onClose={(saved) => {
             setShowEdit(false)
-            loadTrack()
+            if (saved?.id && saved.id !== track.id) navigate(`/tracks/${saved.id}`)
+            else loadTrack()
           }}
         />
       )}
@@ -159,6 +184,15 @@ export default function TrackProfile() {
 
       {/* Content */}
       <div className="flex-1 overflow-auto p-4 space-y-4">
+        {readTrackPlan(track.layout) && (
+          <section className="space-y-3">
+            <TrackImageExport name={track.name}>
+              <TrackPlanPreview plan={readTrackPlan(track.layout)} />
+            </TrackImageExport>
+            <TrackPlanSummary plan={readTrackPlan(track.layout)} />
+            <SavedRoomPlan plan={readTrackPlan(track.layout)} name={track.name} />
+          </section>
+        )}
         {/* Record */}
         {track.bestLap && (
           <Card>
@@ -198,7 +232,9 @@ export default function TrackProfile() {
                 <div className="divide-y divide-border">
                   {track.sessions.slice(0, 8).map((session) => {
                     const typeLabel = session.type
-                      ? t(`glossary:sessionType.${session.type}`, { defaultValue: session.type })
+                      ? t(`glossary:sessionType.${session.type}`, {
+                          defaultValue: session.type,
+                        })
                       : ''
                     return (
                       <Link
@@ -218,7 +254,9 @@ export default function TrackProfile() {
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           <span>
                             {session._count?.drivers || 0}{' '}
-                            {t('glossary:driver', { count: session._count?.drivers || 0 })}
+                            {t('glossary:driver', {
+                              count: session._count?.drivers || 0,
+                            })}
                           </span>
                           <span>{new Date(session.createdAt).toLocaleDateString(i18n.language)}</span>
                         </div>

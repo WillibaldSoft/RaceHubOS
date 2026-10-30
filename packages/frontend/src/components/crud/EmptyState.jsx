@@ -1,3 +1,4 @@
+import { tx } from '../../i18n/extensions'
 import { useTranslation } from 'react-i18next'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -13,7 +14,7 @@ export default function EmptyState({ icon, title, message, actionLabel, onAction
       )}
 
       <h3 className="text-lg font-medium text-foreground mb-1">{title ?? t('emptyState.title')}</h3>
-      <p className="text-muted-foreground mb-6">{message ?? t('emptyState.message')}</p>
+      <p className="text-muted-foreground mb-6">{tx(message ?? t('emptyState.message'))}</p>
 
       {onAction && (
         <Button onClick={onAction}>

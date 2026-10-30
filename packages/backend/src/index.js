@@ -17,6 +17,8 @@ import { createPrismaClient } from './lib/prisma.js';
 import { CarreraSimulator } from './services/simulator.js';
 import { SyncService } from './services/SyncService.js';
 import { ControlUnit } from './services/controlUnit.js';
+import { CuRecovery } from './services/CuRecovery.js';
+import { createFrontendRouter } from './lib/frontendRouter.js';
 
 // Import routes
 import driversRouter from './routes/drivers.js';
@@ -25,14 +27,19 @@ import tracksRouter from './routes/tracks.js';
 import teamsRouter from './routes/teams.js';
 import championshipsRouter, { setChampionshipService } from './routes/championships.js';
 import statsRouter from './routes/stats.js';
+import addonsRouter from './routes/addons.js';
 import settingsRouter, { setSettingsIo } from './routes/settings.js';
-import bluetoothRouter, { setControlUnit, setSimulator, setSyncService } from './routes/bluetooth.js';
+import bluetoothRouter, { setControlUnit, setSimulator, setSyncService, setCuRecovery } from './routes/bluetooth.js';
 import sessionsRouter, { setSessionService } from './routes/sessions.js';
 import configRouter, { setConfigService } from './routes/config.js';
 import recordsRouter from './routes/records.js';
 import uploadRouter from './routes/upload.js';
+import { createCockpitRouter } from './routes/cockpit.js';
+import dataRouter, { setDataServices, dataDirectory } from './routes/data.js';
 import devicesRouter from './routes/devices.js';
 import preferencesRouter from './routes/preferences.js';
+import voiceRouter from './routes/voice.js';
+import catalogRouter from './routes/catalog.js';
 import updateRouter, { setUpdateIo } from './routes/update.js';
 
 // Import services
@@ -72,6 +79,8 @@ const championshipService = new ChampionshipService(io);
 const controlUnit = new ControlUnit();
 const simulator = new CarreraSimulator(io);
 const syncService = new SyncService(io);
+const cuRecovery = new CuRecovery(controlUnit, syncService, io);
+setCuRecovery(cuRecovery);
 
 // Pass references to bluetooth router
 setControlUnit(controlUnit);
@@ -107,6 +116,7 @@ championshipService.setSessionService(sessionService);
 
 // Pass services to routes
 setSessionService(sessionService);
+setDataServices(sessionService, io);
 setChampionshipService(championshipService);
 setConfigService(configService);
 
@@ -123,8 +133,8 @@ app.get('/api/img/:type/:filename', (req, res) => {
   if (!validTypes.includes(type)) {
     return res.status(400).json({ error: 'Invalid image type' });
   }
-  const filePath = path.join(__dirname, '../public/uploads', type, filename);
-  res.sendFile(filePath, (err) => {
+  const imageRoot = path.join(__dirname, '../public/uploads', type);
+  res.sendFile(filename, { root: imageRoot }, (err) => {
     if (err) {
       res.status(404).json({ error: 'Image not found' });
     }
@@ -171,13 +181,23 @@ app.use('/api/teams', teamsRouter);
 app.use('/api/championships', championshipsRouter);
 app.use('/api/stats', statsRouter);
 app.use('/api/settings', settingsRouter);
+app.use('/api/addons', addonsRouter);
 app.use('/api/bluetooth', bluetoothRouter);
 app.use('/api/sessions', sessionsRouter);
 app.use('/api/config', configRouter);
 app.use('/api/records', recordsRouter);
 app.use('/api/upload', uploadRouter);
+const cockpitRouter = createCockpitRouter({
+  sessionService,
+  io,
+  backupDirectory: dataDirectory,
+});
+app.use('/api/data', (req, res, next) => (req.path.startsWith('/cockpit/') ? cockpitRouter(req, res, next) : next()));
+app.use('/api/data', dataRouter);
 app.use('/api/devices', devicesRouter);
 app.use('/api/preferences', preferencesRouter);
+app.use('/api/voice', voiceRouter);
+app.use('/api/catalog', catalogRouter);
 app.use('/api/update', updateRouter);
 
 // SyncService endpoints (hardware control)
@@ -195,7 +215,10 @@ app.get('/api/sync/leaderboard', (req, res) => {
 app.post('/api/sync/load-session/:sessionId', async (req, res) => {
   try {
     const session = await sessionService.loadSession(req.params.sessionId);
-    res.json({ success: true, session: { id: session.id, type: session.type } });
+    res.json({
+      success: true,
+      session: { id: session.id, type: session.type },
+    });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -264,26 +287,15 @@ app.post('/api/simulator/pause', (req, res) => {
 io.on('connection', (socket) => {
   console.log(`🔌 Client connected: ${socket.id}`);
 
-  // Send current device state on connection
-  const currentDevice = syncService.getDevice();
-  if (currentDevice === simulator && simulator.isConnected()) {
-    socket.emit('cu:connected');
-    socket.emit('race:status', {
-      running: simulator.isRunning,
-      active: simulator.raceActive,
-      raceTime: simulator.raceTime,
-      carCount: simulator.cars.length,
-      deviceType: 'simulator',
-    });
-  } else if (currentDevice === controlUnit && controlUnit.isConnected()) {
-    socket.emit('cu:connected');
-    socket.emit('cu:status', {
-      connected: true,
-      deviceType: 'controlUnit',
-    });
-  } else {
-    socket.emit('cu:status', { connected: false, deviceType: null });
-  }
+  // Identical complete state for initial connection, reconnect and HTTP recovery.
+  const snapshot = syncService.getDeviceSnapshot();
+  socket.emit('cu:device', snapshot);
+  if (snapshot.connected) socket.emit('cu:connected');
+  socket.emit('cu:status', {
+    ...(snapshot.lastStatus || {}),
+    ...snapshot,
+    lastStatus: undefined,
+  });
 
   socket.on('disconnect', () => {
     console.log(`❌ Client disconnected: ${socket.id}`);
@@ -341,13 +353,7 @@ io.on('connection', (socket) => {
 
 // Serve frontend build (production mode)
 const frontendDist = path.join(__dirname, '../../frontend/dist');
-if (fs.existsSync(frontendDist)) {
-  app.use(express.static(frontendDist));
-  // SPA fallback: non-API routes serve index.html
-  app.get('{*path}', (req, res) => {
-    res.sendFile(path.join(frontendDist, 'index.html'));
-  });
-}
+if (fs.existsSync(frontendDist)) app.use(createFrontendRouter(frontendDist));
 
 const PORT = process.env.PORT || 3000;
 const hasFrontend = fs.existsSync(frontendDist);
@@ -366,7 +372,9 @@ httpServer.listen(PORT, async () => {
 
   // Auto-connect to last device if enabled
   try {
-    const autoConnectPref = await prisma.preference.findUnique({ where: { key: 'autoConnect' } });
+    const autoConnectPref = await prisma.preference.findUnique({
+      where: { key: 'autoConnect' },
+    });
     if (autoConnectPref && JSON.parse(autoConnectPref.value) === true) {
       const lastDevice = await prisma.device.findFirst({
         where: { type: 'cu' },
@@ -375,9 +383,7 @@ httpServer.listen(PORT, async () => {
       if (lastDevice) {
         console.log(`🔄 Auto-connecting to ${lastDevice.name} (${lastDevice.address})...`);
         try {
-          syncService.setDevice(controlUnit);
-          await controlUnit.connect(lastDevice.address);
-          syncService.startPolling();
+          await cuRecovery.connect(lastDevice.address);
           console.log('✅ Auto-connected to Control Unit');
         } catch (err) {
           console.warn('⚠️  Auto-connect failed:', err.message);
@@ -392,19 +398,23 @@ httpServer.listen(PORT, async () => {
 // Graceful shutdown
 let isClosing = false;
 
-function gracefulShutdown(signal) {
+async function gracefulShutdown(signal) {
   if (isClosing) {
     console.log(`\n⚠️  ${signal} received again, forcing exit...`);
     process.exit(1);
   }
 
   isClosing = true;
+  const forcedExit = setTimeout(() => process.exit(1), 5000);
+  forcedExit.unref?.();
   console.log(`\n⚠️  ${signal} received, closing server...`);
 
   try {
+    cuRecovery.close();
     syncService.close();
     simulator.disconnect();
-    controlUnit.disconnect();
+    // Release GATT before exiting so the next process can reconnect cleanly.
+    await controlUnit.disconnect();
     io.close();
   } catch (error) {
     // Ignore errors
@@ -414,9 +424,6 @@ function gracefulShutdown(signal) {
     console.log('✅ Server closed');
     process.exit(0);
   });
-
-  // Force exit after 3s if close hangs
-  setTimeout(() => process.exit(1), 3000);
 }
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));

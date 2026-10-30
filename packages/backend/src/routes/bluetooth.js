@@ -9,6 +9,10 @@ const prisma = createPrismaClient();
 let controlUnit = null;
 let simulator = null;
 let syncService = null;
+let cuRecovery = null;
+export function setCuRecovery(value) {
+  cuRecovery = value;
+}
 
 export function setControlUnit(cu) {
   controlUnit = cu;
@@ -26,16 +30,22 @@ export function setSyncService(sync) {
  * GET /api/bluetooth/status
  */
 router.get('/status', async (req, res) => {
-  const currentDevice = syncService?.getDevice();
-  const isSimulator = currentDevice === simulator;
-
-  res.json({
-    available: true,
-    connected: syncService?.isConnected() || false,
-    deviceType: currentDevice ? (isSimulator ? 'simulator' : 'controlUnit') : null,
-    deviceAddress: currentDevice ? (isSimulator ? 'SIMULATOR' : currentDevice.address) : null,
-    lastStatus: syncService?.getCuStatus(),
+  res.set('Cache-Control', 'no-store').json({
+    ...(syncService?.getDeviceSnapshot() || { available: false, connected: false }),
+    recovery: cuRecovery?.snapshot() || null,
+    diagnosis: cuRecovery?.diagnosis || null,
   });
+});
+
+router.post('/retry', async (req, res) => {
+  const device = await prisma.device.findFirst({ where: { type: 'cu' }, orderBy: { lastConnected: 'desc' } });
+  const address = cuRecovery?.address || device?.address;
+  if (!cuRecovery || !address)
+    return res
+      .status(400)
+      .json({ success: false, error: 'Bitte zuerst unter Einstellungen eine Control Unit suchen und auswählen.' });
+  void cuRecovery.connect(address).catch((error) => console.warn('[CU-Diagnose]', error.message));
+  res.status(202).json({ success: true, diagnosis: cuRecovery.diagnosis || null });
 });
 
 /**
@@ -116,6 +126,7 @@ router.post('/connect', async (req, res) => {
     let deviceType;
 
     if (address === SIMULATOR_ADDRESS) {
+      cuRecovery?.stop();
       // Connect to simulator
       if (!simulator) {
         return res.status(400).json({ success: false, error: 'Simulator not available' });
@@ -128,7 +139,8 @@ router.post('/connect', async (req, res) => {
       if (!controlUnit) {
         return res.status(400).json({ success: false, error: 'Control Unit not available' });
       }
-      await controlUnit.connect(address);
+      if (cuRecovery) await cuRecovery.connect(address);
+      else await controlUnit.connect(address);
       device = controlUnit;
       deviceType = 'controlUnit';
     }
@@ -173,6 +185,7 @@ router.post('/connect', async (req, res) => {
  */
 router.post('/disconnect', async (req, res) => {
   try {
+    cuRecovery?.stop();
     const currentDevice = syncService?.getDevice();
 
     if (currentDevice) {

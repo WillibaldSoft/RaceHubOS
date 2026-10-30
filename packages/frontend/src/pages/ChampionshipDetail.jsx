@@ -304,6 +304,7 @@ export default function ChampionshipDetail() {
         fetchSessions()
         fetchStandings()
       }
+      return r
     },
     [resetSession, fetchSessions, fetchStandings]
   )
@@ -410,6 +411,7 @@ export default function ChampionshipDetail() {
                   <StartingGrid entries={displayEntries} />
                 ) : (
                   <SessionLeaderboard
+                    track={selectedSession.track || championship?.track}
                     entries={displayEntries}
                     expanded={!showStandings}
                     sortBy={

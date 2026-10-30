@@ -1,3 +1,4 @@
+import { formatDecimal } from '../../lib/formatDecimal'
 import { useTranslation } from 'react-i18next'
 import { Flag, Timer, Zap } from 'lucide-react'
 import { getImgUrl } from '../../utils/image'
@@ -6,7 +7,7 @@ import { SessionType } from '@racehubos/shared'
 function formatLapTime(ms) {
   if (!ms) return '--'
   const s = ms / 1000
-  return s >= 60 ? `${Math.floor(s / 60)}:${(s % 60).toFixed(3).padStart(6, '0')}` : `${s.toFixed(3)}s`
+  return s >= 60 ? `${Math.floor(s / 60)}:${formatDecimal(s % 60).padStart(6, '0')}` : `${formatDecimal(s)}s`
 }
 
 function formatTime(seconds) {

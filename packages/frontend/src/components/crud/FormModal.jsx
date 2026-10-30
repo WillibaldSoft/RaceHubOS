@@ -1,3 +1,5 @@
+import { tx, useExtensions } from '../../i18n/extensions'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Trash2 } from 'lucide-react'
 import Modal, { ModalFooter } from '../ui/Modal'
@@ -22,41 +24,54 @@ export default function FormModal({
   saveLabel,
   deleteLabel,
   children,
+  size = 'lg',
+  hideFooter = false,
 }) {
+  useExtensions()
   const { t } = useTranslation('common')
+  const errorRef = useRef(null)
+  useEffect(() => {
+    if (error) errorRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [error])
   const handleSubmit = (e) => {
     e.preventDefault()
     onSubmit?.(e)
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={title} icon={icon} size="lg">
+    <Modal open={open} onClose={onClose} title={title} icon={icon} size={size}>
       <form onSubmit={handleSubmit} className="space-y-4">
-        {(error || success) && <ErrorMessage message={error || success} type={error ? 'error' : 'success'} />}
+        {(error || success) && (
+          <div ref={errorRef} role={error ? 'alert' : 'status'}>
+            <ErrorMessage message={tx(error || success)} type={error ? 'error' : 'success'} />
+          </div>
+        )}
 
         {children}
 
-        <ModalFooter className="border-t mt-6 pt-4">
-          {isEditing && onDelete && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={onDelete}
-              className="text-destructive hover:text-destructive mr-auto"
-            >
-              <Trash2 className="size-4" />
-              {deleteLabel || t('delete')}
-            </Button>
-          )}
+        {!hideFooter && (
+          <ModalFooter className="border-t mt-6 pt-4">
+            {isEditing && onDelete && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={onDelete}
+                className="text-destructive hover:text-destructive mr-auto"
+              >
+                <Trash2 className="size-4" />
+                {deleteLabel || t('delete')}
+              </Button>
+            )}
 
-          <Button type="button" variant="outline" onClick={onClose}>
-            {t('cancel')}
-          </Button>
-          <Button type="submit" disabled={saving}>
-            {saving ? t('saving') : saveLabel || t('save')}
-          </Button>
-        </ModalFooter>
+            <Button type="button" variant="outline" onClick={onClose}>
+              {t('cancel')}
+            </Button>
+            <Button type="submit" disabled={saving}>
+              {saving ? t('saving') : saveLabel || t('save')}
+            </Button>
+          </ModalFooter>
+        )}
       </form>
     </Modal>
   )
@@ -66,14 +81,15 @@ export default function FormModal({
  * Form field wrapper with label
  */
 export function FormField({ label, required, error, children }) {
+  useExtensions()
   return (
     <div>
       <label className="block text-sm font-medium text-foreground mb-1">
-        {label}
+        {tx(label)}
         {required && <span className="text-destructive ml-1">*</span>}
       </label>
       {children}
-      {error && <p className="text-destructive text-xs mt-1">{error}</p>}
+      {error && <p className="text-destructive text-xs mt-1">{tx(error)}</p>}
     </div>
   )
 }
@@ -83,6 +99,7 @@ export function FormField({ label, required, error, children }) {
  */
 /** A titled group of fields, separated by a rule. */
 export function FormSection({ title, children }) {
+  useExtensions()
   return (
     <div className="pt-2">
       <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground pb-2 mb-3 border-b border-border">
@@ -94,6 +111,7 @@ export function FormSection({ title, children }) {
 }
 
 export function TextField({ label, value, onChange, placeholder, required, type = 'text', multiline = false, error }) {
+  useExtensions()
   return (
     <FormField label={label} required={required} error={error}>
       {multiline ? (
@@ -121,6 +139,7 @@ export function TextField({ label, value, onChange, placeholder, required, type 
  * Select field
  */
 export function SelectField({ label, value, onChange, options, placeholder, required, error }) {
+  useExtensions()
   const { t } = useTranslation('common')
   return (
     <FormField label={label} required={required} error={error}>

@@ -74,7 +74,11 @@ export function RecordItem({
             style={{ backgroundColor: car.color || '#6B7280' }}
           >
             {car.img ? (
-              <img src={getImgUrl(car.img)} alt={`${car.brand} ${car.model}`} className="w-full h-full object-cover" />
+              <img
+                src={getImgUrl(car.img)}
+                alt={`${car.brand} ${car.model}`}
+                className="w-full h-full object-contain p-1"
+              />
             ) : (
               <span>{car.brand?.charAt(0) || '?'}</span>
             )}

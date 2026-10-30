@@ -1,7 +1,6 @@
 {
   "close": "Schließen",
   "cancel": "Abbrechen",
-  "confirm": "Bestätigen",
   "save": "Speichern",
   "saving": "Wird gespeichert …",
   "delete": "Löschen",
@@ -78,6 +77,13 @@
   "edit": "Bearbeiten",
   "exportExcel": "Als Excel-Datei exportieren",
   "exportSelection": "Auswahl exportieren ({{count}})",
+  "all": "Alle",
+  "items": "Einträge",
+  "confirm": "Bestätigen",
+  "imageHint": "Bild zum Verschieben ziehen; mit der Vergrößerung die Größe anpassen.",
+  "pageError": "Diese Ansicht konnte nicht geladen werden.",
+  "reload": "Seite neu laden",
+  "loadingView": "Ansicht wird geladen …",
   "items_one": "Eintrag",
   "items_other": "Einträge"
 }

@@ -38,6 +38,7 @@ export default function PageHeader({
 }
 
 export function ViewToggleButtons({ mode, onChange }) {
+  const { t } = useTranslation('common')
   return (
     <div className="flex bg-muted rounded-lg p-1">
       <button
@@ -47,7 +48,7 @@ export function ViewToggleButtons({ mode, onChange }) {
         }`}
       >
         <LayoutGrid className="size-4" />
-        Grille
+        {t('grid')}
       </button>
       <button
         onClick={() => onChange('list')}
@@ -56,7 +57,7 @@ export function ViewToggleButtons({ mode, onChange }) {
         }`}
       >
         <List className="size-4" />
-        Liste
+        {t('list')}
       </button>
     </div>
   )

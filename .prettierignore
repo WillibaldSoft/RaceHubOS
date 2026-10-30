@@ -18,3 +18,8 @@ package-lock.json
 
 # Local tool settings
 .claude/
+
+# Local packaging evidence and separately built add-on bundles
+local-carrera/
+packages/backend/addons/
+addons/**/*.racehub-addon.json

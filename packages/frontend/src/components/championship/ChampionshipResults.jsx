@@ -1,3 +1,4 @@
+import { formatDecimal } from '../../lib/formatDecimal'
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Trophy, Timer, Clock, Zap, TrendingUp, Activity, Heart, Loader2 } from 'lucide-react'
@@ -9,14 +10,14 @@ const API_URL = import.meta.env.VITE_API_URL || ''
 function formatLapTime(ms) {
   if (!ms) return '--'
   const s = ms / 1000
-  return s >= 60 ? `${Math.floor(s / 60)}:${(s % 60).toFixed(3).padStart(6, '0')}` : `${s.toFixed(3)}s`
+  return s >= 60 ? `${Math.floor(s / 60)}:${formatDecimal(s % 60).padStart(6, '0')}` : `${formatDecimal(s)}s`
 }
 
 function formatTotalTime(ms) {
   if (!ms) return '--'
   const totalSec = ms / 1000
   const min = Math.floor(totalSec / 60)
-  const sec = (totalSec % 60).toFixed(3)
+  const sec = formatDecimal(totalSec % 60)
   return `${min}:${sec.padStart(6, '0')}`
 }
 
@@ -236,7 +237,7 @@ function StandingsTable({ standings }) {
                     >
                       {gap.type === 'laps'
                         ? t('results.gapLaps', { count: gap.value })
-                        : `+${(gap.value / 1000).toFixed(3)}`}
+                        : `+${formatDecimal(gap.value / 1000)}`}
                     </span>
                   ) : (
                     <span className={`text-xs font-bold ${GAP_COLORS.leader}`}>{t('results.leader')}</span>

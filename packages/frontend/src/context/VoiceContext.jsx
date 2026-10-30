@@ -1,7 +1,10 @@
+import { speechTimeParts, speechRate } from '../lib/speechTime.mjs'
+import i18n from '../i18n'
+import { createSpeechPlayer } from '../lib/piperPlayer.mjs'
+import { browserVoice } from '../lib/piperSelection.mjs'
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import i18n from '../i18n'
-import { speechLocale } from '../lib/speech'
+import { voiceIdsFromPreference } from '../lib/voicePreferences.mjs'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -17,6 +20,43 @@ export function VoiceProvider({ children }) {
     i18n: { resolvedLanguage },
   } = useTranslation()
 
+  const [localVoices, setLocalVoices] = useState([])
+  const localVoicesRef = useRef([])
+  const [voiceState, setVoiceState] = useState('idle')
+  const playerRef = useRef(null)
+  if (!playerRef.current) playerRef.current = createSpeechPlayer({ api: API_URL, onState: setVoiceState })
+  useEffect(() => {
+    fetch(`${API_URL}/api/voice/status`)
+      .then((r) => r.json())
+      .then((d) => {
+        localVoicesRef.current = Array.isArray(d.voices) ? d.voices : []
+        setLocalVoices(localVoicesRef.current)
+      })
+      .catch(() => {})
+    const stop = () => playerRef.current.cancel()
+    i18n.on('languageChanged', stop)
+    return () => {
+      i18n.off('languageChanged', stop)
+      stop()
+    }
+  }, [])
+
+  const [gain, setGain] = useState(2)
+  const gainRef = useRef(gain)
+  gainRef.current = gain
+  const saveGain = useCallback((value) => {
+    const next = Math.min(4, Math.max(1, Number(value) || 2))
+    setGain(next)
+    fetch(`${API_URL}/api/preferences/voice:gain`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: next }),
+    }).catch(() => {})
+  }, [])
+  const [rate, setRate] = useState(0.95)
+  const rateRef = useRef(rate)
+  rateRef.current = rate
+
   // Refs for access from socket listeners
   const bestLapEnabledRef = useRef(bestLapEnabled)
   bestLapEnabledRef.current = bestLapEnabled
@@ -27,8 +67,30 @@ export function VoiceProvider({ children }) {
   const voiceIdsRef = useRef(voiceIds)
   voiceIdsRef.current = voiceIds
 
+  const saveRate = useCallback((value) => {
+    const next = speechRate(Number(value))
+    setRate(next)
+    fetch(`${API_URL}/api/preferences/voice:rate`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ value: next }),
+    }).catch(() => {})
+  }, [])
+
   // Load preferences
   useEffect(() => {
+    fetch(`${API_URL}/api/preferences/voice:gain`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && Number.isFinite(d.data)) setGain(Math.min(4, Math.max(1, d.data)))
+      })
+      .catch(() => {})
+    fetch(`${API_URL}/api/preferences/voice:rate`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && d.data !== null) setRate(speechRate(d.data))
+      })
+      .catch(() => {})
     fetch(`${API_URL}/api/preferences/bestLapVoice:enabled`)
       .then((r) => r.json())
       .then((d) => {
@@ -51,8 +113,8 @@ export function VoiceProvider({ children }) {
       .then((r) => r.json())
       .then((d) => {
         if (!d.success || d.data === null) return
-        // Before 1.25.0 a single voice was stored, always a French one
-        setVoiceIds(typeof d.data === 'string' ? { fr: d.data } : d.data)
+        // Preserve the existing local Piper/browser choice when adopting per-language settings.
+        setVoiceIds(voiceIdsFromPreference(d.data, i18n.resolvedLanguage))
       })
       .catch(() => {})
   }, [])
@@ -98,45 +160,33 @@ export function VoiceProvider({ children }) {
     }).catch(() => {})
   }, [])
 
-  // Voice chosen for the interface language; none lets the browser pick its
-  // default voice for that language (utterance.lang)
-  const getVoice = useCallback(() => {
-    const voiceURI = voiceIdsRef.current[i18n.resolvedLanguage]
-    if (!voiceURI) return null
-    return speechSynthesis.getVoices().find((v) => v.voiceURI === voiceURI) || null
-  }, [])
-
-  // Speak text with current settings
+  const getVoice = useCallback(
+    () =>
+      browserVoice(
+        window.speechSynthesis?.getVoices() || [],
+        voiceIdsRef.current[i18n.resolvedLanguage] || '',
+        i18n.resolvedLanguage
+      ),
+    []
+  )
   const speak = useCallback(
-    (text, { rate = 1.1, volume = 0.9, force = false } = {}) => {
-      try {
-        if (!force && speechSynthesis.speaking) return null
-        const utterance = new SpeechSynthesisUtterance(text)
-        utterance.lang = speechLocale(i18n.resolvedLanguage)
-        utterance.rate = rate
-        utterance.volume = volume
-        const voice = getVoice()
-        if (voice) utterance.voice = voice
-        speechSynthesis.speak(utterance)
-        return utterance
-      } catch {
-        return null
-      }
-    },
-    [getVoice]
+    (text, options = {}) =>
+      playerRef.current.speak(text, {
+        language: i18n.resolvedLanguage,
+        selection: voiceIdsRef.current[i18n.resolvedLanguage] || '',
+        voices: localVoicesRef.current,
+        rate: rateRef.current,
+        gain: gainRef.current,
+        ...options,
+      }),
+    []
   )
 
-  // Format time for speech
   const formatTimeVoice = useCallback((ms) => {
-    if (!ms) return ''
-    const number = (value) =>
-      value.toLocaleString(i18n.resolvedLanguage, { minimumFractionDigits: 3, maximumFractionDigits: 3 })
-    const s = ms / 1000
-    if (s >= 60) {
-      const min = Math.floor(s / 60)
-      return i18n.t('voice:minutes', { count: min, seconds: number(s % 60) })
-    }
-    return i18n.t('voice:seconds', { value: number(s) })
+    const parts = speechTimeParts(ms, i18n.resolvedLanguage || 'de')
+    if (!parts) return ''
+    const seconds = i18n.t('voice:seconds', { value: parts.seconds })
+    return parts.minutes ? i18n.t('voice:minutes', { count: parts.minutes, seconds }) : seconds
   }, [])
 
   return (
@@ -156,6 +206,14 @@ export function VoiceProvider({ children }) {
         speak,
         getVoice,
         formatTimeVoice,
+        localVoices,
+        voiceState,
+        rate,
+        saveRate,
+        gain,
+        saveGain,
+        localAvailable: localVoices.length > 0,
+        voiceError: voiceState === 'unavailable',
       }}
     >
       {children}

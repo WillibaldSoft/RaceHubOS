@@ -133,5 +133,45 @@
     "toConfigure_other": "{{count}} controllers to configure",
     "toConfigureWithSlots_one": "{{count}} controller to configure ({{slots}})",
     "toConfigureWithSlots_other": "{{count}} controllers to configure ({{slots}})"
+  },
+  "voice": {
+    "bestLap": "New best lap for {{name}}: {{time}}.",
+    "car": "Car {{number}}",
+    "places": ["First place", "Second place", "Third place"],
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes",
+    "seconds": "{{value}} seconds",
+    "podium": "{{place}}: {{name}}, {{time}}."
+  },
+  "dnf": "Did not finish",
+  "fuel": {
+    "title": "Fuel gauge · Controller 1",
+    "level": "Controller 1 fuel level",
+    "value": "CU value {{value}} of 15",
+    "scale": "CU scale 0–15, not litres. The bar shows the reported level.",
+    "mode": "Fuel mode: {{mode}}",
+    "modes": {
+      "unknown": "unknown",
+      "off": "OFF",
+      "on": "ON",
+      "real": "REAL"
+    },
+    "noData": "No current data",
+    "noPit": "Pit Lane sensor not detected",
+    "inPit": "Pit status active",
+    "onTrack": "Pit status inactive",
+    "stale": "No current CU data. The previous reading is not shown as a current fuel level.",
+    "switchOn": "For the fuel test, set the CU FUEL slide switch to ON. Start remains disabled until then.",
+    "useOn": "Choose ON instead of REAL for this first test.",
+    "empty": "Tank empty – enter the pits to refuel.",
+    "low": "Fuel low – prepare a pit stop.",
+    "refuel": "Stop after crossing the refuelling sensor and hold the lane-change button. Check whether the fuel value increases."
+  },
+  "lapSpeed": {
+    "label": "Calculated average speed for the last lap",
+    "short": "Lap avg.",
+    "lap": "Lap {{number}}",
+    "noLength": "No valid track length saved.",
+    "explanation": "Estimate from lap time and {{length}} m mean lane length. Lane changes and pit routes are not tracked; not top speed."
   }
 }

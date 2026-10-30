@@ -1,3 +1,4 @@
+import i18n from '../../../i18n'
 import { Play, Pause, Flag, Trophy, X } from 'lucide-react'
 
 export default function SessionControls({
@@ -28,14 +29,14 @@ export default function SessionControls({
               className="flex items-center gap-2 px-8 py-3 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white font-bold rounded-xl shadow-lg transition-all"
             >
               <Play className="w-6 h-6" />
-              Démarrer
+              {i18n.t('race:session.start')}
             </button>
             <button
               onClick={onShowCancel}
               className="flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl"
             >
               <X className="w-6 h-6" />
-              Annuler
+              {i18n.t('race:cancelConfirmModal.confirm')}
             </button>
           </>
         )}
@@ -48,7 +49,7 @@ export default function SessionControls({
               className="flex items-center gap-2 px-6 py-3 bg-yellow-500 hover:bg-yellow-400 text-yellow-900 font-bold rounded-xl"
             >
               <Pause className="w-6 h-6" />
-              Pause
+              {i18n.t('race:session.pause')}
             </button>
             <button
               onClick={onFinish}
@@ -56,7 +57,7 @@ export default function SessionControls({
               className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl"
             >
               <Flag className="w-6 h-6" />
-              Terminer
+              {i18n.t('race:session.finish')}
             </button>
           </>
         )}
@@ -69,7 +70,7 @@ export default function SessionControls({
               className="flex items-center gap-2 px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-xl"
             >
               <Play className="w-6 h-6" />
-              Reprendre
+              {i18n.t('race:session.resume')}
             </button>
             <button
               onClick={onFinish}
@@ -77,7 +78,7 @@ export default function SessionControls({
               className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl"
             >
               <Flag className="w-6 h-6" />
-              Terminer
+              {i18n.t('race:session.finish')}
             </button>
           </>
         )}
@@ -88,7 +89,7 @@ export default function SessionControls({
             className="flex items-center gap-2 px-8 py-3 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl"
           >
             <Trophy className="w-6 h-6" />
-            Voir Résultats
+            {i18n.t('race:session.viewResults')}
           </button>
         )}
       </div>

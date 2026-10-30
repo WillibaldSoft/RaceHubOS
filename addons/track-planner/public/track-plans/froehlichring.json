@@ -1,0 +1,291 @@
+{
+  "kind": "racehubos.track-plan",
+  "version": 1,
+  "pieces": [
+    {
+      "type": "Startampel_3spur_hinten",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Pit_stop_weiche_ende",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Kurve_4_15_links",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Viertelgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Kurve_1_60_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Kurve_1_60_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Kurve_2_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Kurve_3_30_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "AdapterUnit",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "DigitaleDoppelweiche_1",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "DigitaleDoppelweiche_2",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Kurve_1_60_links",
+      "level": 0,
+      "jointDegrees": -0.08337619230941161
+    },
+    {
+      "type": "Kurve_2_30_links",
+      "level": 0,
+      "jointDegrees": -0.09657222185493573
+    },
+    {
+      "type": "Kurve_3_30_links",
+      "level": 0,
+      "jointDegrees": -0.08833255344360624
+    },
+    {
+      "type": "Kurve_3_30_links",
+      "level": 0,
+      "jointDegrees": -0.06130453279084761
+    },
+    {
+      "type": "Kurve_4_15_links",
+      "level": 0,
+      "jointDegrees": -0.026026196340818587
+    },
+    {
+      "type": "Kurve_4_15_links",
+      "level": 0,
+      "jointDegrees": -0.0031440038968318157
+    },
+    {
+      "type": "Kurve_4_15_links",
+      "level": 0,
+      "jointDegrees": 0.017785584972954762
+    },
+    {
+      "type": "Kurve_4_15_links",
+      "level": 0,
+      "jointDegrees": 0.03533625738183215
+    },
+    {
+      "type": "Kurve_4_15_links",
+      "level": 0,
+      "jointDegrees": 0.04831197016881166
+    },
+    {
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Check_lane",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Kurve_4_15_links",
+      "level": 1,
+      "jointDegrees": 0.08294130002835776
+    },
+    {
+      "type": "Kurve_4_15_links",
+      "level": 1,
+      "jointDegrees": 0.08448633412949291
+    },
+    {
+      "type": "Kurve_3_30_links",
+      "level": 1,
+      "jointDegrees": 0.07995462495167208
+    },
+    {
+      "type": "Kurve_2_30_links",
+      "level": 1,
+      "jointDegrees": 0.059992728093116184
+    },
+    {
+      "type": "Kurve_1_60_links",
+      "level": 1,
+      "jointDegrees": 0.03695551807219581
+    },
+    {
+      "type": "Kurve_2_30_links",
+      "level": 1,
+      "jointDegrees": 0.00874283002698413
+    },
+    {
+      "type": "Kurve_3_30_links",
+      "level": 1,
+      "jointDegrees": -0.0026418350109328956
+    },
+    {
+      "type": "Standardgerade",
+      "level": 1,
+      "jointDegrees": 0
+    },
+    {
+      "type": "DigitaleDoppelweiche_1",
+      "level": 1,
+      "jointDegrees": 0
+    },
+    {
+      "type": "DigitaleDoppelweiche_2",
+      "level": 1,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Standardgerade",
+      "level": 1,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Standardgerade",
+      "level": 1,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0.05515169478137335
+    },
+    {
+      "type": "Kurve_4_15_rechts",
+      "level": 0,
+      "jointDegrees": 0.05968333930719388
+    },
+    {
+      "type": "Kurve_3_30_rechts",
+      "level": 0,
+      "jointDegrees": 0.05813819674387739
+    },
+    {
+      "type": "Kurve_3_30_rechts",
+      "level": 0,
+      "jointDegrees": 0.042199595898525954
+    },
+    {
+      "type": "Kurve_2_30_rechts",
+      "level": 0,
+      "jointDegrees": 0.012270320606194022
+    },
+    {
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Kurvenweiche_rechts_ai_1",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Kurvenweiche_rechts_ai_2",
+      "level": 0,
+      "jointDegrees": -0.14908768454221452
+    },
+    {
+      "type": "Kurve_1_60_rechts",
+      "level": 0,
+      "jointDegrees": -0.17146507497300112
+    },
+    {
+      "type": "AdapterUnit",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Pit_stop_weiche_anfang",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Standardgerade",
+      "level": 0,
+      "jointDegrees": 0
+    },
+    {
+      "type": "Control_unit",
+      "level": 0,
+      "jointDegrees": 0
+    }
+  ],
+  "geometryProfile": "prototype",
+  "startHeadingDegrees": 180,
+  "pit": {
+    "enabled": true,
+    "entry": 51,
+    "merge": 1,
+    "spacingMm": 345,
+    "bayLengthMm": 1035
+  },
+  "measuredLaneLengthsM": null
+}

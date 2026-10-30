@@ -121,12 +121,12 @@ async function main() {
     const { fuel, start, mode, pit, display } = status;
     const startNames = [
       'RACING',
+      'READY',
       'LIGHTS_1',
       'LIGHTS_2',
       'LIGHTS_3',
       'LIGHTS_4',
       'LIGHTS_5',
-      'FALSE_START',
       'GO',
       '?',
       'STOPPED',

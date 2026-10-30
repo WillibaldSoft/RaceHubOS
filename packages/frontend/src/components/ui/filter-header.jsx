@@ -1,3 +1,5 @@
+import { tx, useExtensions } from '../../i18n/extensions'
+import i18n from '../../i18n'
 import { Filter, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import {
   DropdownMenu,
@@ -7,6 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 export function FilterHeader({ label, active, value = [], options, onChange, column }) {
+  useExtensions()
   const sorted = column?.getIsSorted?.()
   const canSort = column?.getCanSort?.()
 
@@ -28,7 +31,7 @@ export function FilterHeader({ label, active, value = [], options, onChange, col
           className={canSort ? 'cursor-pointer select-none hover:text-foreground flex items-center gap-2' : ''}
           onClick={column?.getToggleSortingHandler?.()}
         >
-          {label}
+          {tx(label)}
           {canSort &&
             (sorted === 'asc' ? (
               <ChevronUp className="w-4 h-4 text-black dark:text-white" />
@@ -55,7 +58,7 @@ export function FilterHeader({ label, active, value = [], options, onChange, col
           onCheckedChange={() => toggleValue('')}
           onSelect={(e) => e.preventDefault()}
         >
-          Tous
+          {i18n.t('common:all')}
         </DropdownMenuCheckboxItem>
         {options
           .filter((o) => o.value)

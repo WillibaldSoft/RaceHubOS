@@ -1,3 +1,4 @@
+import { formatDecimal } from '../../lib/formatDecimal'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { TrendingDown, TrendingUp, Minus } from 'lucide-react'
@@ -69,7 +70,7 @@ export default function BalancingStandings({ standings = [] }) {
                     <img
                       src={getImgUrl(car.img)}
                       alt={`${car.brand} ${car.model}`}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain p-1"
                     />
                   </div>
                 ) : (
@@ -97,7 +98,7 @@ export default function BalancingStandings({ standings = [] }) {
                     <span className="text-xs text-muted-foreground/60 w-7 text-left">{t('standings.best')}</span>
                     <LapTime time={standing.lapTime} size="sm" />
                     <span className="font-mono text-xs text-muted-foreground w-16 text-right">
-                      {gap !== null ? `+${(gap / 1000).toFixed(3)}` : ''}
+                      {gap !== null ? `+${formatDecimal(gap / 1000)}` : ''}
                     </span>
                   </div>
                   {standing.median && (
@@ -144,7 +145,7 @@ export default function BalancingStandings({ standings = [] }) {
                           ) : (
                             <Minus className="size-2.5" />
                           ))}
-                        <span>{(h.median / 1000).toFixed(3)}</span>
+                        <span>{formatDecimal(h.median / 1000)}</span>
                       </div>
                     )
                   })}

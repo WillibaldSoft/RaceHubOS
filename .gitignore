@@ -65,3 +65,27 @@ packages/backend/public/uploads-remote-backup/
 
 # Exports de classement (données de course, pas du code)
 *.xlsx
+
+# Automatic pre-import backups contain private race data
+**/cockpit-import-backups/
+
+scripts/piper/__pycache__/
+
+# Local Playwright artifacts
+/test-results/
+
+# Local packaging test caches
+/local-carrera/debian/__pycache__/
+
+# Separately installed add-ons and their distributable bundles
+packages/backend/addons/
+addons/**/*.racehub-addon.json
+
+# Standalone add-on browser test output
+addons/**/test-results/
+addons/**/playwright-report/
+
+# Local Python packaging caches and interrupted test schema output
+scripts/__pycache__/
+scripts/packaging/__pycache__/
+packages/backend/prisma/.test-schema.sql

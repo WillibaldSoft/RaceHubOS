@@ -1,3 +1,4 @@
+import { tx, useExtensions } from '../i18n/extensions'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Sun, Moon } from 'lucide-react'
@@ -15,11 +16,14 @@ import {
 } from '@/components/ui/sidebar'
 import { useApp } from '../context/AppContext'
 import { allNavItems, navLabel } from '../lib/navItems'
+import { NavigationSymbol, useNavigationAppearance } from './NavigationSymbols'
 
 export default function AppSidebar({ backendConnected, backendVersion, onStatusClick, ...props }) {
+  useExtensions()
   const { t } = useTranslation('layout')
   const { isDark, toggleTheme, isAdmin } = useApp()
   const location = useLocation()
+  const appearance = useNavigationAppearance()
 
   const navItems = allNavItems.filter((item) => !item.adminOnly || isAdmin)
 
@@ -59,10 +63,15 @@ export default function AppSidebar({ backendConnected, backendVersion, onStatusC
                 const label = navLabel(t, item)
                 return (
                   <SidebarMenuItem key={item.to}>
-                    <SidebarMenuButton asChild isActive={isActive(item.to)} tooltip={label}>
+                    <SidebarMenuButton
+                      asChild
+                      className={appearance.original ? undefined : 'h-auto min-h-9 py-1'}
+                      isActive={isActive(item.to)}
+                      tooltip={label}
+                    >
                       <Link to={item.to}>
-                        <item.Icon />
-                        <span>{label}</span>
+                        <NavigationSymbol path={item.to} config={appearance} />
+                        <span>{tx(label)}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

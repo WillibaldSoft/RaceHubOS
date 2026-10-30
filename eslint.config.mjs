@@ -5,7 +5,12 @@ import globals from 'globals';
 import { defineConfig, globalIgnores } from 'eslint/config';
 
 export default defineConfig([
-  globalIgnores(['**/dist', 'packages/backend/public', 'packages/backend/prisma/generated']),
+  globalIgnores([
+    '**/dist',
+    'packages/backend/public',
+    'packages/backend/prisma/generated',
+    'local-carrera/pruefungen/**',
+  ]),
   {
     files: ['**/*.{js,mjs}'],
     extends: [js.configs.recommended],
@@ -17,6 +22,10 @@ export default defineConfig([
     rules: {
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
+  },
+  {
+    files: ['addons/track-planner/src/workers/**', '**/*.spec.js'],
+    languageOptions: { globals: globals.browser },
   },
   {
     files: ['packages/backend/src/__tests__/**'],

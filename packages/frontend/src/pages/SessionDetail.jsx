@@ -1,3 +1,4 @@
+import { tx, useExtensions, locale } from '../i18n/extensions'
 import { useEffect, useState, useMemo } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -11,6 +12,7 @@ import { ConfirmModal } from '../components/ui/Modal'
 import SessionLeaderboard from '../components/race/SessionLeaderboard'
 import BalancingChart from '../components/balancing/BalancingChart'
 import Podium from '../components/race/Podium'
+import { screenTime } from '../lib/raceScreen.mjs'
 import LapTime from '../components/race/LapTime'
 import { SessionStatus, SessionType } from '@racehubos/shared'
 
@@ -27,6 +29,7 @@ function formatDate(date, locale) {
 }
 
 export default function SessionDetail() {
+  useExtensions()
   const { t, i18n } = useTranslation('sessions')
   const { id } = useParams()
   const navigate = useNavigate()
@@ -242,10 +245,10 @@ export default function SessionDetail() {
         {entries.some((e) => e.isDNF) && (
           <div className="flex items-center gap-2 text-sm text-orange-500">
             <Flag className="size-4" />
-            DNF :{' '}
+            {t('race:dnf')}:{' '}
             {entries
               .filter((e) => e.isDNF)
-              .map((e) => e.driver?.name || `Ctrl ${e.controller + 1}`)
+              .map((e) => e.driver?.name || t('race:controllerSlot.controller', { number: e.controller + 1 }))
               .join(', ')}
           </div>
         )}
@@ -261,6 +264,7 @@ export default function SessionDetail() {
           )
         ) : entries.length > 0 ? (
           <SessionLeaderboard
+            track={session.track}
             entries={entries}
             sortBy={session.type === SessionType.RACE ? 'race' : 'bestLap'}
             sessionType={session.type}
@@ -288,6 +292,11 @@ export default function SessionDetail() {
                       <th className="px-4 py-2 font-medium">{t('glossary:driver', { count: 1 })}</th>
                       <th className="px-4 py-2 font-medium">{t('glossary:car', { count: 1 })}</th>
                       <th className="px-4 py-2 font-medium text-right">{t('profile.time')}</th>
+                      {[1, 2, 3].map((n) => (
+                        <th key={n} className="px-4 py-2 font-medium text-right">
+                          {tx('Abschnitt')} {n}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
@@ -313,6 +322,11 @@ export default function SessionDetail() {
                           <td className="px-4 py-1.5 text-right">
                             <LapTime time={Math.round(lap.lapTime)} size="sm" highlight={lap.lapTime === fastestLap} />
                           </td>
+                          {[1, 2, 3].map((n) => (
+                            <td key={n} className="px-4 py-1.5 text-right font-mono">
+                              {screenTime(lap[`sector${n}`])}
+                            </td>
+                          ))}
                         </tr>
                       )
                     })}

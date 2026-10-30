@@ -1,3 +1,7 @@
+import AddonTrackEditor from '../addons/TrackPlannerHost'
+import { useTrackPlanner } from '../addons/FeatureState'
+import { readTrackPlan, trackPlanFields } from '@racehubos/shared'
+import { formatDecimal } from '../lib/formatDecimal'
 import { useState, useEffect, useMemo } from 'react'
 import DeleteButton from '../components/ui/DeleteButton'
 import { useNavigate } from 'react-router-dom'
@@ -7,7 +11,8 @@ import { FormModal, TextField, PhotoUploadField, ColorPickerField } from '../com
 import { ListPage } from '@/components/ui/list-page'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { getImgUrl } from '../utils/image'
+import { TrackThumbnail } from '../components/tracks/TrackThumbnail'
+import { TrackLaneLengths } from '../components/tracks/TrackLaneLengths'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -59,7 +64,7 @@ export default function Tracks() {
 
   function formatTime(ms) {
     if (!ms) return '-'
-    return (ms / 1000).toFixed(3) + 's'
+    return formatDecimal(ms / 1000) + 's'
   }
 
   const columns = useMemo(
@@ -71,16 +76,7 @@ export default function Tracks() {
           const track = row.original
           return (
             <div className="flex items-center gap-3">
-              <div
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white overflow-hidden flex-shrink-0"
-                style={{ backgroundColor: track.color || '#9333EA' }}
-              >
-                {track.img ? (
-                  <img src={getImgUrl(track.img)} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <MapPin className="w-4 h-4" />
-                )}
-              </div>
+              <TrackThumbnail track={track} />
               <span className="font-semibold">{track.name}</span>
             </div>
           )
@@ -93,7 +89,7 @@ export default function Tracks() {
         cell: ({ row }) => (
           <span className="flex items-center gap-1.5 text-muted-foreground">
             <Rocket className="w-4 h-4 text-purple-500" />
-            {row.original.length ? `${row.original.length}m` : '-'}
+            {row.original.length ? `${formatDecimal(row.original.length)}m` : '-'}
           </span>
         ),
       },
@@ -241,7 +237,9 @@ function TrackCard({ track, onClick, onEdit, onDelete }) {
       data-entity-id={track.id}
       onClick={onClick}
       className="relative overflow-hidden cursor-pointer hover:shadow-2xl transition-all"
-      style={{ background: `linear-gradient(135deg, ${trackColor}10 0%, ${trackColor}05 100%)` }}
+      style={{
+        background: `linear-gradient(135deg, ${trackColor}10 0%, ${trackColor}05 100%)`,
+      }}
     >
       <div className="absolute top-3 right-3 z-10 flex items-center gap-1">
         <button
@@ -259,28 +257,17 @@ function TrackCard({ track, onClick, onEdit, onDelete }) {
       <div className="absolute top-0 left-0 w-1 h-full opacity-80" style={{ backgroundColor: trackColor }} />
 
       <div className="relative p-6 pb-4">
-        <div className="flex items-start justify-between mb-4">
-          <div className="relative">
-            <div className="absolute inset-0 rounded-xl blur-md opacity-50" style={{ backgroundColor: trackColor }} />
-            <div
-              className="relative w-20 h-20 rounded-xl flex items-center justify-center text-white ring-4 ring-white shadow-xl overflow-hidden"
-              style={{ background: `linear-gradient(135deg, ${trackColor} 0%, ${trackColor}CC 100%)` }}
-            >
-              {track.img ? (
-                <img src={getImgUrl(track.img)} alt="" className="w-full h-full object-cover" />
-              ) : (
-                <MapPin className="w-10 h-10 drop-shadow-lg" />
-              )}
-            </div>
-          </div>
+        <div className="relative flex items-start justify-between mb-4">
+          <TrackThumbnail track={track} className="!w-full !h-32" />
           {track.bestLap && (
-            <Badge className="bg-yellow-500 text-white shadow-md">
+            <Badge className="absolute bottom-2 right-2 bg-yellow-500 text-white shadow-md">
               <Trophy className="w-3 h-3" />
               {t('common:record')}
             </Badge>
           )}
         </div>
         <h3 className="font-black text-xl tracking-tight text-foreground uppercase">{track.name}</h3>
+        <TrackLaneLengths track={track} />
         <div className="h-1 w-16 rounded-full mt-2" style={{ backgroundColor: trackColor }} />
       </div>
 
@@ -292,7 +279,7 @@ function TrackCard({ track, onClick, onEdit, onDelete }) {
               <span className="text-xs font-medium text-muted-foreground uppercase">{t('fields.length')}</span>
             </div>
             <span className="text-sm font-black" style={{ color: trackColor }}>
-              {track.length}m
+              {formatDecimal(track.length)}m
             </span>
           </div>
         )}
@@ -317,7 +304,7 @@ function TrackCard({ track, onClick, onEdit, onDelete }) {
                 </span>
               </div>
               <span className="text-lg font-black text-yellow-600 dark:text-yellow-400">
-                {(track.bestLap / 1000).toFixed(3)}s
+                {formatDecimal(track.bestLap / 1000)}s
               </span>
             </div>
             {track.bestLapBy && (
@@ -340,38 +327,48 @@ function TrackCard({ track, onClick, onEdit, onDelete }) {
   )
 }
 
-export function TrackFormModal({ track, onClose }) {
+export function TrackFormModal({ track, referenceTrack, onClose }) {
   const { t } = useTranslation('tracks')
   const [formData, setFormData] = useState({
-    name: track?.name || '',
+    name: track?.name || (referenceTrack ? t('room.copyName', { name: referenceTrack.name }) : ''),
     length: track?.length || '',
     corners: track?.corners || '',
     img: track?.img || '',
-    color: track?.color || '#9333EA',
+    color: track?.color || referenceTrack?.color || '#9333EA',
   })
+  const { available: plannerAvailable } = useTrackPlanner()
+  const [plan, setPlan] = useState(() => readTrackPlan((track || referenceTrack)?.layout))
+  const [importAsNew, setImportAsNew] = useState(false)
+  const [plannerExpanded, setPlannerExpanded] = useState(!!readTrackPlan((track || referenceTrack)?.layout))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
-  async function handleSubmit() {
+  async function handleSubmit(nextPlan = plan, nextName = formData.name, asNew = importAsNew) {
+    if (plannerAvailable && nextPlan && !nextPlan.pieces.length) {
+      setError(t('editor.empty'))
+      return
+    }
     setSaving(true)
     setError('')
     try {
-      const url = track ? `${API_URL}/api/tracks/${track.id}` : `${API_URL}/api/tracks`
+      const url = track && !asNew ? `${API_URL}/api/tracks/${track.id}` : `${API_URL}/api/tracks`
       const res = await fetch(url, {
-        method: track ? 'PUT' : 'POST',
+        method: track && !asNew ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: formData.name,
+          name: nextName,
           img: formData.img || null,
           length: formData.length ? parseFloat(formData.length) : null,
           corners: formData.corners ? parseInt(formData.corners) : null,
           color: formData.color,
+          ...(plannerAvailable && nextPlan ? trackPlanFields(nextPlan) : {}),
         }),
       })
       if (res.ok) {
+        const saved = await res.json()
         setSuccess(t('form.saved'))
-        setTimeout(() => onClose(), 1500)
+        setTimeout(() => onClose(saved.data), 1500)
       } else {
         const data = await res.json()
         setError(data.error || t('common:saveError'))
@@ -387,9 +384,11 @@ export function TrackFormModal({ track, onClose }) {
     <FormModal
       open
       onClose={onClose}
+      size={plannerAvailable && plan && plannerExpanded ? 'planner' : 'lg'}
       title={track ? t('form.editTitle') : t('form.createTitle')}
       icon={<MapPin className="w-5 h-5 text-primary" />}
-      onSubmit={handleSubmit}
+      hideFooter={plannerAvailable && !!plan && plannerExpanded}
+      onSubmit={() => handleSubmit()}
       isEditing={!!track}
       saving={saving}
       error={error}
@@ -411,22 +410,41 @@ export function TrackFormModal({ track, onClose }) {
         uploadType="tracks"
       />
       <ColorPickerField value={formData.color} onChange={(color) => setFormData((f) => ({ ...f, color }))} />
-      <div className="grid grid-cols-2 gap-4">
-        <TextField
-          label={t('form.lengthLabel')}
-          type="number"
-          value={formData.length}
-          onChange={(v) => setFormData((f) => ({ ...f, length: v }))}
-          placeholder={t('form.lengthPlaceholder')}
-        />
-        <TextField
-          label={t('fields.corners')}
-          type="number"
-          value={formData.corners}
-          onChange={(v) => setFormData((f) => ({ ...f, corners: v }))}
-          placeholder={t('form.cornersPlaceholder')}
-        />
-      </div>
+      <AddonTrackEditor
+        onSave={(next) => handleSubmit(next.plan, next.name, next.importAsNew)}
+        onImportNew={(name) => {
+          setImportAsNew(true)
+          setFormData((f) => ({ ...f, name }))
+        }}
+        trackName={formData.name}
+        onNameChange={(name) => setFormData((f) => ({ ...f, name }))}
+        value={plan}
+        onChange={setPlan}
+        expanded={plannerExpanded}
+        onExpandedChange={setPlannerExpanded}
+        onCancel={onClose}
+        saving={saving}
+        statusError={error}
+        statusSuccess={success}
+      />
+      {(!plannerAvailable || !plan) && (
+        <div className="grid grid-cols-2 gap-4">
+          <TextField
+            label={t('form.lengthLabel')}
+            type="number"
+            value={formData.length}
+            onChange={(v) => setFormData((f) => ({ ...f, length: v }))}
+            placeholder={t('form.lengthPlaceholder')}
+          />
+          <TextField
+            label={t('fields.corners')}
+            type="number"
+            value={formData.corners}
+            onChange={(v) => setFormData((f) => ({ ...f, corners: v }))}
+            placeholder={t('form.cornersPlaceholder')}
+          />
+        </div>
+      )}
     </FormModal>
   )
 }

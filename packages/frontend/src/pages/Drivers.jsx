@@ -1,3 +1,4 @@
+import { formatDecimal } from '../lib/formatDecimal'
 import { useState, useEffect, useMemo, useRef } from 'react'
 import DeleteButton from '../components/ui/DeleteButton'
 import { useNavigate } from 'react-router-dom'
@@ -172,7 +173,7 @@ export default function Drivers() {
         header: t('common:record'),
         cell: ({ row }) => (
           <span className="font-mono font-bold">
-            {row.original.bestLap ? `${(row.original.bestLap / 1000).toFixed(3)}s` : '-'}
+            {row.original.bestLap ? `${formatDecimal(row.original.bestLap / 1000)}s` : '-'}
           </span>
         ),
       },
@@ -402,7 +403,7 @@ function DriverCard({ driver, onClick, onEdit, onDelete }) {
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-muted-foreground uppercase">{t('card.bestLap')}</span>
               <span className="text-lg font-black tabular-nums" style={{ color: driver.color }}>
-                {(driver.bestLap / 1000).toFixed(3)}s
+                {formatDecimal(driver.bestLap / 1000)}s
               </span>
             </div>
           </div>

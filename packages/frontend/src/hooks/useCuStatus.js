@@ -1,3 +1,4 @@
+import { cuStartState } from '@racehubos/shared'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
@@ -43,8 +44,8 @@ export function useCuStatus(options = {}) {
 
     const start = status.start
     if (start === 0) return { text: 'Racing', color: 'green', code: 'RACING' }
-    if (start >= 1 && start <= 5) return { text: `Lights ${start}/5`, color: 'yellow', code: 'LIGHTS' }
-    if (start === 6) return { text: 'False Start', color: 'red', code: 'FALSE_START' }
+    if (start >= 1 && start <= 6)
+      return { text: `Lights ${cuStartState(start).count}/5`, color: 'yellow', code: 'LIGHTS' }
     if (start === 7) return { text: 'Go!', color: 'green', code: 'GO' }
     if (start >= 8) return { text: 'Stopped', color: 'red', code: 'STOPPED' }
     return { text: `State ${start}`, color: 'gray', code: 'UNKNOWN' }
@@ -63,7 +64,7 @@ export function useCuStatus(options = {}) {
 
   // Computed states for easy conditionals
   const isRacing = status?.start === 0
-  const isInLights = status?.start >= 1 && status?.start <= 5
+  const isInLights = status?.start >= 1 && status?.start <= 6
   const isStopped = status?.start >= 8
   const isReady = connected && !isRacing
 

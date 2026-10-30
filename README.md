@@ -2,7 +2,9 @@
 
 **Free & open source race management for Carrera Digital 132/124**
 
-![Podium](docs/screenshots/podium.png)
+> This is the Carrera integration branch based on AnselmeSDR/RaceHubOS 1.25.2. `main` mirrors the upstream project. Our additional features are maintained separately; see [fork notes](docs/FORK.md).
+
+![Podium](docs/screenshots/podium.jpg)
 
 Carrera dropped their official app. Existing alternatives are closed source. We believe slot racing deserves an open, community-driven tool that anyone can use, improve, and adapt to their setup.
 
@@ -316,7 +318,7 @@ Vibe codé avec [Claude Code](https://claude.ai/code)
 
 | | |
 |---|---|
-| ![Dashboard](docs/screenshots/dashboard.png) **Dashboard** | ![Race](docs/screenshots/race.png) **Race** |
-| ![Free Session](docs/screenshots/free-session.png) **Free Session** | ![Championships](docs/screenshots/championships.png) **Championships** |
-| ![Drivers](docs/screenshots/drivers.png) **Drivers** | ![Stats](docs/screenshots/stats.png) **Statistics** |
-| ![Sessions](docs/screenshots/sessions.png) **Sessions** | ![Settings](docs/screenshots/settings.png) **Settings** |
+| ![Dashboard](docs/screenshots/dashboard.jpg) **Dashboard** | ![Race](docs/screenshots/race.jpg) **Race** |
+| ![Free Session](docs/screenshots/free-session.jpg) **Free Session** | ![Championships](docs/screenshots/championships.jpg) **Championships** |
+| ![Drivers](docs/screenshots/drivers.jpg) **Drivers** | ![Stats](docs/screenshots/stats.jpg) **Statistics** |
+| ![Sessions](docs/screenshots/sessions.jpg) **Sessions** | ![Settings](docs/screenshots/settings.jpg) **Settings** |

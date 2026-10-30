@@ -1,8 +1,12 @@
+import { formatDecimal } from '../../lib/formatDecimal'
+import { useTranslation } from 'react-i18next'
+
 /**
  * LapTime - Formatted lap time display
  * Displays times in mm:ss.SSS or ss.SSS format
  */
 export default function LapTime({ time, size = 'md', highlight = false, format = 'lap', className }) {
+  const { i18n } = useTranslation()
   const sizes = {
     sm: 'text-sm',
     md: 'text-base',
@@ -23,7 +27,7 @@ export default function LapTime({ time, size = 'md', highlight = false, format =
       // Always show MM:SS.mmm for total race time
       const minutes = Math.floor(totalSeconds / 60)
       const seconds = totalSeconds % 60
-      return `${minutes}:${seconds.toFixed(3).padStart(6, '0')}`
+      return `${minutes}:${formatDecimal(seconds).padStart(6, '0')}`
     }
 
     const minutes = Math.floor(totalSeconds / 60)
@@ -31,14 +35,14 @@ export default function LapTime({ time, size = 'md', highlight = false, format =
 
     if (minutes >= 1) {
       // Format: "1:23.456"
-      return `${minutes}:${seconds.toFixed(3).padStart(6, '0')}`
+      return `${minutes}:${formatDecimal(seconds).padStart(6, '0')}`
     } else {
       // Format: "23.456"
-      return seconds.toFixed(3)
+      return formatDecimal(seconds)
     }
   }
 
-  const formattedTime = formatTime(time)
+  const formattedTime = i18n.language.startsWith('de') ? formatTime(time).replace('.', ',') : formatTime(time)
 
   return (
     <span

@@ -67,5 +67,12 @@
       "sessionStarted": "Session started: {{id}}...",
       "sessionStopped": "Session stopped: {{id}}..."
     }
+  },
+  "connection": {
+    "live": "CU live",
+    "waiting": "CU connected – waiting for data",
+    "stale": "CU data stale",
+    "serverDisconnected": "Server connection lost",
+    "cuDisconnected": "CU disconnected"
   }
 }

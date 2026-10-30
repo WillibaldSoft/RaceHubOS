@@ -1,3 +1,5 @@
+import { getImgUrl } from '../../utils/image'
+import { tx, useExtensions } from '../../i18n/extensions'
 import { useState, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -14,6 +16,8 @@ import {
   Copy,
   Trophy,
   Timer,
+  UserRound,
+  Car,
 } from 'lucide-react'
 import Podium from '../race/Podium'
 import { Button } from '@/components/ui/button'
@@ -33,12 +37,50 @@ const SESSION_TYPE_ICONS = {
 import { CONTROLLER_COLORS } from '../../lib/colors'
 import { SessionStatus, SessionType, sessionTypeAbbrKey } from '@racehubos/shared'
 
+function AssignmentPicture({ item, car = false }) {
+  const [failed, setFailed] = useState(null)
+  const Icon = car ? Car : UserRound
+  return (
+    <span
+      className={`relative inline-flex shrink-0 items-center justify-center overflow-hidden border border-border ${car ? 'h-10 w-20 rounded-lg bg-white' : 'size-10 rounded-full bg-muted'}`}
+    >
+      <Icon className="size-5 text-muted-foreground" aria-hidden="true" />
+      {item?.img && failed !== item.img && (
+        <img
+          src={getImgUrl(item.img)}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailed(item.img)}
+          className={`absolute inset-0 h-full w-full ${car ? 'object-contain p-1 bg-white' : 'object-cover bg-muted'}`}
+        />
+      )}
+    </span>
+  )
+}
+function AssignmentChoice({ item, car = false }) {
+  const model = item?.model || '',
+    brand = item?.brand || ''
+  const carLabel = brand && model.toLowerCase().startsWith(brand.toLowerCase()) ? model : `${brand} ${model}`.trim()
+  const label = !item ? '---' : car ? carLabel : item.name
+  return (
+    <span className="flex min-w-0 items-center gap-3 text-left">
+      <AssignmentPicture item={item} car={car} />
+      <span className="min-w-0 truncate leading-snug" title={label}>
+        {label}
+      </span>
+    </span>
+  )
+}
+
 export default function SessionSection({
   session,
   sessions = [],
   drivers = [],
   cars = [],
   onStart,
+  startBlocked = false,
+  controlsAtTop = false,
   onPause,
   onResume,
   onStop,
@@ -63,6 +105,26 @@ export default function SessionSection({
     finishingSession,
   } = useSession()
 
+  useExtensions()
+  const [resetting, setResetting] = useState(false),
+    [resetError, setResetError] = useState('')
+  const resetPending = useRef(false)
+  const handleReset = async () => {
+    if (!onReset || resetPending.current) return
+    resetPending.current = true
+    setResetting(true)
+    setResetError('')
+    try {
+      const result = await onReset(session.id)
+      if (result?.success === false)
+        setResetError(tx('Zurücksetzen fehlgeschlagen. CU-Verbindung prüfen und erneut versuchen.'))
+    } catch {
+      setResetError(tx('Zurücksetzen fehlgeschlagen. CU-Verbindung prüfen und erneut versuchen.'))
+    } finally {
+      resetPending.current = false
+      setResetting(false)
+    }
+  }
   const [starting, setStarting] = useState(false)
   const [editingName, setEditingName] = useState(false)
   const [inlineName, setInlineName] = useState('')
@@ -349,10 +411,115 @@ export default function SessionSection({
   const canEdit = session.status === SessionStatus.DRAFT
   const isAutoSession = autoMode && session.type !== SessionType.PRACTICE
 
+  const actionButtons = (
+    <div
+      className={
+        controlsAtTop
+          ? 'flex flex-wrap items-center justify-end gap-2'
+          : 'px-4 py-3 bg-muted/50 border-t border-border flex flex-wrap items-center justify-between gap-2'
+      }
+    >
+      <div className="text-sm">
+        {isLights && (
+          <span className="flex items-center gap-1.5 px-2 py-1 bg-yellow-100 text-yellow-700 rounded font-medium animate-pulse">
+            {t('sessionSection.lights', { n: cuStatus.start })}
+          </span>
+        )}
+        {isRacing && (
+          <span className="flex items-center gap-1.5 px-2 py-1 bg-green-100 text-green-700 rounded font-medium">
+            {t('sessionSection.racing')}
+          </span>
+        )}
+        {isCuStopped && (
+          <span className="flex items-center gap-1.5 px-2 py-1 bg-red-100 text-red-700 rounded font-medium">
+            <AlertTriangle className="w-4 h-4" /> {t('sessionSection.cuStopped')}
+          </span>
+        )}
+        {isPaused && (
+          <span className="flex items-center gap-1.5 px-2 py-1 bg-yellow-100 text-yellow-700 rounded font-medium">
+            {t('sessionSection.paused', { time: pauseDuration !== null ? formatTime(pauseDuration) : '' })}
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-2 flex-wrap">
+        {canStart && (
+          <>
+            {!deviceConnected && (
+              <span className="text-sm text-orange-600 flex items-center gap-1">
+                <AlertTriangle className="w-4 h-4" /> {t('sessionSection.connectCu')}
+              </span>
+            )}
+            {hasIncompleteConfig && (
+              <span className="text-sm text-orange-600 flex items-center gap-1">
+                <AlertTriangle className="w-4 h-4" /> {t('sessionSection.incompleteConfig')}
+              </span>
+            )}
+            <Button
+              onClick={async () => {
+                setStarting(true)
+                try {
+                  await onStart()
+                } finally {
+                  setStarting(false)
+                }
+              }}
+              disabled={!deviceConnected || hasIncompleteConfig || starting || startBlocked}
+            >
+              {starting ? (
+                <>
+                  <RefreshCw className="size-4 animate-spin" /> {t('sessionSection.starting')}
+                </>
+              ) : (
+                <>
+                  <Play className="size-4" /> {t('sessionSection.start')}
+                </>
+              )}
+            </Button>
+          </>
+        )}
+        {isLights && (
+          <Button onClick={onTriggerCuStart} className="bg-green-500 hover:bg-green-600 animate-pulse">
+            <Play className="size-4" /> {t('sessionSection.start')}
+          </Button>
+        )}
+        {canResumeCu && (
+          <Button onClick={onTriggerCuStart} className="bg-orange-500 hover:bg-orange-600">
+            <RefreshCw className="size-4" /> {t('sessionSection.resumeCu')}
+          </Button>
+        )}
+        {canPause && (
+          <Button onClick={onPause} variant="outline" className="border-yellow-500 text-yellow-600">
+            <Pause className="size-4" /> {t('sessionSection.pauseAction')}
+          </Button>
+        )}
+        {canResumeFromPause && (
+          <Button onClick={onResume} className="bg-green-500 hover:bg-green-600">
+            <Play className="size-4" /> {t('sessionSection.resume')}
+          </Button>
+        )}
+        {canStop && (
+          <Button onClick={onStop} variant="destructive">
+            <Flag className="size-4" /> {t('sessionSection.finish')}
+          </Button>
+        )}
+        {isFinishing && (
+          <span className="flex items-center gap-1.5 px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg whitespace-nowrap flex-shrink-0">
+            <Flag className="w-4 h-4" /> {t('sessionSection.waitingSessionEnd')}
+          </span>
+        )}
+        {isFinished && onReset && (
+          <Button variant="ghost" size="sm" onClick={handleReset} disabled={resetting} className="text-orange-500">
+            <RefreshCw className="size-3.5" /> {resetting ? tx('Wird zurückgesetzt …') : t('common:reset')}
+          </Button>
+        )}
+      </div>
+    </div>
+  )
+
   return (
     <div data-testid="session-section" className="bg-card rounded-xl border border-border overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-border flex items-center justify-between">
+      <div className="px-4 py-3 border-b border-border flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <TypeIcon className="w-5 h-5 text-muted-foreground" />
           <h2 className="font-semibold text-foreground flex items-center gap-1">
@@ -386,12 +553,16 @@ export default function SessionSection({
               </span>
             )}
           </h2>
-          <span
-            className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig.color} ${statusConfig.pulse ? 'animate-pulse' : ''}`}
-          >
-            {statusConfig.label}
-          </span>
+          {session.status !== SessionStatus.DRAFT && (
+            <span
+              className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusConfig.color} ${statusConfig.pulse ? 'animate-pulse' : ''}`}
+            >
+              {statusConfig.label}
+            </span>
+          )}
         </div>
+
+        {controlsAtTop && actionButtons}
       </div>
 
       {/* Session config + Controllers table */}
@@ -407,90 +578,96 @@ export default function SessionSection({
               </button>
             </div>
           )}
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-muted-foreground text-xs uppercase">
-                <th className="px-2 pb-2 font-medium w-12">{t('sessionSection.table.ctrl')}</th>
-                {session.type !== SessionType.BALANCING && (
-                  <th className="px-2 pb-2 font-medium">{t('sessionSection.table.driver')}</th>
-                )}
-                <th className="px-2 pb-2 font-medium">{t('sessionSection.table.car')}</th>
-                {session.type !== SessionType.BALANCING && (
-                  <th className="px-2 pb-2 font-medium w-16">{t('sessionSection.table.grid')}</th>
-                )}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {[0, 1, 2, 3, 4, 5].map((ctrl) => {
-                const sd = sessionDrivers.find((d) => Number(d.controller) === ctrl)
-                return (
-                  <tr key={ctrl} className="text-foreground">
-                    <td className="px-2 py-2">
-                      <span
-                        className={`inline-flex items-center justify-center size-6 rounded-full text-white text-xs font-bold ${CONTROLLER_COLORS[ctrl]}`}
-                      >
-                        {ctrl + 1}
-                      </span>
-                    </td>
-                    {session.type !== SessionType.BALANCING && (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[560px] table-fixed text-sm">
+              <thead>
+                <tr className="text-left text-muted-foreground text-xs uppercase">
+                  <th className="px-2 pb-2 font-medium w-16">{t('sessionSection.table.ctrl')}</th>
+                  {session.type !== SessionType.BALANCING && (
+                    <th className="px-2 pb-2 font-medium w-[26%]">{t('sessionSection.table.driver')}</th>
+                  )}
+                  <th className="px-2 pb-2 font-medium">{t('sessionSection.table.car')}</th>
+                  {session.type !== SessionType.BALANCING && (
+                    <th className="px-2 pb-2 font-medium w-24">{t('sessionSection.table.grid')}</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {[0, 1, 2, 3, 4, 5].map((ctrl) => {
+                  const sd = sessionDrivers.find((d) => Number(d.controller) === ctrl)
+                  return (
+                    <tr key={ctrl} className="text-foreground hover:bg-muted/30">
+                      <td className="px-2 py-2">
+                        <span
+                          className={`inline-flex items-center justify-center size-6 rounded-full text-white text-xs font-bold ${CONTROLLER_COLORS[ctrl]}`}
+                        >
+                          {ctrl + 1}
+                        </span>
+                      </td>
+                      {session.type !== SessionType.BALANCING && (
+                        <td className="px-2 py-2">
+                          <Select
+                            value={controllerConfigs[ctrl]?.driverId || '_none'}
+                            onValueChange={(v) => handleControllerChange(ctrl, 'driverId', v === '_none' ? '' : v)}
+                          >
+                            <SelectTrigger className="w-full h-auto min-h-12 text-sm border-none shadow-none bg-transparent hover:bg-muted/50 [&>span]:min-w-0 [&>span]:flex-1">
+                              <SelectValue placeholder="---" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="_none">
+                                <AssignmentChoice />
+                              </SelectItem>
+                              {getAvailableDrivers(ctrl).map((d) => (
+                                <SelectItem key={d.id} value={d.id}>
+                                  <AssignmentChoice item={d} />
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </td>
+                      )}
                       <td className="px-2 py-2">
                         <Select
-                          value={controllerConfigs[ctrl]?.driverId || '_none'}
-                          onValueChange={(v) => handleControllerChange(ctrl, 'driverId', v === '_none' ? '' : v)}
+                          value={controllerConfigs[ctrl]?.carId || '_none'}
+                          onValueChange={(v) => handleControllerChange(ctrl, 'carId', v === '_none' ? '' : v)}
                         >
-                          <SelectTrigger className="w-full h-8 text-xs border-none shadow-none bg-transparent hover:bg-muted/50 transition-colors">
+                          <SelectTrigger className="w-full h-auto min-h-12 text-sm border-none shadow-none bg-transparent hover:bg-muted/50 [&>span]:min-w-0 [&>span]:flex-1">
                             <SelectValue placeholder="---" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="_none">---</SelectItem>
-                            {getAvailableDrivers(ctrl).map((d) => (
-                              <SelectItem key={d.id} value={d.id}>
-                                {d.name}
+                            <SelectItem value="_none">
+                              <AssignmentChoice car />
+                            </SelectItem>
+                            {getAvailableCars(ctrl).map((c) => (
+                              <SelectItem key={c.id} value={c.id}>
+                                <AssignmentChoice item={c} car />
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </td>
-                    )}
-                    <td className="px-2 py-2">
-                      <Select
-                        value={controllerConfigs[ctrl]?.carId || '_none'}
-                        onValueChange={(v) => handleControllerChange(ctrl, 'carId', v === '_none' ? '' : v)}
-                      >
-                        <SelectTrigger className="w-full h-8 text-xs border-none shadow-none bg-transparent hover:bg-muted/50 transition-colors">
-                          <SelectValue placeholder="---" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="_none">---</SelectItem>
-                          {getAvailableCars(ctrl).map((c) => (
-                            <SelectItem key={c.id} value={c.id}>
-                              {c.brand} {c.model}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </td>
-                    {session.type !== SessionType.BALANCING && (
-                      <td className="px-2 py-2">
-                        <Input
-                          key={`grid-${ctrl}-${controllerConfigs[ctrl]?.gridPos}`}
-                          type="number"
-                          min="1"
-                          max="6"
-                          defaultValue={controllerConfigs[ctrl]?.gridPos || ''}
-                          onBlur={(e) =>
-                            handleControllerChange(ctrl, 'gridPos', e.target.value ? Number(e.target.value) : null)
-                          }
-                          placeholder="-"
-                          className="text-center h-8 w-16 border-none shadow-none bg-transparent hover:bg-muted/50 transition-colors"
-                        />
-                      </td>
-                    )}
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                      {session.type !== SessionType.BALANCING && (
+                        <td className="px-2 py-2">
+                          <Input
+                            key={`grid-${ctrl}-${controllerConfigs[ctrl]?.gridPos}`}
+                            type="number"
+                            min="1"
+                            max="6"
+                            defaultValue={controllerConfigs[ctrl]?.gridPos || ''}
+                            onBlur={(e) =>
+                              handleControllerChange(ctrl, 'gridPos', e.target.value ? Number(e.target.value) : null)
+                            }
+                            placeholder="-"
+                            className="text-center h-8 w-16 border-none shadow-none bg-transparent hover:bg-muted/50 transition-colors"
+                          />
+                        </td>
+                      )}
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
 
           {hasIncompleteConfig && (
             <div className="p-2 bg-orange-500/10 border border-orange-500/30 rounded-lg flex items-start gap-2">
@@ -734,105 +911,14 @@ export default function SessionSection({
         </div>
       )}
 
-      {/* Action buttons */}
-      <div className="px-4 py-3 bg-muted/50 border-t border-border flex items-center justify-between gap-2">
-        <div className="text-sm">
-          {isLights && (
-            <span className="flex items-center gap-1.5 px-2 py-1 bg-yellow-100 text-yellow-700 rounded font-medium animate-pulse">
-              {t('sessionSection.lights', { n: cuStatus.start })}
-            </span>
-          )}
-          {isRacing && (
-            <span className="flex items-center gap-1.5 px-2 py-1 bg-green-100 text-green-700 rounded font-medium">
-              {t('sessionSection.racing')}
-            </span>
-          )}
-          {isCuStopped && (
-            <span className="flex items-center gap-1.5 px-2 py-1 bg-red-100 text-red-700 rounded font-medium">
-              <AlertTriangle className="w-4 h-4" /> {t('sessionSection.cuStopped')}
-            </span>
-          )}
-          {isPaused && (
-            <span className="flex items-center gap-1.5 px-2 py-1 bg-yellow-100 text-yellow-700 rounded font-medium">
-              {t('sessionSection.paused', { time: pauseDuration !== null ? formatTime(pauseDuration) : '' })}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          {canStart && (
-            <>
-              {!deviceConnected && (
-                <span className="text-sm text-orange-600 flex items-center gap-1">
-                  <AlertTriangle className="w-4 h-4" /> {t('sessionSection.connectCu')}
-                </span>
-              )}
-              {hasIncompleteConfig && (
-                <span className="text-sm text-orange-600 flex items-center gap-1">
-                  <AlertTriangle className="w-4 h-4" /> {t('sessionSection.incompleteConfig')}
-                </span>
-              )}
-              <Button
-                onClick={async () => {
-                  setStarting(true)
-                  try {
-                    await onStart()
-                  } finally {
-                    setStarting(false)
-                  }
-                }}
-                disabled={!deviceConnected || hasIncompleteConfig || starting}
-              >
-                {starting ? (
-                  <>
-                    <RefreshCw className="size-4 animate-spin" /> {t('sessionSection.starting')}
-                  </>
-                ) : (
-                  <>
-                    <Play className="size-4" /> {t('sessionSection.start')}
-                  </>
-                )}
-              </Button>
-            </>
-          )}
-          {isLights && (
-            <Button onClick={onTriggerCuStart} className="bg-green-500 hover:bg-green-600 animate-pulse">
-              <Play className="size-4" /> {t('race:startLights.start')}
-            </Button>
-          )}
-          {canResumeCu && (
-            <Button onClick={onTriggerCuStart} className="bg-orange-500 hover:bg-orange-600">
-              <RefreshCw className="size-4" /> {t('sessionSection.resumeCu')}
-            </Button>
-          )}
-          {canPause && (
-            <Button onClick={onPause} variant="outline" className="border-yellow-500 text-yellow-600">
-              <Pause className="size-4" /> {t('sessionSection.pauseAction')}
-            </Button>
-          )}
-          {canResumeFromPause && (
-            <Button onClick={onResume} className="bg-green-500 hover:bg-green-600">
-              <Play className="size-4" /> {t('sessionSection.resume')}
-            </Button>
-          )}
-          {canStop && (
-            <Button onClick={onStop} variant="destructive">
-              <Flag className="size-4" /> {t('sessionSection.finish')}
-            </Button>
-          )}
-          {isFinishing && (
-            <span className="flex items-center gap-1.5 px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg whitespace-nowrap flex-shrink-0">
-              <Flag className="w-4 h-4" /> {t('sessionSection.waitingSessionEnd')}
-            </span>
-          )}
-          {isFinished && onReset && (
-            <Button variant="ghost" size="sm" onClick={() => onReset(session.id)} className="text-orange-500">
-              <RefreshCw className="size-3.5" /> {t('common:reset')}
-            </Button>
-          )}
-        </div>
-      </div>
+      {!controlsAtTop && actionButtons}
 
-      {isActive && <StartLights onCancel={onReset ? () => onReset(session.id) : undefined} />}
+      {resetError && (
+        <p role="alert" className="px-4 py-3 text-red-600">
+          {resetError}
+        </p>
+      )}
+      {isActive && <StartLights onCancel={onReset ? handleReset : undefined} />}
     </div>
   )
 }

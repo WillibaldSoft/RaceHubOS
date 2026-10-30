@@ -67,5 +67,12 @@
       "sessionStarted": "Sitzung gestartet: {{id}} …",
       "sessionStopped": "Sitzung angehalten: {{id}} …"
     }
+  },
+  "connection": {
+    "live": "CU live",
+    "waiting": "CU verbunden – warte auf Daten",
+    "stale": "CU-Daten veraltet",
+    "serverDisconnected": "Serververbindung unterbrochen",
+    "cuDisconnected": "CU getrennt"
   }
 }

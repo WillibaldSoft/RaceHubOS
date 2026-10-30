@@ -16,7 +16,8 @@
   "connection": {
     "connected": "Connected: {{device}}",
     "noDevice": "No device connected",
-    "disconnect": "Disconnect"
+    "disconnect": "Disconnect",
+    "pending": "Connection is still being established. The actual status updates automatically."
   },
   "devices": {
     "title": "Select a device",
@@ -48,11 +49,21 @@
     "podiumVoiceDesc": "Voice results at the end of the session",
     "defaultVoice": "Default voice",
     "testVoice": "Test voice",
-    "testVoicePhrase": "Best lap, Anselme, 6.142 seconds",
+    "testVoicePhrase": "New best lap for Test Driver: 8.23 seconds.",
     "adminMode": "Administrator mode",
     "adminModeDesc": "Displays, Test, Simulator",
     "language": "Language",
-    "languageDesc": "Interface language"
+    "languageDesc": "Interface language",
+    "voiceRate": "Speech rate",
+    "voiceHint": "Spoken times rounded to hundredths; stored times keep millisecond precision. Voice quality depends on the voices available in your browser.",
+    "localVoice": "Thorsten – local (Piper)",
+    "localVoiceHint": "German neural voice running on this computer. Offline after installation, no subscription. If audio is blocked, click Test voice once.",
+    "localVoiceError": "Local speech could not be played. Try Test voice again or select the default voice.",
+    "localStates": {
+      "loading": "Generating speech locally...",
+      "playing": "Playing speech...",
+      "done": "Last announcement played."
+    }
   },
   "logs": {
     "title": "Logs",

@@ -1,3 +1,4 @@
+import { formatDecimal } from '../../lib/formatDecimal'
 import { useTranslation } from 'react-i18next'
 import { GAP_COLORS } from '../../lib/colors'
 
@@ -57,7 +58,7 @@ function FormattedTime({ time }) {
 
   return (
     <span className={`font-mono tabular-nums text-sm font-bold ${GAP_COLORS.leader}`}>
-      {minutes}:{seconds.toFixed(3).padStart(6, '0')}
+      {minutes}:{formatDecimal(seconds).padStart(6, '0')}
     </span>
   )
 }
@@ -73,6 +74,6 @@ function FormattedGap({ gapMs }) {
   }
 
   return (
-    <span className={`font-mono tabular-nums text-sm font-medium ${getGapColor()}`}>+{gapSeconds.toFixed(3)}s</span>
+    <span className={`font-mono tabular-nums text-sm font-medium ${getGapColor()}`}>+{formatDecimal(gapSeconds)}s</span>
   )
 }

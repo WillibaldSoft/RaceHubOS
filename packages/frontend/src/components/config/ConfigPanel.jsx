@@ -1,3 +1,4 @@
+import i18n from '../../i18n'
 import { useMemo } from 'react'
 import ControllerSlot from './ControllerSlot'
 
@@ -18,7 +19,7 @@ export default function ConfigPanel({ configs, drivers, cars, onConfigChange, di
 
   return (
     <div className="bg-gray-50 rounded-xl p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Configuration des Manettes</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">{i18n.t('race:controllerConfig.title')}</h2>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {controllers.map((controller) => (

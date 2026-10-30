@@ -1,3 +1,8 @@
+import { FuelMode } from '@racehubos/shared'
+import { TrackLaneLengths } from '../components/tracks/TrackLaneLengths'
+import { TrackThumbnail } from '../components/tracks/TrackThumbnail'
+import FuelPanel from '../components/race/FuelPanel'
+import { useFuelTelemetry } from '../hooks/useFuelTelemetry'
 import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Plus, PanelRightClose, PanelRightOpen, FlaskConical, Clock, Flag } from 'lucide-react'
@@ -30,6 +35,7 @@ const emptyStandings = () => Object.fromEntries(STANDARD_SESSION_TYPES.map((type
 
 export default function FreeSessionPage() {
   const { t } = useTranslation('freeSession')
+  const fuel = useFuelTelemetry(0)
   const { startRace: triggerCuStart } = useDevice()
   const {
     session,
@@ -190,7 +196,7 @@ export default function FreeSessionPage() {
   }
 
   const handleStart = async () => {
-    if (!session?.id) return
+    if (!session?.id || (session.fuelMode === FuelMode.ON && !fuel.ready)) return
     await startSession(session.id)
   }
   const handlePause = async () => {
@@ -274,6 +280,7 @@ export default function FreeSessionPage() {
   const handleResetSession = async (sessionId) => {
     const result = await resetSession(sessionId)
     if (result.success) await fetchStandings()
+    return result
   }
 
   const selectedTrack = tracks.find((track) => track.id === selectedTrackId)
@@ -286,16 +293,33 @@ export default function FreeSessionPage() {
       <div className="border-b px-4 py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Select value={selectedTrackId || ''} onValueChange={setSelectedTrackId}>
-            {/* A long track name ends with an ellipsis instead of being cut mid-letter */}
-            <SelectTrigger className="w-48" title={selectedTrack?.name}>
+            <SelectTrigger
+              data-testid="race-track-select"
+              className="w-72 !h-auto min-h-16"
+              title={selectedTrack?.name}
+            >
               <SelectValue placeholder={t('topBar.selectTrackPlaceholder')}>
-                <span className="min-w-0 truncate">{selectedTrack?.name}</span>
+                {selectedTrack && (
+                  <span className="flex items-center gap-2 min-w-0">
+                    <TrackThumbnail track={selectedTrack} />
+                    <span className="min-w-0 text-left">
+                      <span className="block truncate">{selectedTrack.name}</span>
+                      <TrackLaneLengths track={selectedTrack} />
+                    </span>
+                  </span>
+                )}
               </SelectValue>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="min-w-72">
               {tracks.map((track) => (
-                <SelectItem key={track.id} value={track.id}>
-                  {track.name}
+                <SelectItem key={track.id} value={track.id} textValue={track.name}>
+                  <span className="flex items-center gap-3 py-1">
+                    <TrackThumbnail track={track} />
+                    <span>
+                      <span className="block">{track.name}</span>
+                      <TrackLaneLengths track={track} />
+                    </span>
+                  </span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -349,12 +373,20 @@ export default function FreeSessionPage() {
               </div>
             ) : (
               <>
+                {session?.drivers?.some((d) => d.controller === 0) && (
+                  <FuelPanel
+                    telemetry={fuel}
+                    driverName={session.drivers.find((d) => d.controller === 0)?.driver?.name}
+                  />
+                )}
                 <SessionSection
+                  controlsAtTop
                   session={session}
                   sessions={[]}
                   drivers={drivers}
                   cars={cars}
                   onStart={handleStart}
+                  startBlocked={session?.fuelMode === FuelMode.ON && !fuel.ready}
                   onPause={handlePause}
                   onResume={handleResume}
                   onStop={handleStop}
@@ -369,6 +401,7 @@ export default function FreeSessionPage() {
                     <StartingGrid entries={entries} />
                   ) : (
                     <SessionLeaderboard
+                      track={session.track || selectedTrack}
                       entries={entries}
                       expanded={!showStandings}
                       sortBy={

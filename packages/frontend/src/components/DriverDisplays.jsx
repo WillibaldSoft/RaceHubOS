@@ -1,3 +1,5 @@
+import { tx, useExtensions } from '../i18n/extensions'
+import { formatDecimal } from '../lib/formatDecimal'
 import { Trophy, Flag, BarChart3 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useApp } from '../context/AppContext'
@@ -9,6 +11,7 @@ import { getImgUrl } from '../utils/image'
  * Inspiré du style NASCAR Starting Grid
  */
 export function DriverListItem({ driver, position, selected, onClick, showStats = false }) {
+  useExtensions()
   const { t } = useTranslation('displays')
   return (
     <div
@@ -82,6 +85,7 @@ export function DriverListItem({ driver, position, selected, onClick, showStats 
  * Pour affichage live, mini-cartes, etc.
  */
 export function DriverBadge({ driver, size = 'md', showName = true }) {
+  useExtensions()
   const sizes = {
     sm: 'w-8 h-8 text-sm',
     md: 'w-12 h-12 text-lg',
@@ -114,6 +118,7 @@ export function DriverBadge({ driver, size = 'md', showName = true }) {
  * Affichage ROW 1, ROW 2, etc.
  */
 export function DriverGridPosition({ driver, side = 'left' }) {
+  useExtensions()
   const { isDark } = useApp()
   const driverColor = driver.color || '#3B82F6'
 
@@ -172,6 +177,7 @@ export function DriverGridPosition({ driver, side = 'left' }) {
  * Style F1 avec toutes les stats
  */
 export function DriverProfileHeader({ driver }) {
+  useExtensions()
   const { t } = useTranslation('displays')
   return (
     <div
@@ -290,7 +296,7 @@ export function DriverProfileHeader({ driver }) {
                     {t('driverDisplays.bestLap')}
                   </div>
                   <div className="text-3xl font-black tabular-nums" style={{ color: driver.color }}>
-                    {(driver.bestLap / 1000).toFixed(3)}s
+                    {formatDecimal(driver.bestLap / 1000)}s
                   </div>
                 </div>
               </div>
@@ -310,6 +316,7 @@ export function DriverProfileHeader({ driver }) {
  * Style F1/NASCAR standings
  */
 export function DriverStanding({ driver, position, points, change }) {
+  useExtensions()
   const { t } = useTranslation('displays')
   const positionColors = {
     1: 'bg-yellow-400 text-yellow-900',
@@ -367,6 +374,7 @@ export function DriverStanding({ driver, position, points, change }) {
  * Style TV NASCAR avec constructeur
  */
 export function DriverSelectCard({ driver, selected, onToggle }) {
+  useExtensions()
   return (
     <button
       onClick={onToggle}
@@ -438,6 +446,7 @@ export function DriverSelectCard({ driver, selected, onToggle }) {
 
 // Helper component for stats
 function StatBox({ icon, label, value, color, highlight }) {
+  useExtensions()
   return (
     <div
       className={`
@@ -449,7 +458,7 @@ function StatBox({ icon, label, value, color, highlight }) {
         {icon}
       </div>
       <div className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wide break-words mb-1">
-        {label}
+        {tx(label)}
       </div>
       <div className="text-xl font-black tabular-nums" style={{ color: highlight ? '#EAB308' : color }}>
         {value}

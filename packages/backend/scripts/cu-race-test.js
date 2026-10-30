@@ -29,7 +29,7 @@ function logEvent(type, data) {
   if (type === 'TIMER') {
     console.log(`⏱️  [${elapsed}ms] TIMER: ctrl=${data.ctrl}, ts=${data.ts}, sector=${data.sector}`);
   } else if (type === 'STATUS') {
-    const states = ['RACING', 'LIGHTS_1', 'LIGHTS_2', 'LIGHTS_3', 'LIGHTS_4', 'LIGHTS_5', 'FALSE_START', 'GO'];
+    const states = ['RACING', 'READY', 'LIGHTS_1', 'LIGHTS_2', 'LIGHTS_3', 'LIGHTS_4', 'LIGHTS_5', 'GO'];
     console.log(`📊 [${elapsed}ms] STATUS: ${states[data.start] || data.start}`);
   } else {
     console.log(`[${elapsed}ms] ${type}: ${JSON.stringify(data)}`);
@@ -116,7 +116,7 @@ async function main() {
       );
     }
 
-    const states = ['RACING', 'LIGHTS_1', 'LIGHTS_2', 'LIGHTS_3', 'LIGHTS_4', 'LIGHTS_5', 'FALSE_START', 'GO'];
+    const states = ['RACING', 'READY', 'LIGHTS_1', 'LIGHTS_2', 'LIGHTS_3', 'LIGHTS_4', 'LIGHTS_5', 'GO'];
     const seenStates = [...new Set(statuses.map((s) => states[s.start] || s.start))];
     console.log('Status states seen:', seenStates);
   } catch (error) {

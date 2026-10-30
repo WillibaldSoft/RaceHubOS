@@ -1,9 +1,10 @@
+import { saveDataRestoreReceipt } from '../lib/dataRestoreReceipt.mjs'
 import { createContext, useContext, useState, useEffect, useCallback, useRef, useMemo } from 'react'
+import i18n from '../i18n'
 import { io } from 'socket.io-client'
 import { useApp } from './AppContext'
 import { useVoice } from './VoiceContext'
 import { SessionStatus, SessionType } from '@racehubos/shared'
-import i18n from '../i18n'
 import { sessionNames } from '../lib/sessionNames'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
@@ -72,6 +73,10 @@ export function SessionProvider({ children }) {
       reconnectionDelay: 1000,
     })
     socketRef.current = socket
+    socket.on('data:restored', (receipt) => {
+      saveDataRestoreReceipt(receipt, sessionStorage)
+      window.location.reload()
+    })
 
     // Leaderboard updates
     socket.on('session:leaderboard', (data) => {
@@ -162,7 +167,7 @@ export function SessionProvider({ children }) {
 
             const speakNext = (index) => {
               if (index >= queue.length) return
-              const utterance = v.speak(queue[index], { rate: 1.0, force: true })
+              const utterance = v.speak(queue[index], { force: true })
               if (utterance) utterance.onend = () => setTimeout(() => speakNext(index + 1), 500)
             }
             speakNext(0)
@@ -362,7 +367,9 @@ export function SessionProvider({ children }) {
 
       // For draft/active sessions, load into SyncService
       if (['draft', 'active', 'paused'].includes(sessionInfo.status)) {
-        await fetch(`${API_URL}/api/sync/load-session/${sessionId}`, { method: 'POST' })
+        await fetch(`${API_URL}/api/sync/load-session/${sessionId}`, {
+          method: 'POST',
+        })
       }
 
       // Fetch leaderboard with gaps calculated by backend
@@ -381,6 +388,8 @@ export function SessionProvider({ children }) {
 
   // Start session
   const startSession = useCallback(async (sessionId) => {
+    // Request browser fullscreen within the original Start click, before awaiting HTTP.
+    window.dispatchEvent(new Event('race:screen-prepare'))
     try {
       const response = await fetch(`${API_URL}/api/sessions/${sessionId}/start`, {
         method: 'POST',
@@ -389,10 +398,13 @@ export function SessionProvider({ children }) {
 
       if (data.success) {
         setSession(data.data)
+      } else {
       }
       return data
     } catch (error) {
+      window.dispatchEvent(new Event('race:screen-failed'))
       console.error('[SessionContext] Error starting session:', error)
+      window.dispatchEvent(new Event('race:screen-failed'))
       return { success: false, error: error.message }
     }
   }, [])
@@ -532,6 +544,7 @@ export function SessionProvider({ children }) {
           laps: p.totalLaps || 0,
           bestLap: p.bestLapTime || null,
           lastLap: p.lastLapTime || null,
+          sectors: p.sectors || null,
           totalTime: p.totalTime || 0,
           gap: p.gap ?? null,
         },

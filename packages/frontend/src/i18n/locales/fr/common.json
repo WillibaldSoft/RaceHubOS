@@ -1,7 +1,6 @@
 {
   "close": "Fermer",
   "cancel": "Annuler",
-  "confirm": "Confirmer",
   "save": "Enregistrer",
   "saving": "Enregistrement...",
   "delete": "Supprimer",
@@ -78,6 +77,13 @@
   "edit": "Modifier",
   "exportExcel": "Exporter en Excel",
   "exportSelection": "Exporter ({{count}})",
+  "all": "Tous",
+  "items": "éléments",
+  "confirm": "Confirmer",
+  "imageHint": "Glissez l’image pour la repositionner ; utilisez le zoom pour ajuster la taille.",
+  "pageError": "Cette vue n’a pas pu être chargée.",
+  "reload": "Recharger la page",
+  "loadingView": "Chargement de la vue…",
   "items_one": "élément",
   "items_other": "éléments"
 }

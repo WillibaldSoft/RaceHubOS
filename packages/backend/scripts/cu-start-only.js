@@ -5,18 +5,7 @@
 
 import { ControlUnit } from '../src/services/controlUnit.js';
 
-const STATES = [
-  'RACING',
-  'LIGHTS_1',
-  'LIGHTS_2',
-  'LIGHTS_3',
-  'LIGHTS_4',
-  'LIGHTS_5',
-  'FALSE_START',
-  'GO',
-  '?',
-  'STOPPED',
-];
+const STATES = ['RACING', 'READY', 'LIGHTS_1', 'LIGHTS_2', 'LIGHTS_3', 'LIGHTS_4', 'LIGHTS_5', 'GO', '?', 'STOPPED'];
 
 async function main() {
   console.log('🏎️  CU Start Only Test\n');

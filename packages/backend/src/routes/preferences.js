@@ -1,3 +1,5 @@
+import { RAIL_INVENTORY_KEY, validateRailInventory } from '@racehubos/shared';
+import { SPEED_DISPLAY_KEY, validateSpeedDisplay } from '@racehubos/shared';
 import express from 'express';
 import { createPrismaClient } from '../lib/prisma.js';
 
@@ -20,6 +22,22 @@ router.get('/:key', async (req, res) => {
 // PUT /api/preferences/:key
 router.put('/:key', async (req, res) => {
   try {
+    if (req.params.key === RAIL_INVENTORY_KEY) {
+      try {
+        req.body.value = validateRailInventory(req.body.value);
+      } catch {
+        return res.status(400).json({ success: false, error: 'Invalid rail inventory' });
+      }
+    }
+    if (req.params.key === SPEED_DISPLAY_KEY) {
+      try {
+        req.body.value = validateSpeedDisplay(req.body.value);
+      } catch {
+        return res.status(400).json({ success: false, error: 'Invalid speed display settings' });
+      }
+    }
+    if (req.params.key === 'addon:track-planner:enabled')
+      return res.status(400).json({ success: false, error: 'Use the add-on activation endpoint' });
     const pref = await prisma.preference.upsert({
       where: { key: req.params.key },
       update: { value: JSON.stringify(req.body.value) },

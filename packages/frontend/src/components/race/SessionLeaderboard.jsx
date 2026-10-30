@@ -1,3 +1,5 @@
+import LapAverageSpeed from './LapAverageSpeed'
+import { TrackExtrasPanel } from './TrackExtras'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUp, ArrowDown } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -21,6 +23,7 @@ export default function SessionLeaderboard({
   sessionType = SessionType.RACE,
   sessionStatus,
   expanded = false,
+  track,
 }) {
   const { isDark } = useApp()
   const { t } = useTranslation('race')
@@ -116,7 +119,12 @@ export default function SessionLeaderboard({
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 50 }}
               transition={{
-                layout: { type: 'spring', stiffness: 200, damping: 30, mass: 1 },
+                layout: {
+                  type: 'spring',
+                  stiffness: 200,
+                  damping: 30,
+                  mass: 1,
+                },
                 opacity: { duration: 0.3 },
               }}
               className={`flex items-center gap-3 rounded-lg shadow-md dark:shadow-none ${expanded ? 'p-4' : 'p-3'}`}
@@ -199,7 +207,7 @@ export default function SessionLeaderboard({
                   <img
                     src={getImgUrl(car.img)}
                     alt={`${car.brand} ${car.model}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain p-1"
                   />
                 </div>
               )}
@@ -251,6 +259,12 @@ export default function SessionLeaderboard({
                     {t('leaderboard.last')}
                   </div>
                   <LapTime time={stats.lastLap} size={expanded ? 'xl' : 'md'} />
+                  <LapAverageSpeed
+                    carScale={car?.scale}
+                    track={track}
+                    lapTimeMs={stats.lastLap}
+                    lapNumber={stats.laps}
+                  />
                 </div>
 
                 {/* Gap / Total */}
@@ -281,6 +295,7 @@ export default function SessionLeaderboard({
           )
         })}
       </AnimatePresence>
+      <TrackExtrasPanel entries={entries} planning={sessionStatus !== 'finished'} />
     </div>
   )
 }

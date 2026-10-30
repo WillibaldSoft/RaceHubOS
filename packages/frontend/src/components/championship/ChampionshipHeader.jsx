@@ -1,3 +1,4 @@
+import { tx, useExtensions } from '../../i18n/extensions'
 import { useTranslation } from 'react-i18next'
 import DeleteButton from '@/components/ui/DeleteButton'
 import {
@@ -43,6 +44,7 @@ export default function ChampionshipHeader({
   showResults,
   onSelectResults,
 }) {
+  useExtensions()
   const { t } = useTranslation('championships')
   const getSessionLabel = (session) => {
     if (session.type === SessionType.PRACTICE) return t(sessionTypeAbbrKey(SessionType.PRACTICE))
@@ -75,8 +77,7 @@ export default function ChampionshipHeader({
             <h1 className="text-sm font-semibold">{championship?.name || t('detail.defaultName')}</h1>
             {championship?.mode === ChampionshipMode.AUTO && (
               <Badge className="bg-primary/10 text-primary text-[10px] py-0 px-1.5">
-                <Zap className="size-2.5 mr-0.5" />
-                Auto
+                <Zap className="size-2.5 mr-0.5" /> {tx('Auto')}{' '}
               </Badge>
             )}
           </div>

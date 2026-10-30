@@ -21,22 +21,27 @@ export class ControlUnit extends EventEmitter {
   static PIT_LANE_MODE = 0x4;
   static LAP_COUNTER_MODE = 0x8;
 
-  constructor() {
+  constructor({ ble } = {}) {
     super();
-    this.ble = new BLEService();
+    this.ble = ble || new BLEService();
     this.responseQueue = [];
     this.waitingForResponse = null;
     this.connected = false;
     this._requestBusy = false;
+    this._requestTail = Promise.resolve();
+    this._connectionGeneration = 0;
 
     // Écouter les événements BLE
     this.ble.on('ready', () => {
+      this._connectionGeneration++;
       this.connected = true;
       this.emit('connected');
     });
 
     this.ble.on('disconnect', () => {
       this.connected = false;
+      this._connectionGeneration++;
+      this.waitingForResponse?.reject(new Error('CU-Verbindung unterbrochen.'));
       this.emit('disconnected');
     });
 
@@ -87,12 +92,13 @@ export class ControlUnit extends EventEmitter {
    * @param {Buffer} data - Données reçues
    */
   handleData(data) {
-    console.log(
-      '📨 CU Data received:',
-      data.toString('hex'),
-      '| ASCII:',
-      data.toString('ascii').replace(/[^\x20-\x7E]/g, '.')
-    );
+    if (process.env.DEBUG_BLE === '1')
+      console.log(
+        '📨 CU Data received:',
+        data.toString('hex'),
+        '| ASCII:',
+        data.toString('ascii').replace(/[^\x20-\x7E]/g, '.')
+      );
 
     // Si on attend une réponse spécifique
     if (this.waitingForResponse) {
@@ -100,7 +106,6 @@ export class ControlUnit extends EventEmitter {
 
       // Vérifier si c'est la réponse attendue
       if (data[0] === expectedPrefix) {
-        this.waitingForResponse = null;
         resolve(data);
         return;
       }
@@ -124,10 +129,12 @@ export class ControlUnit extends EventEmitter {
           // Status message
           const status = this.parseStatus(data);
           this.emit('status', status);
+          return { type: 'status', ...status };
         } else {
           // Timer event
           const timer = this.parseTimer(data);
           this.emit('timer', timer);
+          return { type: 'timer', ...timer };
         }
       }
     } catch (error) {
@@ -203,41 +210,41 @@ export class ControlUnit extends EventEmitter {
    * @param {number} timeout - Timeout en ms
    * @returns {Promise<Buffer>} Réponse reçue
    */
-  async request(buffer, timeout = 5000) {
-    if (!this.connected) {
-      throw new Error('Not connected to Control Unit');
-    }
-
-    // Wait for any pending request to finish
-    while (this._requestBusy) {
-      await new Promise((r) => setTimeout(r, 10));
-    }
-
-    this._requestBusy = true;
-
-    try {
-      return await new Promise((resolve, reject) => {
-        const timeoutId = setTimeout(() => {
-          this.waitingForResponse = null;
-          reject(new Error('Request timeout'));
-        }, timeout);
-
-        this.waitingForResponse = {
+  request(buffer, timeout = 5000) {
+    const generation = this._connectionGeneration,
+      queuedAt = Date.now();
+    const operation = this._requestTail.then(() => {
+      if (!this.connected || generation !== this._connectionGeneration)
+        throw new Error('Not connected to Control Unit');
+      const remaining = timeout - (Date.now() - queuedAt);
+      if (remaining <= 0) throw new Error('CU-Anfrage wartet zu lange. Bitte erneut versuchen.');
+      this._requestBusy = true;
+      return new Promise((resolve, reject) => {
+        let timer;
+        const waiter = {
           expectedPrefix: buffer[0],
-          resolve: (data) => {
-            clearTimeout(timeoutId);
-            resolve(data);
-          },
+          resolve: (data) => finish(null, data),
+          reject: (error) => finish(error),
         };
-
-        this.ble.send(buffer).catch((err) => {
-          clearTimeout(timeoutId);
-          reject(err);
-        });
+        const finish = (error, data) => {
+          if (this.waitingForResponse !== waiter) return;
+          clearTimeout(timer);
+          this.waitingForResponse = null;
+          error ? reject(error) : resolve(data);
+        };
+        this.waitingForResponse = waiter;
+        timer = setTimeout(() => finish(new Error('Request timeout')), remaining);
+        Promise.resolve()
+          .then(() => this.ble.send(buffer))
+          .catch((error) => finish(error));
+      }).finally(() => {
+        this._requestBusy = false;
       });
-    } finally {
-      this._requestBusy = false;
-    }
+    });
+    // A failed command must not poison the FIFO. A reconnect invalidates queued
+    // commands, so stale STOP/profile writes never run on the new connection.
+    this._requestTail = operation.catch(() => {});
+    return operation;
   }
 
   /**
