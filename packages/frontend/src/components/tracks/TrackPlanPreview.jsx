@@ -31,6 +31,7 @@ export function TrackPlanPreview({
   light = false,
   connector,
   onConnect,
+  connectorRadius = 75,
   realistic = true,
   selectedPitPart = null,
   onSelectPitPart,
@@ -514,6 +515,7 @@ export function TrackPlanPreview({
                 </g>
               ))}
               {(!plan.pit.enabled || ![plan.pit.entry, plan.pit.merge].includes(s.index)) &&
+                !plan.trackExtras?.some((e) => e.anchor === s.index && ['pitEntry', 'pitExit'].includes(e.kind)) &&
                 s.type.startsWith('Pit_stop_weiche_') && (
                   <PitSwitchDetail
                     entry={s.type.endsWith('anfang')}
@@ -564,13 +566,20 @@ export function TrackPlanPreview({
           }}
           style={{ cursor: 'pointer' }}
         >
-          <circle cx={connector.x} cy={connector.y} r="75" fill="#fff" stroke="#0f766e" strokeWidth="12" />
+          <circle
+            cx={connector.x}
+            cy={connector.y}
+            r={connectorRadius}
+            fill="#fff"
+            stroke="#0f766e"
+            strokeWidth={connectorRadius / 6}
+          />
           <text
             x={connector.x}
             y={connector.y}
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize="95"
+            fontSize={connectorRadius * 1.27}
             fill="#0f766e"
           >
             +

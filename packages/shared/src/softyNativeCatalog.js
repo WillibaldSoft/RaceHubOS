@@ -85,6 +85,8 @@ export function validateTrackExtras(value, pieceCount) {
       (typeof e.antiCollision !== 'boolean' || !['pitEntry', 'pitExit'].includes(e.kind))
     )
       throw new Error('Invalid anti-collision extra switch');
+    if (e?.fuelBay !== undefined && (typeof e.fuelBay !== 'boolean' || e.kind !== 'single'))
+      throw new Error('Invalid fuel bay');
     validateDrawLayer(e?.drawLayer);
     if (
       !e ||
@@ -105,6 +107,7 @@ export function validateTrackExtras(value, pieceCount) {
     return {
       ...(e.antiCollision !== undefined ? { antiCollision: e.antiCollision } : {}),
       ...(e.drawLayer !== undefined ? { drawLayer: e.drawLayer } : {}),
+      ...(e.fuelBay !== undefined ? { fuelBay: e.fuelBay } : {}),
       kind: e.kind,
       placement: { xMm: e.placement.xMm, yMm: e.placement.yMm, headingDegrees: e.placement.headingDegrees },
       level: e.level,

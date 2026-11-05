@@ -56,3 +56,5 @@ export * from './trackDrawLayers.js';
 export * from './pitlaneEditing.js';
 
 export * from './speedDisplay.js';
+
+export * from './trackPlannerTools.js';

@@ -36,7 +36,9 @@ Eine eigenständige Version namens **Autorennbahnplaner 2.0** konnte weder auf d
 - Validatoren akzeptieren ausschließlich boolesche AKS-Angaben an Weichen. Bestehende Pläne ohne diese Felder bleiben gültig.
 - Linux-Paketbau benötigt keinen Windows-Node mehr. Ohne Windows-Laufzeit entsteht kein vermeintliches Windows-Paket. Installer-Revisionszähler erhöht; Projekt-/Produktversion unverändert.
 
-## Weitere Vorschläge
+## Weitere Vorschläge aus der ersten Prüfung
+
+Die anschließend freigegebenen Bedienhilfen sind inzwischen umgesetzt; der aktuelle Funktionsstand und die Bedienung stehen in [Bedienhilfen](TRACK-PLANNER-TOOLS.md). Die folgende Liste hält den Stand der ersten Prüfung fest.
 
 1. Vorschau einer einfügbaren Start-/Boxenbaugruppe an ausgewählten offenen Anschlüssen, inklusive Links-/Rechtsvariante und Kollisionsanzeige. Der jetzige sichere Einstieg ist auf leere Pläne beschränkt.
 2. Verständlicher Assistent für Haupt- und Nebenstränge mit echten Anschlussprüfungen; getrennte Tankplätze und Ein-/Ausfahrtrichtung vor Übernahme hervorheben.

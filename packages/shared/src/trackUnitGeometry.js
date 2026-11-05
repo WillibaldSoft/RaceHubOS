@@ -113,10 +113,13 @@ export function switchGuidePaths(segment, profile = 'planner2022') {
 // a generic single-lane item: this is a model interpretation, not a guarantee
 // that every imported single-lane rail physically contains a fuel sensor.
 export function nativeFuelBayIndices(plan, segments) {
-  if (!plan.pit.native || !plan.pit.enabled) return [];
+  const explicit = (plan.trackExtras || []).flatMap((e, i) =>
+    e.kind === 'single' && e.fuelBay && !e.hidden ? [i] : []
+  );
+  if (!plan.pit.native || !plan.pit.enabled) return explicit;
   const singles = (plan.trackExtras || [])
     .map((e, i) => ({ e, i }))
-    .filter(({ e }) => e.kind === 'single' && !e.hidden);
+    .filter(({ e }) => e.kind === 'single' && !e.hidden && e.fuelBay === undefined);
   const pose = (e) => {
     const p = e.placement,
       a = segments[e.anchor]?.start;
@@ -141,6 +144,6 @@ export function nativeFuelBayIndices(plan, segments) {
       )
         pairs.push([singles[i].i, singles[j].i]);
     }
-  if (!pairs.length) return [];
-  return pairs[Math.floor((pairs.length - 1) / 2)];
+  if (!pairs.length) return explicit;
+  return [...new Set([...explicit, ...pairs[Math.floor((pairs.length - 1) / 2)]])];
 }

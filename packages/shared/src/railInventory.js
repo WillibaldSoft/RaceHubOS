@@ -121,7 +121,11 @@ export function railRequirements(plan) {
       i++;
       continue;
     }
-    if (plan.pit.enabled && [plan.pit.entry, plan.pit.merge].includes(i) && type.startsWith('Pit_stop_weiche_'))
+    if (
+      type.startsWith('Pit_stop_weiche_') &&
+      ((plan.pit.enabled && [plan.pit.entry, plan.pit.merge].includes(i)) ||
+        plan.trackExtras?.some((e) => e.anchor === i && ['pitEntry', 'pitExit'].includes(e.kind)))
+    )
       continue;
     unresolved.push(`${i + 1}: ${type}`);
   }
@@ -148,9 +152,7 @@ export function railRequirements(plan) {
     } else unresolved.push('Pitlane');
   }
   // Use the same FUEL positions as the native double-box drawing.
-  const fuelIndices = new Set(
-    plan.pit.native && plan.pit.enabled ? nativeFuelBayIndices(plan, traceTrackPlan(plan).segments) : []
-  );
+  const fuelIndices = new Set(nativeFuelBayIndices(plan, traceTrackPlan(plan).segments));
   let entries = 0,
     exits = 0;
   for (const [index, e] of (plan.trackExtras || []).entries()) {

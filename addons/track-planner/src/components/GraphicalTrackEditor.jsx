@@ -1,3 +1,5 @@
+import PlannerTools from './PlannerTools'
+import ConnectionHints from './ConnectionHints'
 import { pitlaneComponents } from '@core/components/tracks/pitlaneComponents'
 import TrackPartsManager from './TrackPartsManager'
 import TrackBorders from './TrackBorders'
@@ -27,6 +29,8 @@ import {
   replacePitlaneSwitch,
   rotatePitlaneSwitch,
   editablePitlane,
+  deleteTrackSelection,
+  deletePitComponent,
 } from '@racehubos/shared'
 import { TrackPlanPreview } from '@core/components/tracks/TrackPlanPreview'
 import { labelTrackPart } from '@core/components/tracks/trackPartLabel'
@@ -110,6 +114,10 @@ export default function GraphicalTrackEditor({
   expanded = false,
 }) {
   const { t } = useTranslation('tracks')
+  const [endpointKey, setEndpointKey] = useState('')
+  const [showConnections, setShowConnections] = useState(true)
+  const [context, setContext] = useState(null)
+  const [auditMarks, setAuditMarks] = useState(null)
   const [draft, setDraft] = useState(null),
     [snapEnabled, setSnapEnabled] = useState(true),
     [snapHint, setSnapHint] = useState(null),
@@ -142,6 +150,15 @@ export default function GraphicalTrackEditor({
     [layerTarget, setLayerTarget] = useState('rails')
   const [pointerMode, setPointerMode] = useState('box'),
     [marquee, setMarquee] = useState(null)
+  useEffect(() => {
+    if (!context) return
+    const close = (e) => {
+      if (!e.target.closest('.planner-context-menu')) setContext(null)
+    }
+    document.querySelector('[data-testid=track-context-menu] button:not(:disabled)')?.focus()
+    document.addEventListener('pointerdown', close)
+    return () => document.removeEventListener('pointerdown', close)
+  }, [context])
   function selectIndices(indices) {
     setSelectedPitPart(null)
     setLayerTarget('rails')
@@ -263,6 +280,22 @@ export default function GraphicalTrackEditor({
     ? (((((activeSegment.start.h * 180) / Math.PI + 180) % 360) + 360) % 360) - 180
     : 0
   const connector = join ?? trace.segments.at(-1)?.end ?? { x: 0, y: 0 }
+  function setAntiCollision(antiCollision) {
+    if (nativePitSwitch) {
+      const prepared = editablePitlane(plan)
+      const index = pitPart.extraIndex ?? prepared.ids[pitPart.id]
+      onChange({
+        ...prepared.plan,
+        trackExtras: prepared.plan.trackExtras.map((part, i) => (i === index ? { ...part, antiCollision } : part)),
+      })
+      setSelectedPitPart(`extra-${index}`)
+    } else {
+      onChange({
+        ...plan,
+        pieces: plan.pieces.map((part, i) => (i === selected ? { ...part, antiCollision } : part)),
+      })
+    }
+  }
   function edit(action) {
     if (action === 'replace' && pitReplacement) {
       const prepared = editablePitlane(plan),
@@ -319,6 +352,7 @@ export default function GraphicalTrackEditor({
       edit('delete')
     }
     if (e.key === 'Escape') {
+      setContext(null)
       dragging.current = null
       setDraft(null)
       setMarquee(null)
@@ -387,6 +421,122 @@ export default function GraphicalTrackEditor({
       className={`planner-graphical ${expanded ? 'is-expanded' : ''}`}
     >
       <p className="planner-hint">{t('graph.help')}</p>
+      <PlannerTools
+        plan={storedPlan}
+        selected={selected}
+        indices={motion}
+        onChange={onChange}
+        onSelect={onSelect}
+        onSelectIndices={selectIndices}
+        fit={fit}
+        endpointKey={endpointKey}
+        onEndpoint={setEndpointKey}
+        onInspect={(indices, auxiliary) => {
+          setAuditMarks({ plan: storedPlan, indices, auxiliary })
+          setShowConnections(true)
+        }}
+      />
+      {context && (
+        <div
+          className="planner-context-menu"
+          role="menu"
+          aria-label={t('tools.context')}
+          data-testid="track-context-menu"
+          style={{ left: context.x, top: context.y }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              e.stopPropagation()
+              setContext(null)
+            }
+          }}
+        >
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="context-rotate"
+            disabled={(!active && !nativePitSwitch) || (nativePitSwitch && pitSwitchLocked)}
+            onClick={() => {
+              if (nativePitSwitch) {
+                const prepared = editablePitlane(plan),
+                  i = pitPart.extraIndex ?? prepared.ids[pitPart.id]
+                onChange(rotatePitlaneSwitch(prepared.plan, i))
+                setSelectedPitPart(`extra-${i}`)
+              } else rotate(15)
+              setContext(null)
+            }}
+          >
+            {t(nativePitSwitch ? 'pitParts.rotate' : 'tools.rotate')}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="context-replace"
+            disabled={(!active && !pitReplacement) || (!!active && motion.length > 1)}
+            onClick={() => {
+              edit('replace')
+              setContext(null)
+            }}
+          >
+            {t('tools.replaceChosen', { part: labelTrackPart(chosen.types[0]) })}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="context-ungroup"
+            disabled={pitPart ? freeTrackSelection(plan, pitPart.anchor).length < 2 : !active || motion.length < 2}
+            onClick={() => {
+              onChange(ungroupTrackParts(plan, pitPart ? freeTrackSelection(plan, pitPart.anchor) : motion))
+              setContext(null)
+            }}
+          >
+            {t('tools.ungroup')}
+          </button>
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            aria-checked={
+              !!(nativePitSwitch
+                ? pitPart.extraIndex !== undefined
+                  ? plan.trackExtras[pitPart.extraIndex]?.antiCollision
+                  : plan.pieces[pitPart.anchor]?.antiCollision
+                : active?.antiCollision)
+            }
+            data-testid="context-aks"
+            disabled={!nativePitSwitch && !/weiche/i.test(active?.type || '')}
+            onClick={() => {
+              const value = nativePitSwitch
+                ? pitPart.extraIndex !== undefined
+                  ? plan.trackExtras[pitPart.extraIndex]?.antiCollision
+                  : plan.pieces[pitPart.anchor]?.antiCollision
+                : active?.antiCollision
+              setAntiCollision(!value)
+              setContext(null)
+            }}
+          >
+            {t('antiCollision.installed')}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            data-testid="context-delete"
+            disabled={!active && (!pitPart || plan.partGroups?.groups.some((g) => g.includes(pitPart.anchor)))}
+            onClick={() => {
+              if (pitPart) {
+                const prepared = editablePitlane(plan),
+                  index = pitPart.extraIndex ?? prepared.ids[pitPart.id]
+                onChange(deletePitComponent(prepared.plan, index))
+              } else onChange(deleteTrackSelection(plan, motion))
+              onSelect(-1)
+              setContext(null)
+            }}
+          >
+            {t('tools.deleteSelection', { count: pitPart ? 1 : motion.length })}
+          </button>
+          <button type="button" role="menuitem" onClick={() => setContext(null)}>
+            {t('tools.close')}
+          </button>
+        </div>
+      )}
       <div className="planner-toolbar">
         <Button
           type="button"
@@ -508,6 +658,15 @@ export default function GraphicalTrackEditor({
               </option>
             ))}
           </select>
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            data-testid="show-connections"
+            checked={showConnections}
+            onChange={(e) => setShowConnections(e.target.checked)}
+          />{' '}
+          {t('tools.connections')}
         </label>
         <TrackPlanPrint plan={plan} name={name} />
         <TrackPartsManager plan={plan} name={name} />
@@ -675,25 +834,7 @@ export default function GraphicalTrackEditor({
                         : plan.pieces[pitPart.anchor]?.antiCollision
                       : active.antiCollision)
                   }
-                  onChange={(e) => {
-                    const antiCollision = e.target.checked
-                    if (nativePitSwitch) {
-                      const prepared = editablePitlane(plan)
-                      const index = pitPart.extraIndex ?? prepared.ids[pitPart.id]
-                      onChange({
-                        ...prepared.plan,
-                        trackExtras: prepared.plan.trackExtras.map((part, i) =>
-                          i === index ? { ...part, antiCollision } : part
-                        ),
-                      })
-                      setSelectedPitPart(`extra-${index}`)
-                    } else {
-                      onChange({
-                        ...plan,
-                        pieces: plan.pieces.map((part, i) => (i === selected ? { ...part, antiCollision } : part)),
-                      })
-                    }
-                  }}
+                  onChange={(e) => setAntiCollision(e.target.checked)}
                 />{' '}
                 {t('antiCollision.installed')}
               </label>
@@ -961,7 +1102,21 @@ export default function GraphicalTrackEditor({
                 setPart(item.id)
                 setSnapHint(snapped.snap)
               }}
+              onContextMenu={(e) => {
+                const rail = e.target.closest('[data-rail-index]'),
+                  pit = e.target.closest('[data-pit-part-id]')
+                if (!rail && !pit) return
+                e.preventDefault()
+                suppressClick.current = false
+                if (pit) selectPitPart(pit.dataset.pitPartId)
+                else onSelect(Number(rail.dataset.railIndex))
+                setContext({
+                  x: Math.max(8, Math.min(e.clientX, window.innerWidth - 245)),
+                  y: Math.max(8, Math.min(e.clientY, window.innerHeight - 340)),
+                })
+              }}
               onPointerDown={(e) => {
+                if (e.target.closest('[data-connection-port]')) return
                 suppressClick.current = false
                 if (![0, 1].includes(e.button) || ((e.ctrlKey || e.metaKey) && !e.shiftKey)) return
                 const borderHit = e.target.closest('[data-border-side]')
@@ -1121,8 +1276,64 @@ export default function GraphicalTrackEditor({
                 labels={labels}
                 visibleLevel={level === 'all' ? null : Number(level)}
                 connector={plan.pieces.length + chosen.types.length <= 2000 ? connector : null}
+                connectorRadius={
+                  activeSegment
+                    ? Math.max(
+                        24,
+                        Math.min(
+                          75,
+                          Math.hypot(
+                            activeSegment.end.x - activeSegment.start.x,
+                            activeSegment.end.y - activeSegment.start.y
+                          ) / 4
+                        )
+                      )
+                    : 75
+                }
                 onConnect={() => edit(side)}
               />
+              {showConnections && (
+                <ConnectionHints
+                  plan={plan}
+                  indices={motion}
+                  endpointKey={endpointKey}
+                  width={w}
+                  onPort={(p) => {
+                    setEndpointKey(`${p.index}:${p.end}`)
+                    setSide(p.end ? 'after' : 'before')
+                    onSelect(p.index)
+                  }}
+                />
+              )}
+              {auditMarks?.plan === storedPlan &&
+                trace.segments
+                  .filter((s) => auditMarks.indices.includes(s.index))
+                  .map((s) => (
+                    <path
+                      key={s.index}
+                      data-testid={`audit-mark-${s.index}`}
+                      d={s.points[0].map((p, i) => `${i ? 'L' : 'M'}${p[0]} ${p[1]}`).join(' ')}
+                      fill="none"
+                      stroke="#dc2626"
+                      strokeOpacity=".5"
+                      strokeWidth="170"
+                      pointerEvents="none"
+                    />
+                  ))}
+              {auditMarks?.plan === storedPlan &&
+                auditMarks.auxiliary?.map((p, i) => (
+                  <circle
+                    key={i}
+                    data-testid={`audit-auxiliary-mark-${i}`}
+                    cx={p.x}
+                    cy={p.y}
+                    r="24"
+                    stroke="#dc2626"
+                    strokeWidth="6"
+                    fill="none"
+                    pointerEvents="none"
+                  />
+                ))}
               {marquee && (
                 <rect
                   data-testid="track-selection-rectangle"

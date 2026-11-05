@@ -57,9 +57,9 @@ export function exportSoftyRoyal(input, name = 'Streckenplan') {
       h = s.start.h,
       level = s.level;
     if (
-      (pitFrame || plan.pit.native) &&
       s.type.startsWith('Pit_stop_') &&
-      [plan.pit.entry, plan.pit.merge].includes(s.index)
+      (((pitFrame || plan.pit.native) && [plan.pit.entry, plan.pit.merge].includes(s.index)) ||
+        plan.trackExtras?.some((e) => e.anchor === s.index && ['pitEntry', 'pitExit'].includes(e.kind)))
     )
       continue;
     if (spec.radius) {
@@ -190,7 +190,11 @@ export function exportSoftyRoyal(input, name = 'Streckenplan') {
   // SVG/plan paint order represents the photo-confirmed overpass. SBP v1
   // reference exposes no surveyed height, so no invented ramp heights are added.
   items.sort((a, b) => (plan.softyImport?.paintOrder ? a._order - b._order : a._level - b._level));
-  const plain = items.map(({ _level, _order, ...item }) => item);
+  const plain = items.map(({ _level, _order, ...item }) => {
+    void _level;
+    void _order;
+    return item;
+  });
   const xs = items.map((i) => i.position.x),
     ys = items.map((i) => i.position.y);
   const xmin = Math.min(...xs) - 1000,
