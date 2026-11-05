@@ -1,0 +1,39 @@
+name: Review combination validation
+on:
+  push:
+    branches: [test/review-combination-20261105]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: review-combination-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '22'
+      - run: git fetch --no-tags https://github.com/AnselmeSDR/RaceHubOS.git +main:refs/remotes/origin/main
+      - run: |
+          sudo apt-get update
+          sudo apt-get install -y libbluetooth-dev
+      - run: npm ci
+      - run: npm run prisma:generate -w @racehubos/backend
+      - run: npm run check:push
+      - run: npm test -w @racehubos/backend
+      # Standalone "backend unchanged" assertion is intentionally excluded: this
+      # snapshot explicitly includes the separate sector backend contribution.
+      - run: node --test --test-name-pattern="^(?!DeviceContext)" packages/frontend/tests/race-screen/model.test.js packages/frontend/tests/pit-advice/model.test.js
+      - run: npx playwright install --with-deps chromium
+      - run: node node_modules/@playwright/test/cli.js test --config packages/frontend/tests/cockpit/config.js
+      - run: node node_modules/@playwright/test/cli.js test --config packages/frontend/tests/race-screen/config.js
+      - run: node node_modules/@playwright/test/cli.js test --config packages/frontend/tests/sector-timing/config.js
+      - run: node node_modules/@playwright/test/cli.js test --config packages/frontend/tests/pit-advice/config.js
+      - run: npm run build
