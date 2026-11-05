@@ -19,6 +19,7 @@ import { SyncService } from './services/SyncService.js';
 import { ControlUnit } from './services/controlUnit.js';
 
 // Import routes
+import { createCockpitRouter } from './routes/cockpit.js';
 import driversRouter from './routes/drivers.js';
 import carsRouter from './routes/cars.js';
 import tracksRouter from './routes/tracks.js';
@@ -31,6 +32,7 @@ import sessionsRouter, { setSessionService } from './routes/sessions.js';
 import configRouter, { setConfigService } from './routes/config.js';
 import recordsRouter from './routes/records.js';
 import uploadRouter from './routes/upload.js';
+import { createSectorTimingRouter } from './routes/sectorTiming.js';
 import devicesRouter from './routes/devices.js';
 import preferencesRouter from './routes/preferences.js';
 import updateRouter, { setUpdateIo } from './routes/update.js';
@@ -164,7 +166,9 @@ app.get('/api', (req, res) => {
 });
 
 // Mount API routes
+app.use('/api/sector-timing', await createSectorTimingRouter({ syncService, sessionService }));
 app.use('/api/drivers', driversRouter);
+app.use('/api/data', createCockpitRouter({ io }));
 app.use('/api/cars', carsRouter);
 app.use('/api/tracks', tracksRouter);
 app.use('/api/teams', teamsRouter);

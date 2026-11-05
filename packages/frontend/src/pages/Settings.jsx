@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { io } from 'socket.io-client'
+import RaceScreenSettingsCard from '../components/race/RaceScreenSettingsCard'
 import { useDevice, SIMULATOR_ADDRESS } from '../context/DeviceContext'
 import { useApp } from '../context/AppContext'
 import { useVoice } from '../context/VoiceContext'
+import SectorTimingSettings from '../components/race/SectorTimingSettings'
 import { voicesByLanguage } from '../lib/speech'
+import PitAdviceSettings from '../components/race/PitAdviceSettings'
 import { LANGUAGES } from '../i18n'
 import {
   Wifi,
@@ -571,6 +574,7 @@ export default function Settings() {
         </Card>
       )}
 
+      <PitAdviceSettings />
       {/* Appearance & Admin */}
       <Card>
         <CardContent className=" space-y-4">
@@ -754,6 +758,7 @@ export default function Settings() {
         </CardContent>
       </Card>
 
+      <SectorTimingSettings />
       {/* Reference driver */}
       <Card>
         <CardContent className=" space-y-4">
@@ -831,6 +836,7 @@ export default function Settings() {
         </CardContent>
       </Card>
 
+      <RaceScreenSettingsCard />
       {/* Logs */}
       <Card className="overflow-hidden">
         <div className="flex items-center justify-between px-4 py-2 border-b border-border">

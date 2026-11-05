@@ -9,6 +9,7 @@ import Layout from './components/Layout'
 
 // Lazy load all pages
 const Dashboard = lazy(() => import('./pages/Dashboard'))
+const Import = lazy(() => import('./pages/Import'))
 const Drivers = lazy(() => import('./pages/Drivers'))
 const DriverProfile = lazy(() => import('./pages/DriverProfile'))
 const Cars = lazy(() => import('./pages/Cars'))
@@ -22,6 +23,7 @@ const SessionsList = lazy(() => import('./pages/SessionsList'))
 const SessionDetail = lazy(() => import('./pages/SessionDetail'))
 const Stats = lazy(() => import('./pages/Stats'))
 const Settings = lazy(() => import('./pages/Settings'))
+const RaceScreenSettings = lazy(() => import('./pages/RaceScreenSettings'))
 const Test = lazy(() => import('./pages/Test'))
 const FreeSessionPage = lazy(() => import('./pages/FreeSessionPage'))
 const BalancingPage = lazy(() => import('./pages/BalancingPage'))
@@ -131,6 +133,14 @@ function App() {
                       }
                     />
                     <Route
+                      path="import"
+                      element={
+                        <Suspense>
+                          <Import />
+                        </Suspense>
+                      }
+                    />
+                    <Route
                       path="teams"
                       element={
                         <Suspense>
@@ -169,6 +179,14 @@ function App() {
                       element={
                         <Suspense>
                           <Stats />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="settings/race-screen"
+                      element={
+                        <Suspense>
+                          <RaceScreenSettings />
                         </Suspense>
                       }
                     />
