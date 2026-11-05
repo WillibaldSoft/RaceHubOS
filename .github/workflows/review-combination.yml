@@ -30,7 +30,7 @@ jobs:
       - run: npm test -w @racehubos/backend
       # Standalone "backend unchanged" assertion is intentionally excluded: this
       # snapshot explicitly includes the separate sector backend contribution.
-      - run: node --test --test-name-pattern="^(?!DeviceContext)" packages/frontend/tests/race-screen/model.test.js packages/frontend/tests/pit-advice/model.test.js
+      - run: node --test --test-skip-pattern=DeviceContext packages/frontend/tests/race-screen/model.test.js packages/frontend/tests/pit-advice/model.test.js
       - run: npx playwright install --with-deps chromium
       - run: node node_modules/@playwright/test/cli.js test --config packages/frontend/tests/cockpit/config.js
       - run: node node_modules/@playwright/test/cli.js test --config packages/frontend/tests/race-screen/config.js
