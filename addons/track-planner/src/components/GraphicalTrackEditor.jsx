@@ -663,6 +663,50 @@ export default function GraphicalTrackEditor({
                   ? `${selected + 1}. ${labelTrackPart(active.type)}${['Standardgerade', 'Startampel_3spur_hinten'].includes(active.type) ? ` · ${t('pitParts.twoLane')}` : ''}`
                   : t('graph.noSelection')}
             </strong>
+            {(nativePitSwitch || (active && /weiche/i.test(active.type))) && (
+              <label className="text-sm">
+                <input
+                  type="checkbox"
+                  data-testid="switch-anti-collision"
+                  checked={
+                    !!(nativePitSwitch
+                      ? pitPart.extraIndex !== undefined
+                        ? plan.trackExtras[pitPart.extraIndex]?.antiCollision
+                        : plan.pieces[pitPart.anchor]?.antiCollision
+                      : active.antiCollision)
+                  }
+                  onChange={(e) => {
+                    const antiCollision = e.target.checked
+                    if (nativePitSwitch) {
+                      const prepared = editablePitlane(plan)
+                      const index = pitPart.extraIndex ?? prepared.ids[pitPart.id]
+                      onChange({
+                        ...prepared.plan,
+                        trackExtras: prepared.plan.trackExtras.map((part, i) =>
+                          i === index ? { ...part, antiCollision } : part
+                        ),
+                      })
+                      setSelectedPitPart(`extra-${index}`)
+                    } else {
+                      onChange({
+                        ...plan,
+                        pieces: plan.pieces.map((part, i) => (i === selected ? { ...part, antiCollision } : part)),
+                      })
+                    }
+                  }}
+                />{' '}
+                {t('antiCollision.installed')}
+              </label>
+            )}
+            <label className="text-sm">
+              <input
+                type="checkbox"
+                data-testid="show-anti-collision"
+                checked={!!plan.showAntiCollision}
+                onChange={(e) => onChange({ ...plan, showAntiCollision: e.target.checked })}
+              />{' '}
+              {t('antiCollision.show')}
+            </label>
             <select
               data-testid="track-insert-side"
               aria-label={t('graph.insertSide')}

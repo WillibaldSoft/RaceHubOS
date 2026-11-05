@@ -1,3 +1,4 @@
+import { AntiCollisionMarker } from './AntiCollisionMarker'
 import { PitSwitchDetail } from './PitSwitchDetail'
 import { pitlaneComponents } from './pitlaneComponents'
 import { RailSlotPaths } from './RailSlotPaths'
@@ -353,6 +354,9 @@ export function TrackPlanPreview({
                         : 2
                     }
                   />
+                  {plan.showAntiCollision && s.antiCollision && (
+                    <AntiCollisionMarker id={`extra-${s.extraIndex}`} x={g.pose.xMm} y={g.pose.yMm - 65} />
+                  )}
                   {fuelIndices.includes(s.extraIndex) && (
                     <FuelDetail pose={extraWorldPose(s, segments)} index={s.extraIndex} article="30361" />
                   )}
@@ -482,6 +486,9 @@ export function TrackPlanPreview({
                 </g>
               )}
               {s.approximateSlots && <title>{t('catalogue.approximateSlots')}</title>}
+              {plan.showAntiCollision && s.antiCollision && (
+                <AntiCollisionMarker id={`rail-${s.index}`} x={s.points[0][16][0]} y={s.points[0][16][1] - 75} />
+              )}
               <UnitDetails segment={s} realistic={realistic} />
               <RailSlotPaths
                 paths={[1, 2].map((n) => line(s.points[n]))}

@@ -86,6 +86,8 @@ export function validateTrackPlan(value) {
       throw new Error('Invalid track piece');
     if (p.paintOrder !== undefined && (!Number.isInteger(p.paintOrder) || p.paintOrder < 0 || p.paintOrder > 12000))
       throw new Error('Invalid paint order');
+    if (p.antiCollision !== undefined && (typeof p.antiCollision !== 'boolean' || !/weiche/i.test(p.type)))
+      throw new Error('Invalid anti-collision switch');
     validateDrawLayer(p.drawLayer);
     const borders = validateBorders(p.borders, p.type);
     let placement;
@@ -103,6 +105,7 @@ export function validateTrackPlan(value) {
     if (value.freePlacement === true && !placement) throw new Error('Missing free placement');
     if (placement && value.freePlacement !== true) throw new Error('Unexpected placement');
     return {
+      ...(p.antiCollision !== undefined ? { antiCollision: p.antiCollision } : {}),
       ...(p.drawLayer !== undefined ? { drawLayer: p.drawLayer } : {}),
       ...(p.paintOrder !== undefined ? { paintOrder: p.paintOrder } : {}),
       ...(borders ? { borders } : {}),
@@ -114,6 +117,8 @@ export function validateTrackPlan(value) {
   });
   if (value.freePlacement !== undefined && typeof value.freePlacement !== 'boolean')
     throw new Error('Invalid placement mode');
+  if (value.showAntiCollision !== undefined && typeof value.showAntiCollision !== 'boolean')
+    throw new Error('Invalid anti-collision display');
   const pit = { ...emptyTrackPlan().pit, ...value.pit };
   if (
     typeof pit.enabled !== 'boolean' ||
@@ -146,6 +151,7 @@ export function validateTrackPlan(value) {
   return {
     kind: TRACK_PLAN_KIND,
     version: 1,
+    ...(value.showAntiCollision !== undefined ? { showAntiCollision: value.showAntiCollision } : {}),
     ...(partGroups ? { partGroups } : {}),
     ...(trackExtras ? { trackExtras } : {}),
     ...(softyImport ? { softyImport } : {}),

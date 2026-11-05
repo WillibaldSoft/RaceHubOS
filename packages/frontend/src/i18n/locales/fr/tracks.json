@@ -1,4 +1,5 @@
 {
+  "antiCollision": { "installed": "Circuit anti-collision installé", "show": "Afficher les repères anti-collision" },
   "quickStart": {
     "note": "Créer le départ/arrivée et la Control Unit avec une voie des stands et deux postes de ravitaillement parallèles. Déplacer ou tourner le groupe, ou le dissocier. Continuer aux extrémités ouvertes.",
     "create": "Insérer départ/arrivée + CU + 2 postes"

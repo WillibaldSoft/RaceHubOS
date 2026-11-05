@@ -80,6 +80,11 @@ export function validateTrackExtras(value, pieceCount) {
   if (value === undefined) return undefined;
   if (!Array.isArray(value) || value.length > 3000) throw new Error('Invalid native extra parts');
   return value.map((e) => {
+    if (
+      e?.antiCollision !== undefined &&
+      (typeof e.antiCollision !== 'boolean' || !['pitEntry', 'pitExit'].includes(e.kind))
+    )
+      throw new Error('Invalid anti-collision extra switch');
     validateDrawLayer(e?.drawLayer);
     if (
       !e ||
@@ -98,6 +103,7 @@ export function validateTrackExtras(value, pieceCount) {
     )
       throw new Error('Invalid native extra part');
     return {
+      ...(e.antiCollision !== undefined ? { antiCollision: e.antiCollision } : {}),
       ...(e.drawLayer !== undefined ? { drawLayer: e.drawLayer } : {}),
       kind: e.kind,
       placement: { xMm: e.placement.xMm, yMm: e.placement.yMm, headingDegrees: e.placement.headingDegrees },
