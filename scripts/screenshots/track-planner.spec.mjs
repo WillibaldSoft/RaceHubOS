@@ -58,12 +58,12 @@ for (const [language, labels] of Object.entries(words)) {
         await page.getByTestId('track-fit').click();
         await page.getByTestId('graph-track-canvas').scrollIntoViewIfNeeded();
       }
-      async function shot(id) {
+      async function shot(id, keepMouse = false) {
         await page.evaluate(async () => {
           await document.fonts.ready;
           await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         });
-        await page.mouse.move(8, 8);
+        if (!keepMouse) await page.mouse.move(8, 8);
         const filename = `${id}.png`,
           target = path.join(output, language, filename);
         const bytes = await page.screenshot({ path: target, animations: 'disabled', caret: 'hide' });
@@ -172,6 +172,22 @@ for (const [language, labels] of Object.entries(words)) {
       await expect(page.locator('[data-testid^="audit-auxiliary-mark-"]')).not.toHaveCount(0);
       await canvas();
       await shot('13-open-pit-connection');
+      await openPlan(straight(1));
+      await page.getByTestId('repeat-track-part').check();
+      await page.getByTestId('palette-Standardgerade').click();
+      await canvas();
+      await page.getByTestId('track-zoom-slider').fill('40');
+      const point = await page.getByTestId('graph-track-canvas').evaluate((svg) => {
+        const p = svg.createSVGPoint();
+        p.x = 345;
+        p.y = 0;
+        const screen = p.matrixTransform(svg.getScreenCTM());
+        return { x: screen.x, y: screen.y };
+      });
+      await page.mouse.move(point.x, point.y);
+      await expect(page.getByTestId('repeat-track-preview')).toBeVisible();
+      await shot('14-repeat-placement', true);
+      await page.keyboard.press('Escape');
       expect(errors).toEqual([]);
       await fs.writeFile(
         path.join(output, language, 'manifest.json'),

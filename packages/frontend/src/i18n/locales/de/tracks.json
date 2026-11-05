@@ -1,4 +1,11 @@
 {
+  "layout": {
+    "repeatPlace": "Mehrfachlegen",
+    "repeatHint": "Teil wählen, dann auf die Bahnfläche klicken. Weitere Klicks legen weitere Exemplare. Escape beendet den Modus.",
+    "catalogue": "Katalog",
+    "selection": "Teil bearbeiten",
+    "viewOptions": "Ansicht & Werkzeuge"
+  },
   "tools": {
     "auxiliaryPorts": "Offene Anschlüsse der Boxenteile · anklicken zum Markieren",
     "box": "Boxenassistent",

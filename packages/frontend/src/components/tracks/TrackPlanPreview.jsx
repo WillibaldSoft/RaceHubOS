@@ -21,6 +21,7 @@ const line = (pts) => pts.map(([x, y], i) => `${i ? 'L' : 'M'}${x.toFixed(3)} ${
 
 export function TrackPlanPreview({
   plan,
+  showOrigin = true,
   selected = -1,
   selectedIndices = [],
   onSelect,
@@ -586,7 +587,7 @@ export function TrackPlanPreview({
           </text>
         </g>
       )}
-      <circle cx="0" cy="0" r="18" fill="#4ade80" />
+      {showOrigin && <circle cx="0" cy="0" r="18" fill="#4ade80" />}
     </>
   )
   if (embedded) return <g>{drawing}</g>

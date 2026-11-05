@@ -132,10 +132,126 @@ export default function TrackPlanEditor({
         {t('editor.enable')}
       </Button>
     )
+  const planDetails = (
+    <>
+      <details data-testid="planner-metrics-details" className="planner-details" hidden={mode === 'files'}>
+        <summary>{t('work.metrics')}</summary>
+        <TrackPlanSummary plan={plan} />
+        <SavedRoomPlan plan={plan} name={trackName} />
+      </details>
+      <details data-testid="planner-advanced-details" className="planner-details">
+        <summary>{t('graph.advanced')}</summary>
+        <p className="text-xs text-muted-foreground">
+          {t(plan.geometryProfile === 'prototype' ? 'editor.prototypeNote' : 'editor.geometryNote')}
+        </p>
+        <label className="block">
+          <input
+            type="checkbox"
+            checked={plan.pit.enabled}
+            disabled={!plan.pieces.length || plan.pit.native}
+            onChange={(e) =>
+              update({
+                ...plan,
+                pit: { ...plan.pit, enabled: e.target.checked },
+              })
+            }
+          />{' '}
+          {t('editor.doublePit')}
+        </label>
+        {plan.pit.enabled && !plan.pit.native && (
+          <div className="grid grid-cols-2 gap-2">
+            {['entry', 'merge'].map((key) => (
+              <label key={key}>
+                {t(`editor.${key}`)}
+                <select
+                  className="w-full border"
+                  value={plan.pit[key]}
+                  onChange={(e) =>
+                    update({
+                      ...plan,
+                      pit: { ...plan.pit, [key]: Number(e.target.value) },
+                    })
+                  }
+                >
+                  {plan.pieces.map((p, i) => (
+                    <option key={i} value={i}>
+                      {i + 1}. {label(p.type)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ))}
+            {['spacingMm', 'bayLengthMm'].map((key) => (
+              <label key={key}>
+                {t(`editor.${key}`)}
+                <input
+                  className="w-full border"
+                  type="number"
+                  min="115"
+                  max={key === 'spacingMm' ? 3000 : 10000}
+                  value={plan.pit[key]}
+                  onChange={(e) =>
+                    update({
+                      ...plan,
+                      pit: {
+                        ...plan.pit,
+                        [key]: Math.max(115, Math.min(key === 'spacingMm' ? 3000 : 10000, Number(e.target.value))),
+                      },
+                    })
+                  }
+                />
+              </label>
+            ))}
+            <p className="col-span-2 text-xs">{t('editor.pitNote')}</p>
+          </div>
+        )}
+        <label className="block">
+          <input
+            type="checkbox"
+            checked={!!plan.measuredLaneLengthsM}
+            disabled={!plan.pieces.length}
+            onChange={(e) =>
+              update({
+                ...plan,
+                measuredLaneLengthsM: e.target.checked ? traceTrackPlan(plan).calculatedLaneLengthsM : null,
+              })
+            }
+          />{' '}
+          {t('editor.useMeasured')}
+        </label>
+        {plan.measuredLaneLengthsM && (
+          <div className="flex gap-2">
+            {[0, 1].map((i) => (
+              <label key={i}>
+                {t('editor.lane', { number: i + 1 })} (m)
+                <input
+                  className="border w-24"
+                  type="number"
+                  min="0.001"
+                  step="0.001"
+                  max="10000"
+                  value={plan.measuredLaneLengthsM[i]}
+                  onChange={(e) =>
+                    update({
+                      ...plan,
+                      measuredLaneLengthsM: plan.measuredLaneLengthsM.map((n, j) =>
+                        j === i ? Math.max(0.001, Math.min(10000, Number(e.target.value))) : n
+                      ),
+                    })
+                  }
+                />
+              </label>
+            ))}
+          </div>
+        )}
+      </details>
+    </>
+  )
   return (
     <section
       className={`planner-workspace ${expanded ? 'is-fullscreen' : 'is-compact'}`}
       data-planner-expanded={expanded}
+      data-mode={mode}
       data-testid="track-plan-editor"
     >
       <header className="planner-header">
@@ -233,6 +349,7 @@ export default function TrackPlanEditor({
             canRedo={!!future.length}
             name={trackName}
             expanded={expanded}
+            planDetails={planDetails}
           />
         </div>
         {mode === 'room' && (
@@ -379,117 +496,7 @@ export default function TrackPlanEditor({
             </a>
           </div>
         </section>
-        <details className="planner-details" hidden={mode === 'files'}>
-          <summary>{t('work.metrics')}</summary>
-          <TrackPlanSummary plan={plan} />
-          <SavedRoomPlan plan={plan} name={trackName} />
-        </details>
-        <details className="planner-details">
-          <summary>{t('graph.advanced')}</summary>
-          <p className="text-xs text-muted-foreground">
-            {t(plan.geometryProfile === 'prototype' ? 'editor.prototypeNote' : 'editor.geometryNote')}
-          </p>
-          <label className="block">
-            <input
-              type="checkbox"
-              checked={plan.pit.enabled}
-              disabled={!plan.pieces.length || plan.pit.native}
-              onChange={(e) =>
-                update({
-                  ...plan,
-                  pit: { ...plan.pit, enabled: e.target.checked },
-                })
-              }
-            />{' '}
-            {t('editor.doublePit')}
-          </label>
-          {plan.pit.enabled && !plan.pit.native && (
-            <div className="grid grid-cols-2 gap-2">
-              {['entry', 'merge'].map((key) => (
-                <label key={key}>
-                  {t(`editor.${key}`)}
-                  <select
-                    className="w-full border"
-                    value={plan.pit[key]}
-                    onChange={(e) =>
-                      update({
-                        ...plan,
-                        pit: { ...plan.pit, [key]: Number(e.target.value) },
-                      })
-                    }
-                  >
-                    {plan.pieces.map((p, i) => (
-                      <option key={i} value={i}>
-                        {i + 1}. {label(p.type)}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-              ))}
-              {['spacingMm', 'bayLengthMm'].map((key) => (
-                <label key={key}>
-                  {t(`editor.${key}`)}
-                  <input
-                    className="w-full border"
-                    type="number"
-                    min="115"
-                    max={key === 'spacingMm' ? 3000 : 10000}
-                    value={plan.pit[key]}
-                    onChange={(e) =>
-                      update({
-                        ...plan,
-                        pit: {
-                          ...plan.pit,
-                          [key]: Math.max(115, Math.min(key === 'spacingMm' ? 3000 : 10000, Number(e.target.value))),
-                        },
-                      })
-                    }
-                  />
-                </label>
-              ))}
-              <p className="col-span-2 text-xs">{t('editor.pitNote')}</p>
-            </div>
-          )}
-          <label className="block">
-            <input
-              type="checkbox"
-              checked={!!plan.measuredLaneLengthsM}
-              disabled={!plan.pieces.length}
-              onChange={(e) =>
-                update({
-                  ...plan,
-                  measuredLaneLengthsM: e.target.checked ? traceTrackPlan(plan).calculatedLaneLengthsM : null,
-                })
-              }
-            />{' '}
-            {t('editor.useMeasured')}
-          </label>
-          {plan.measuredLaneLengthsM && (
-            <div className="flex gap-2">
-              {[0, 1].map((i) => (
-                <label key={i}>
-                  {t('editor.lane', { number: i + 1 })} (m)
-                  <input
-                    className="border w-24"
-                    type="number"
-                    min="0.001"
-                    step="0.001"
-                    max="10000"
-                    value={plan.measuredLaneLengthsM[i]}
-                    onChange={(e) =>
-                      update({
-                        ...plan,
-                        measuredLaneLengthsM: plan.measuredLaneLengthsM.map((n, j) =>
-                          j === i ? Math.max(0.001, Math.min(10000, Number(e.target.value))) : n
-                        ),
-                      })
-                    }
-                  />
-                </label>
-              ))}
-            </div>
-          )}
-        </details>
+        {mode !== 'editor' && planDetails}
       </div>
     </section>
   )

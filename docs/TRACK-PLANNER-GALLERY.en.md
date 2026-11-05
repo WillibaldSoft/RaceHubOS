@@ -83,3 +83,9 @@ Selecting a finding marks the affected main rails in red so the problem can be l
 The check also identifies open slot ends on native pit components. A red circle shows the open connection left by removing an entry. This complements the main-route check and does not replace electrical verification.
 
 ![Locate an open pit-part connection](screenshots/track-planner/en/13-open-pit-connection.png)
+
+## 14. Repeat placement and fixed controls
+
+Check “Repeat placement” in the catalogue and choose a rail. Its preview follows the mouse; each click places another copy. Nearby compatible ports snap together. R / Shift+R rotate the preview; Escape exits the mode. The track stays visible between the catalogue on the left and controls on the right, with independently scrolling sidebars. Small screens can open these panels below the track.
+
+![Repeat placement and fixed controls](screenshots/track-planner/en/14-repeat-placement.png)

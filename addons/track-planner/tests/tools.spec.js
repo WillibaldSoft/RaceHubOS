@@ -94,6 +94,7 @@ test('connection guidance shows remaining gap and snapping closes the selected j
   await expect(page.getByTestId('connection-candidate')).toContainText('25.0 mm')
   await page.getByTestId('free-snap-now').click()
   await expect(page.locator('[data-testid^="open-port-"]')).toHaveCount(2)
+  await page.getByTestId('track-view-options').locator('summary').click()
   await page.getByTestId('show-connections').uncheck()
   await expect(page.getByTestId('connection-hints')).toHaveCount(0)
 })
@@ -149,6 +150,7 @@ test('context menu can release a pit assembly and set AKS on its switch', async 
 test('context deletion removes a native pit entry without restoring a phantom switch', async ({ page }) => {
   await start(page, 'Boxenteil entfernen')
   await page.getByTestId('start-pit-create').click()
+  await page.getByTestId('pitlane-component-selection').locator('summary').click()
   await page.getByTestId('select-pit-component-pit-entry').click()
   await page.getByTestId('switch-anti-collision').check()
   const canvas = page.getByTestId('graph-track-canvas')

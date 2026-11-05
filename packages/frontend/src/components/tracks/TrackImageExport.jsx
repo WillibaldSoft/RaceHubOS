@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '../ui/button'
 
-export default function TrackImageExport({ children, name = 'Streckenplan' }) {
+export default function TrackImageExport({ children, name = 'Streckenplan', className = '' }) {
   const { t } = useTranslation('tracks')
   const ref = useRef(null)
   const [busy, setBusy] = useState(false)
@@ -78,7 +78,7 @@ export default function TrackImageExport({ children, name = 'Streckenplan' }) {
     }
   }
   return (
-    <div className="space-y-2">
+    <div className={`space-y-2 ${className}`}>
       <div ref={ref}>{children}</div>
       <div className="flex flex-wrap gap-2">
         {['png', 'jpg', 'svg'].map((format) => (

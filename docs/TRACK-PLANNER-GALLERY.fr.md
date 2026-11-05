@@ -83,3 +83,9 @@ La sélection d’un résultat marque en rouge les rails principaux concernés p
 La vérification identifie aussi les extrémités de slot libres des éléments natifs des stands. Le cercle rouge montre le raccord laissé ouvert après suppression d’une entrée. Ce contrôle complète celui du tracé principal et ne remplace pas une vérification électrique.
 
 ![Localiser un raccord libre des stands](screenshots/track-planner/fr/13-open-pit-connection.png)
+
+## 14. Pose répétée et commandes fixes
+
+Cocher la pose répétée dans le catalogue, puis choisir un rail. L’aperçu suit la souris ; chaque clic pose une nouvelle copie. Les raccords compatibles proches s’accrochent. R / Maj+R tournent l’aperçu ; Échap quitte ce mode. Le circuit reste visible entre le catalogue à gauche et les commandes à droite, qui défilent séparément. Sur petit écran, ces panneaux peuvent s’ouvrir sous le circuit.
+
+![Pose répétée et commandes fixes](screenshots/track-planner/fr/14-repeat-placement.png)

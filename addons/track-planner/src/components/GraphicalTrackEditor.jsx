@@ -1,3 +1,5 @@
+import { repeatedTrackPreview, placeRepeatedTrackPart } from './repeatTrackPlacement'
+import { trackViewport } from './trackViewport'
 import PlannerTools from './PlannerTools'
 import ConnectionHints from './ConnectionHints'
 import { pitlaneComponents } from '@core/components/tracks/pitlaneComponents'
@@ -112,8 +114,14 @@ export default function GraphicalTrackEditor({
   canRedo,
   name,
   expanded = false,
+  planDetails,
 }) {
   const { t } = useTranslation('tracks')
+  const [repeatPlacement, setRepeatPlacement] = useState(false)
+  const [placementPoint, setPlacementPoint] = useState(null)
+  const [placementHeading, setPlacementHeading] = useState(0)
+  const [panel, setPanel] = useState('none')
+  const [viewport, setViewport] = useState({ width: 1200, height: 800 })
   const [endpointKey, setEndpointKey] = useState('')
   const [showConnections, setShowConnections] = useState(true)
   const [context, setContext] = useState(null)
@@ -141,6 +149,17 @@ export default function GraphicalTrackEditor({
       listener = (e) => wheelHandler.current?.(e)
     svg.addEventListener('wheel', listener, { passive: false })
     return () => svg.removeEventListener('wheel', listener)
+  }, [])
+  useEffect(() => {
+    const element = canvasRef.current
+    const update = () => {
+      const { width, height } = element.getBoundingClientRect()
+      setViewport((previous) => (previous.width === width && previous.height === height ? previous : { width, height }))
+    }
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(element)
+    return () => observer.disconnect()
   }, [])
   const dragging = useRef(null),
     suppressClick = useRef(false),
@@ -202,9 +221,8 @@ export default function GraphicalTrackEditor({
     chosen = catalogue.find((p) => p.id === part)
   const bounds =
     frame ?? (storedPlan.pieces.length ? trackBounds(storedPlan) : { x: -800, y: -600, width: 1600, depth: 1200 })
-  const w = Math.max(1200, bounds.width + 200) / zoom,
-    h = Math.max(900, bounds.depth + 200) / zoom
-  const calculatedBox = [bounds.x + bounds.width / 2 - w / 2 + pan.x, bounds.y + bounds.depth / 2 - h / 2 + pan.y, w, h]
+  const calculatedBox = trackViewport(bounds, viewport, zoom, pan)
+  const [, , w, h] = calculatedBox
   const box = dragging.current?.kind === 'pan' ? calculatedBox : (dragging.current?.box ?? calculatedBox)
   const trace = traceTrackPlan(plan),
     activeSegment = trace.segments[selected],
@@ -215,6 +233,28 @@ export default function GraphicalTrackEditor({
   const pitSwitchLocked = nativePitSwitch && plan.partGroups?.groups.some((g) => g.includes(pitPart.anchor))
   const pitReplacement =
     nativePitSwitch && !pitSwitchLocked && ['Pit_stop_weiche_anfang', 'Pit_stop_weiche_ende'].includes(part)
+  const stamp = repeatPlacement
+    ? repeatedTrackPreview(plan, chosen.types, placementPoint, {
+        headingDegrees: placementHeading,
+        level: active?.level ?? 0,
+        snap: snapEnabled,
+        distanceMm: Math.max(20, w / 25),
+      })
+    : null
+  function placeAt(point) {
+    const preview = repeatedTrackPreview(storedPlan, chosen.types, point, {
+      headingDegrees: placementHeading,
+      level: active?.level ?? 0,
+      snap: snapEnabled,
+      distanceMm: Math.max(20, w / 25),
+    })
+    const result = placeRepeatedTrackPart(storedPlan, chosen.types, preview)
+    if (!result.placed) return
+    setFrame(zoom === 1 ? null : bounds)
+    onChange(result.plan)
+    onSelect(result.selected)
+    setPlacementPoint(null)
+  }
   function selectPitPart(id, event) {
     if (suppressClick.current) {
       suppressClick.current = false
@@ -307,6 +347,7 @@ export default function GraphicalTrackEditor({
     const result = (plan.freePlacement ? editFreeParts : editTrackPieces)(plan, selected, action, chosen.types)
     onChange(result.plan)
     onSelect(result.selected)
+    if (zoom === 1) setFrame(null)
   }
   function patch(patch) {
     onChange({
@@ -329,6 +370,18 @@ export default function GraphicalTrackEditor({
     setPan({ x: 0, y: 0 })
   }
   function keyboard(e) {
+    if (e.key === 'Escape' && repeatPlacement) {
+      e.preventDefault()
+      setRepeatPlacement(false)
+      setPlacementPoint(null)
+      suppressClick.current = false
+      return
+    }
+    if (e.key.toLowerCase() === 'r' && repeatPlacement && !e.target.closest('input,select,textarea')) {
+      e.preventDefault()
+      setPlacementHeading((h) => h + (e.shiftKey ? -15 : 15))
+      return
+    }
     if (e.target.closest('input,select,textarea,[contenteditable=true]')) return
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'a') {
       e.preventDefault()
@@ -420,7 +473,6 @@ export default function GraphicalTrackEditor({
       onKeyDown={keyboard}
       className={`planner-graphical ${expanded ? 'is-expanded' : ''}`}
     >
-      <p className="planner-hint">{t('graph.help')}</p>
       <PlannerTools
         plan={storedPlan}
         selected={selected}
@@ -538,33 +590,6 @@ export default function GraphicalTrackEditor({
         </div>
       )}
       <div className="planner-toolbar">
-        <Button
-          type="button"
-          variant={pointerMode === 'box' ? 'secondary' : 'outline'}
-          data-testid="track-box-mode"
-          aria-pressed={pointerMode === 'box'}
-          onClick={() => setPointerMode('box')}
-        >
-          {t('graph.boxSelect')}
-        </Button>
-        <Button
-          type="button"
-          variant={pointerMode === 'pan' ? 'secondary' : 'outline'}
-          data-testid="track-pan-mode"
-          aria-pressed={pointerMode === 'pan'}
-          onClick={() => setPointerMode('pan')}
-        >
-          {t('graph.panMode')}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          data-testid="track-select-all"
-          disabled={!plan.pieces.length}
-          onClick={selectAll}
-        >
-          {t('graph.selectAll')}
-        </Button>
         <Button type="button" variant="outline" data-testid="track-undo" disabled={!canUndo} onClick={undo}>
           {t('graph.undo')}
         </Button>
@@ -601,87 +626,160 @@ export default function GraphicalTrackEditor({
         <Button type="button" variant="outline" data-testid="track-fit" onClick={fit}>
           {t('graph.fit')}
         </Button>
-        <label>
-          <input
-            data-testid="free-track-snap"
-            type="checkbox"
-            checked={snapEnabled}
-            onChange={(e) => setSnapEnabled(e.target.checked)}
-          />{' '}
-          {t('free.snap')}
-        </label>
-        <label>
-          <input
-            data-testid="realistic-track"
-            type="checkbox"
-            checked={realistic}
-            onChange={(e) => setRealistic(e.target.checked)}
-          />{' '}
-          {t('free.realistic')}
-        </label>
-        <label>
-          {t('graph.background')}{' '}
-          <select value={background} onChange={(e) => setBackground(e.target.value)}>
-            {['paper', 'dark', 'green'].map((k) => (
-              <option key={k} value={k}>
-                {t(`graph.${k}`)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          {t('graph.layers')}{' '}
-          <select data-testid="track-layer-filter" value={level} onChange={(e) => setLevel(e.target.value)}>
-            <option value="all">{t('graph.allLayers')}</option>
-            {[0, 1, 2].map((n) => (
-              <option key={n} value={n}>
-                {t('editor.level')} {n}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <input
-            data-testid="track-type-colors"
-            type="checkbox"
-            checked={colors}
-            onChange={(e) => setColors(e.target.checked)}
-          />{' '}
-          {t('graph.colors')}
-        </label>
-        <label>
-          {t('graph.labels')}{' '}
-          <select data-testid="track-labels" value={labels} onChange={(e) => setLabels(e.target.value)}>
-            {['none', 'types', 'numbers', 'both'].map((k) => (
-              <option key={k} value={k}>
-                {t(`graph.${k}`)}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            data-testid="show-connections"
-            checked={showConnections}
-            onChange={(e) => setShowConnections(e.target.checked)}
-          />{' '}
-          {t('tools.connections')}
-        </label>
-        <TrackPlanPrint plan={plan} name={name} />
-        <TrackPartsManager plan={plan} name={name} />
+        <Button
+          type="button"
+          variant="outline"
+          className="planner-panel-toggle"
+          data-testid="toggle-track-catalogue"
+          aria-expanded={panel === 'catalogue'}
+          onClick={() => setPanel(panel === 'catalogue' ? 'none' : 'catalogue')}
+        >
+          {t('layout.catalogue')}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          className="planner-panel-toggle"
+          data-testid="toggle-track-inspector"
+          aria-expanded={panel === 'inspector'}
+          onClick={() => setPanel(panel === 'inspector' ? 'none' : 'inspector')}
+        >
+          {t('layout.selection')}
+        </Button>
+        <details className="planner-view-options" data-testid="track-view-options">
+          <summary>{t('layout.viewOptions')}</summary>
+          <div className="planner-view-options-content">
+            <Button
+              type="button"
+              variant={pointerMode === 'box' ? 'secondary' : 'outline'}
+              data-testid="track-box-mode"
+              aria-pressed={pointerMode === 'box'}
+              onClick={() => setPointerMode('box')}
+            >
+              {t('graph.boxSelect')}
+            </Button>
+            <Button
+              type="button"
+              variant={pointerMode === 'pan' ? 'secondary' : 'outline'}
+              data-testid="track-pan-mode"
+              aria-pressed={pointerMode === 'pan'}
+              onClick={() => setPointerMode('pan')}
+            >
+              {t('graph.panMode')}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              data-testid="track-select-all"
+              disabled={!plan.pieces.length}
+              onClick={selectAll}
+            >
+              {t('graph.selectAll')}
+            </Button>
+            <label>
+              <input
+                data-testid="free-track-snap"
+                type="checkbox"
+                checked={snapEnabled}
+                onChange={(e) => setSnapEnabled(e.target.checked)}
+              />{' '}
+              {t('free.snap')}
+            </label>
+            <label>
+              <input
+                data-testid="realistic-track"
+                type="checkbox"
+                checked={realistic}
+                onChange={(e) => setRealistic(e.target.checked)}
+              />{' '}
+              {t('free.realistic')}
+            </label>
+            <label>
+              {t('graph.background')}{' '}
+              <select value={background} onChange={(e) => setBackground(e.target.value)}>
+                {['paper', 'dark', 'green'].map((k) => (
+                  <option key={k} value={k}>
+                    {t(`graph.${k}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              {t('graph.layers')}{' '}
+              <select data-testid="track-layer-filter" value={level} onChange={(e) => setLevel(e.target.value)}>
+                <option value="all">{t('graph.allLayers')}</option>
+                {[0, 1, 2].map((n) => (
+                  <option key={n} value={n}>
+                    {t('editor.level')} {n}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <input
+                data-testid="track-type-colors"
+                type="checkbox"
+                checked={colors}
+                onChange={(e) => setColors(e.target.checked)}
+              />{' '}
+              {t('graph.colors')}
+            </label>
+            <label>
+              {t('graph.labels')}{' '}
+              <select data-testid="track-labels" value={labels} onChange={(e) => setLabels(e.target.value)}>
+                {['none', 'types', 'numbers', 'both'].map((k) => (
+                  <option key={k} value={k}>
+                    {t(`graph.${k}`)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                data-testid="show-connections"
+                checked={showConnections}
+                onChange={(e) => setShowConnections(e.target.checked)}
+              />{' '}
+              {t('tools.connections')}
+            </label>
+            <TrackPlanPrint plan={plan} name={name} />
+            <TrackPartsManager plan={plan} name={name} />
+            <p className="planner-hint">{t('graph.help')}</p>
+
+            {plan.pieces.some((p) => TRACK_PARTS[p.type].approximateSlots) && (
+              <p role="note" data-testid="special-geometry-warning" className="border rounded p-2 text-sm">
+                {t('catalogue.approximateSlots')}
+              </p>
+            )}
+            <p data-testid="catalogue-geometry-note" className="text-xs text-muted-foreground">
+              {t('catalogue.geometryNote')}
+            </p>
+          </div>
+        </details>
       </div>
-      {plan.pieces.some((p) => TRACK_PARTS[p.type].approximateSlots) && (
-        <p role="note" data-testid="special-geometry-warning" className="border rounded p-2 text-sm">
-          {t('catalogue.approximateSlots')}
-        </p>
-      )}
-      <p data-testid="catalogue-geometry-note" className="text-xs text-muted-foreground">
-        {t('catalogue.geometryNote')}
-      </p>
-      <div className="planner-layout">
+      <div className="planner-layout" data-panel={panel}>
         <aside className="planner-catalogue" data-testid="planner-catalogue-sidebar">
           <h3 className="font-semibold">{t('graph.catalogue')}</h3>
+          <label className="planner-repeat-option">
+            <input
+              type="checkbox"
+              data-testid="repeat-track-part"
+              checked={repeatPlacement}
+              onChange={(e) => {
+                setRepeatPlacement(e.target.checked)
+                setPlacementPoint(null)
+                setPlacementHeading((((join ?? trace.segments.at(-1)?.end)?.h ?? 0) * 180) / Math.PI)
+                suppressClick.current = false
+              }}
+            />{' '}
+            {t('layout.repeatPlace')}
+          </label>
+          {repeatPlacement && (
+            <p className="planner-repeat-hint" role="status" data-testid="repeat-placement-hint">
+              {t('layout.repeatHint')}
+            </p>
+          )}
           <div className="planner-catalogue-tabs" role="tablist" aria-label={t('graph.catalogue')}>
             {['all', 'straights', 'curves', 'banked', 'specials', 'switches', 'units', 'borders', 'manufacturer'].map(
               (key) => (
@@ -739,8 +837,13 @@ export default function GraphicalTrackEditor({
                       }}
                       aria-pressed={p.id === part}
                       className={`planner-part ${p.id === part ? 'is-selected' : ''}`}
-                      onClick={() => setPart(p.id)}
+                      onClick={() => {
+                        setPart(p.id)
+                        if (panel === 'catalogue') setPanel(repeatPlacement ? 'none' : 'inspector')
+                        setPlacementPoint(null)
+                      }}
                       onDoubleClick={() => {
+                        if (repeatPlacement) return
                         if (plan.pieces.length + p.types.length > 2000) return
                         const result = (plan.freePlacement ? editFreeParts : editTrackPieces)(
                           plan,
@@ -814,6 +917,397 @@ export default function GraphicalTrackEditor({
           </div>
         </aside>
         <div className="planner-stage">
+          <TrackImageExport name={name} className="planner-image-export">
+            <svg
+              ref={canvasRef}
+              data-testid="graph-track-canvas"
+              data-piece-count={plan.pieces.length}
+              data-selected-count={pickedIndices.length}
+              viewBox={box.join(' ')}
+              role="img"
+              tabIndex="0"
+              aria-label={t('graph.canvas')}
+              className="planner-canvas touch-none"
+              style={{
+                cursor: repeatPlacement ? 'crosshair' : undefined,
+                background: background === 'paper' ? '#f8fafc' : background === 'green' ? '#14532d' : '#0f172a',
+              }}
+              onDragOver={(e) => {
+                if (e.dataTransfer.types.includes('application/x-racehub-track-part')) {
+                  e.preventDefault()
+                  e.dataTransfer.dropEffect = 'copy'
+                }
+              }}
+              onDrop={(e) => {
+                const item = catalogue.find((p) => p.id === e.dataTransfer.getData('application/x-racehub-track-part'))
+                if (!item || plan.pieces.length + item.types.length > 2000) return
+                e.preventDefault()
+                const point = world(e)
+                setFrame(bounds)
+                const result = editFreeParts(plan, -1, 'after', item.types, {
+                  xMm: point.x,
+                  yMm: point.y,
+                  headingDegrees: 0,
+                })
+                const indices = trackSelection(result.plan, result.selected),
+                  snapped = snapEnabled
+                    ? snapFreeParts(result.plan, indices, {
+                        distanceMm: Math.max(20, w / 25),
+                      })
+                    : { plan: result.plan, snap: null }
+                onChange(snapped.plan)
+                onSelect(result.selected)
+                setPart(item.id)
+                setSnapHint(snapped.snap)
+              }}
+              onContextMenu={(e) => {
+                const rail = e.target.closest('[data-rail-index]'),
+                  pit = e.target.closest('[data-pit-part-id]')
+                if (!rail && !pit) return
+                e.preventDefault()
+                suppressClick.current = false
+                if (pit) selectPitPart(pit.dataset.pitPartId)
+                else onSelect(Number(rail.dataset.railIndex))
+                setContext({
+                  x: Math.max(8, Math.min(e.clientX, window.innerWidth - 245)),
+                  y: Math.max(8, Math.min(e.clientY, window.innerHeight - 340)),
+                })
+              }}
+              onPointerLeave={() => {
+                if (!dragging.current) setPlacementPoint(null)
+              }}
+              onPointerDown={(e) => {
+                if (repeatPlacement && e.button === 0 && !e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                  e.preventDefault()
+                  e.currentTarget.focus({ preventScroll: true })
+                  suppressClick.current = true
+                  placeAt(world(e))
+                  return
+                }
+                if (e.target.closest('[data-connection-port]')) return
+                suppressClick.current = false
+                if (![0, 1].includes(e.button) || ((e.ctrlKey || e.metaKey) && !e.shiftKey)) return
+                const borderHit = e.target.closest('[data-border-side]')
+                if (borderHit && e.button === 0 && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+                  e.preventDefault()
+                  selectBorder(Number(borderHit.dataset.railIndex), borderHit.dataset.borderSide, e)
+                  suppressClick.current = true
+                  return
+                }
+                const pitHit = e.target.closest('[data-pit-part-id]')
+                if (pitHit && e.button === 0 && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
+                  e.preventDefault()
+                  e.currentTarget.focus({ preventScroll: true })
+                  selectPitPart(pitHit.dataset.pitPartId, e)
+                  suppressClick.current = true
+                  return
+                }
+                const rail = e.target.closest('[data-rail-index]'),
+                  rotation = e.target.closest('[data-rotation-handle]')
+                if (e.target.closest('[data-testid=track-connector]') && !e.shiftKey) return
+                e.preventDefault()
+                e.currentTarget.focus({ preventScroll: true })
+                const index = rail ? Number(rail.dataset.railIndex) : selected,
+                  point = world(e),
+                  matrix = e.currentTarget.getScreenCTM()
+                const kind =
+                  e.button === 1 ? 'pan' : e.shiftKey ? 'box' : rotation ? 'rotate' : rail ? 'move' : pointerMode
+                const indices = pickedIndices.includes(index) ? motion : freeTrackSelection(storedPlan, index)
+                setFrame(bounds)
+                dragging.current = {
+                  kind,
+                  index,
+                  id: e.pointerId,
+                  x: e.clientX,
+                  y: e.clientY,
+                  point,
+                  pan,
+                  sx: 1 / matrix.a,
+                  sy: 1 / matrix.d,
+                  box: [...box],
+                  inverse: matrix.inverse(), // Selection controls can move the canvas during a drag.
+                  base: enableFreePlacement(storedPlan),
+                  indices,
+                  pivot: center,
+                  additive: e.ctrlKey || e.metaKey,
+                  previous: pickedIndices,
+                }
+                if (kind === 'box') setMarquee({ a: point, b: point })
+                if (['move', 'rotate'].includes(kind) && !pickedIndices.includes(index)) onSelect(index)
+                e.currentTarget.setPointerCapture(e.pointerId)
+              }}
+              onPointerMove={(e) => {
+                if (repeatPlacement && !dragging.current) setPlacementPoint(world(e))
+                const d = dragging.current
+                if (!d) return
+                if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 3 && !d.moved) return
+                d.moved = true
+                if (d.kind === 'pan') {
+                  setPan({
+                    x: d.pan.x - (e.clientX - d.x) * d.sx,
+                    y: d.pan.y - (e.clientY - d.y) * d.sy,
+                  })
+                  return
+                }
+                const point = world(e, d.inverse)
+                if (d.kind === 'box') {
+                  setMarquee({ a: d.point, b: point })
+                  return
+                }
+                let changed
+                if (d.kind === 'rotate') {
+                  let delta =
+                    ((Math.atan2(point.y - d.pivot.y, point.x - d.pivot.x) -
+                      Math.atan2(d.point.y - d.pivot.y, d.point.x - d.pivot.x)) *
+                      180) /
+                    Math.PI
+                  if (e.shiftKey) delta = Math.round(delta / 5) * 5
+                  changed = transformFreeParts(d.base, d.indices, {
+                    degrees: delta,
+                    pivotX: d.pivot.x,
+                    pivotY: d.pivot.y,
+                  })
+                } else
+                  changed = transformFreeParts(d.base, d.indices, {
+                    dx: point.x - d.point.x,
+                    dy: point.y - d.point.y,
+                  })
+                const snapped = snapEnabled
+                  ? snapFreeParts(changed, d.indices, {
+                      distanceMm: Math.max(20, d.box[2] / 25),
+                    })
+                  : { plan: changed, snap: null }
+                d.result = snapped.plan
+                setDraft(snapped.plan)
+                setSnapHint(snapped.snap)
+              }}
+              onPointerUp={(e) => {
+                const d = dragging.current
+                if (d?.kind === 'box' && d.moved) {
+                  const indices = trackRectangleSelection(
+                    d.base,
+                    d.point,
+                    world(e, d.inverse),
+                    level === 'all' ? null : Number(level)
+                  )
+                  selectIndices([...new Set([...(d.additive ? d.previous : []), ...indices])])
+                  suppressClick.current = true
+                } else if (d?.moved && d.result) {
+                  suppressClick.current = true
+                  onChange(d.result)
+                } else if (d?.kind === 'move') onSelect(d.index)
+                else if (d && !d.moved && ['box', 'pan'].includes(d.kind)) {
+                  if (!storedPlan.pieces.length) {
+                    const p = world(e),
+                      result = editFreeParts(storedPlan, -1, 'after', chosen.types, {
+                        xMm: p.x,
+                        yMm: p.y,
+                        headingDegrees: 0,
+                      })
+                    onChange(result.plan)
+                    onSelect(result.selected)
+                  } else onSelect(-1)
+                }
+                dragging.current = null
+                setDraft(null)
+                setMarquee(null)
+                if (d?.kind === 'pan') setPan((p) => ({ ...p }))
+              }}
+              onPointerCancel={() => {
+                dragging.current = null
+                setDraft(null)
+                setMarquee(null)
+                setSnapHint(null)
+              }}
+            >
+              <defs>
+                <pattern id={gridId} width="100" height="100" patternUnits="userSpaceOnUse">
+                  <path
+                    d="M100 0H0V100"
+                    fill="none"
+                    stroke={background === 'paper' ? '#cbd5e1' : '#64748b'}
+                    strokeWidth="2"
+                  />
+                </pattern>
+              </defs>
+              <rect x={box[0]} y={box[1]} width={w} height={h} fill={`url(#${gridId})`} />
+              <TrackPlanPreview
+                plan={plan}
+                embedded
+                selected={pitPart ? -1 : selected}
+                selectedIndices={motion}
+                selectedPitPart={selectedPitPart}
+                onSelectPitPart={selectPitPart}
+                onSelectBorder={selectBorder}
+                realistic={realistic}
+                onSelect={onSelect}
+                colorParts={colors}
+                labels={labels}
+                visibleLevel={level === 'all' ? null : Number(level)}
+                connector={!repeatPlacement && plan.pieces.length + chosen.types.length <= 2000 ? connector : null}
+                connectorRadius={
+                  activeSegment
+                    ? Math.max(
+                        24,
+                        Math.min(
+                          75,
+                          Math.hypot(
+                            activeSegment.end.x - activeSegment.start.x,
+                            activeSegment.end.y - activeSegment.start.y
+                          ) / 4
+                        )
+                      )
+                    : 75
+                }
+                onConnect={() => edit(side)}
+              />
+              {stamp && (
+                <g
+                  data-testid="repeat-track-preview"
+                  data-part-type={part}
+                  data-occupied={stamp.occupied}
+                  opacity={stamp.occupied ? 0.3 : 0.55}
+                  pointerEvents="none"
+                >
+                  <TrackPlanPreview plan={stamp.plan} embedded realistic={realistic} showOrigin={false} />
+                  <circle
+                    cx={stamp.pose.xMm}
+                    cy={stamp.pose.yMm}
+                    r="20"
+                    fill={stamp.occupied ? '#dc2626' : '#0d9488'}
+                  />
+                </g>
+              )}
+              {showConnections && (
+                <g pointerEvents={repeatPlacement ? 'none' : undefined}>
+                  <ConnectionHints
+                    plan={plan}
+                    indices={motion}
+                    endpointKey={endpointKey}
+                    width={w}
+                    onPort={(p) => {
+                      setEndpointKey(`${p.index}:${p.end}`)
+                      setSide(p.end ? 'after' : 'before')
+                      onSelect(p.index)
+                    }}
+                  />
+                </g>
+              )}
+              {auditMarks?.plan === storedPlan &&
+                trace.segments
+                  .filter((s) => auditMarks.indices.includes(s.index))
+                  .map((s) => (
+                    <path
+                      key={s.index}
+                      data-testid={`audit-mark-${s.index}`}
+                      d={s.points[0].map((p, i) => `${i ? 'L' : 'M'}${p[0]} ${p[1]}`).join(' ')}
+                      fill="none"
+                      stroke="#dc2626"
+                      strokeOpacity=".5"
+                      strokeWidth="170"
+                      pointerEvents="none"
+                    />
+                  ))}
+              {auditMarks?.plan === storedPlan &&
+                auditMarks.auxiliary?.map((p, i) => (
+                  <circle
+                    key={i}
+                    data-testid={`audit-auxiliary-mark-${i}`}
+                    cx={p.x}
+                    cy={p.y}
+                    r="24"
+                    stroke="#dc2626"
+                    strokeWidth="6"
+                    fill="none"
+                    pointerEvents="none"
+                  />
+                ))}
+              {marquee && (
+                <rect
+                  data-testid="track-selection-rectangle"
+                  x={Math.min(marquee.a.x, marquee.b.x)}
+                  y={Math.min(marquee.a.y, marquee.b.y)}
+                  width={Math.abs(marquee.b.x - marquee.a.x)}
+                  height={Math.abs(marquee.b.y - marquee.a.y)}
+                  fill="#0d948833"
+                  stroke="#0f766e"
+                  strokeWidth={(3 * w) / 1200}
+                  strokeDasharray={`${(12 * w) / 1200} ${(6 * w) / 1200}`}
+                  pointerEvents="none"
+                />
+              )}
+              {snapHint && (
+                <circle
+                  data-testid="free-snap-indicator"
+                  cx={snapHint.x}
+                  cy={snapHint.y}
+                  r="65"
+                  fill="none"
+                  stroke="#22c55e"
+                  strokeWidth="12"
+                  pointerEvents="none"
+                />
+              )}
+              {handle && pivot && !repeatPlacement && (
+                <g>
+                  <line
+                    x1={pivot.x}
+                    y1={pivot.y}
+                    x2={handle.x}
+                    y2={handle.y}
+                    stroke="#dc2626"
+                    strokeWidth="6"
+                    pointerEvents="none"
+                  />
+                  <circle
+                    data-testid="free-rotation-handle"
+                    data-rotation-handle="true"
+                    cx={handle.x}
+                    cy={handle.y}
+                    r="55"
+                    fill="#dc2626"
+                    stroke="white"
+                    strokeWidth="8"
+                    style={{ cursor: 'grab' }}
+                  >
+                    <title>{t('free.rotate')}</title>
+                  </circle>
+                </g>
+              )}
+              {!plan.pieces.length && (
+                <text
+                  x="0"
+                  y="-180"
+                  textAnchor="middle"
+                  fontSize="50"
+                  fill={background === 'paper' ? '#334155' : '#fff'}
+                  pointerEvents="none"
+                >
+                  {t('graph.start')}
+                </text>
+              )}
+            </svg>
+          </TrackImageExport>
+          {plan.freePlacement && (
+            <p role="status" data-testid="free-track-status">
+              {t(trace.connectivity.closed ? 'free.closed' : 'free.open', {
+                count: trace.connectivity.openPorts.length,
+                ambiguous: trace.connectivity.ambiguousPorts,
+                components: trace.connectivity.components,
+              })}
+            </p>
+          )}
+          <p data-testid="graphic-track-status" className="text-sm">
+            {t(plan.freePlacement && !trace.connectivity.closed ? 'free.material' : 'editor.lanes')}:{' '}
+            {trace.laneLengthsM.map((n) => n.toFixed(3)).join(' / ')} m ·{' '}
+            {plan.freePlacement
+              ? t('free.connections', {
+                  count: trace.connectivity.openPorts.length,
+                })
+              : `${t('editor.gap')}: ${trace.gapMm.toFixed(2)} mm`}
+          </p>
+        </div>
+        <aside className="planner-inspector" data-testid="planner-selection-sidebar" aria-label={t('layout.selection')}>
           <div className="planner-selection-toolbar">
             <strong className="text-sm" data-testid="selected-track-piece">
               {pitPart
@@ -954,616 +1448,265 @@ export default function GraphicalTrackEditor({
             )}
           </div>
 
-          <div
-            className="planner-group-controls border rounded-lg p-2 flex flex-wrap items-center gap-2"
-            data-testid="track-group-controls"
-          >
-            <strong>{t('group.title')}</strong>
-            <span className="text-xs" data-testid="combination-status">
-              {pitPart ? t('group.singlePart') : t('group.members', { count: motion.length })}
-              {motion.length > 0 && pitParts.some((p) => motion.includes(p.anchor))
-                ? ` · ${t('group.boxMembers', { count: pitParts.filter((p) => motion.includes(p.anchor)).length })}`
-                : ''}
-            </span>
-            <Button
-              type="button"
-              variant={pickedIndices.length >= 2 ? 'default' : 'outline'}
-              data-testid="group-track-parts"
-              disabled={pickedIndices.length < 2}
-              title={t('group.note')}
-              onClick={() => {
-                const next = groupTrackParts(plan, motion)
-                onChange(next)
-                selectIndices(motion)
-              }}
+          <div className="planner-inspector-body" data-testid="planner-inspector-body">
+            <section
+              className="planner-transform-panel"
+              data-testid="track-transform-controls"
+              aria-label={t('graph.transformControls')}
             >
-              <span aria-hidden="true">▦</span> {t('group.combine')}
-            </Button>
-            <Button
-              type="button"
-              variant={motion.length >= 2 ? 'secondary' : 'outline'}
-              data-testid="ungroup-track-parts"
-              disabled={motion.length < 2}
-              onClick={() => {
-                const next = ungroupTrackParts(plan, motion)
-                onChange(next)
-                selectIndices(selected < 0 ? [] : [selected])
-              }}
-            >
-              <span aria-hidden="true">⤢</span> {t('group.release')}
-            </Button>
-            {pitParts.length > 0 && (
-              <Button
-                type="button"
-                data-testid="select-whole-pit-combination"
-                disabled={pitPart?.anchor === undefined}
-                onClick={() => {
-                  if (pitPart?.anchor !== undefined) selectIndices(freeTrackSelection(plan, pitPart.anchor))
-                }}
-              >
-                {t('group.selectCombination')}
-              </Button>
-            )}
-          </div>
-          {(active || pitPart) && (
-            <div
-              data-testid="drawing-layer-controls"
-              className="flex flex-wrap items-center gap-2 border rounded-lg p-2 text-sm"
-            >
-              <strong>{t('drawLayers.title')}</strong>
-              {!pitPart && (
-                <select
-                  data-testid="drawing-layer-target"
-                  value={layerTarget}
-                  onChange={(e) => setLayerTarget(e.target.value)}
-                >
-                  {['rails', 'left', 'right', 'borders'].map((v) => (
-                    <option key={v} value={v}>
-                      {t(`drawLayers.${v}`)}
-                    </option>
-                  ))}
-                </select>
-              )}
-              {pitPart && (
-                <span>{t(pitPart.extraIndex === undefined ? 'drawLayers.pit' : 'drawLayers.component')}</span>
-              )}
-              <Button
-                type="button"
-                variant="outline"
-                data-testid="drawing-layer-down"
-                disabled={!drawObjects.length}
-                onClick={() => drawStep(-1)}
-              >
-                {t('drawLayers.down')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                data-testid="drawing-layer-up"
-                disabled={!drawObjects.length}
-                onClick={() => drawStep(1)}
-              >
-                {t('drawLayers.up')}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                data-testid="drawing-layer-reset"
-                disabled={!drawObjects.length}
-                onClick={() => drawStep(null)}
-              >
-                {t('drawLayers.reset')}
-              </Button>
-              <span data-testid="drawing-layer-value">
-                {drawValues.filter((n, i, a) => a.indexOf(n) === i).join(' / ')}
-              </span>
-              <small>{t('drawLayers.note')}</small>
-            </div>
-          )}
-          <TrackImageExport name={name}>
-            <svg
-              ref={canvasRef}
-              data-testid="graph-track-canvas"
-              data-piece-count={plan.pieces.length}
-              data-selected-count={pickedIndices.length}
-              viewBox={box.join(' ')}
-              role="img"
-              tabIndex="0"
-              aria-label={t('graph.canvas')}
-              className="planner-canvas touch-none"
-              style={{
-                background: background === 'paper' ? '#f8fafc' : background === 'green' ? '#14532d' : '#0f172a',
-              }}
-              onDragOver={(e) => {
-                if (e.dataTransfer.types.includes('application/x-racehub-track-part')) {
-                  e.preventDefault()
-                  e.dataTransfer.dropEffect = 'copy'
-                }
-              }}
-              onDrop={(e) => {
-                const item = catalogue.find((p) => p.id === e.dataTransfer.getData('application/x-racehub-track-part'))
-                if (!item || plan.pieces.length + item.types.length > 2000) return
-                e.preventDefault()
-                const point = world(e)
-                setFrame(bounds)
-                const result = editFreeParts(plan, -1, 'after', item.types, {
-                  xMm: point.x,
-                  yMm: point.y,
-                  headingDegrees: 0,
-                })
-                const indices = trackSelection(result.plan, result.selected),
-                  snapped = snapEnabled
-                    ? snapFreeParts(result.plan, indices, {
-                        distanceMm: Math.max(20, w / 25),
-                      })
-                    : { plan: result.plan, snap: null }
-                onChange(snapped.plan)
-                onSelect(result.selected)
-                setPart(item.id)
-                setSnapHint(snapped.snap)
-              }}
-              onContextMenu={(e) => {
-                const rail = e.target.closest('[data-rail-index]'),
-                  pit = e.target.closest('[data-pit-part-id]')
-                if (!rail && !pit) return
-                e.preventDefault()
-                suppressClick.current = false
-                if (pit) selectPitPart(pit.dataset.pitPartId)
-                else onSelect(Number(rail.dataset.railIndex))
-                setContext({
-                  x: Math.max(8, Math.min(e.clientX, window.innerWidth - 245)),
-                  y: Math.max(8, Math.min(e.clientY, window.innerHeight - 340)),
-                })
-              }}
-              onPointerDown={(e) => {
-                if (e.target.closest('[data-connection-port]')) return
-                suppressClick.current = false
-                if (![0, 1].includes(e.button) || ((e.ctrlKey || e.metaKey) && !e.shiftKey)) return
-                const borderHit = e.target.closest('[data-border-side]')
-                if (borderHit && e.button === 0 && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
-                  e.preventDefault()
-                  selectBorder(Number(borderHit.dataset.railIndex), borderHit.dataset.borderSide, e)
-                  suppressClick.current = true
-                  return
-                }
-                const pitHit = e.target.closest('[data-pit-part-id]')
-                if (pitHit && e.button === 0 && !e.shiftKey && !e.ctrlKey && !e.metaKey) {
-                  e.preventDefault()
-                  e.currentTarget.focus({ preventScroll: true })
-                  selectPitPart(pitHit.dataset.pitPartId, e)
-                  suppressClick.current = true
-                  return
-                }
-                const rail = e.target.closest('[data-rail-index]'),
-                  rotation = e.target.closest('[data-rotation-handle]')
-                if (e.target.closest('[data-testid=track-connector]') && !e.shiftKey) return
-                e.preventDefault()
-                e.currentTarget.focus({ preventScroll: true })
-                const index = rail ? Number(rail.dataset.railIndex) : selected,
-                  point = world(e),
-                  matrix = e.currentTarget.getScreenCTM()
-                const kind =
-                  e.button === 1 ? 'pan' : e.shiftKey ? 'box' : rotation ? 'rotate' : rail ? 'move' : pointerMode
-                const indices = pickedIndices.includes(index) ? motion : freeTrackSelection(storedPlan, index)
-                setFrame(bounds)
-                dragging.current = {
-                  kind,
-                  index,
-                  id: e.pointerId,
-                  x: e.clientX,
-                  y: e.clientY,
-                  point,
-                  pan,
-                  sx: 1 / matrix.a,
-                  sy: 1 / matrix.d,
-                  box: [...box],
-                  inverse: matrix.inverse(), // Selection controls can move the canvas during a drag.
-                  base: enableFreePlacement(storedPlan),
-                  indices,
-                  pivot: center,
-                  additive: e.ctrlKey || e.metaKey,
-                  previous: pickedIndices,
-                }
-                if (kind === 'box') setMarquee({ a: point, b: point })
-                if (['move', 'rotate'].includes(kind) && !pickedIndices.includes(index)) onSelect(index)
-                e.currentTarget.setPointerCapture(e.pointerId)
-              }}
-              onPointerMove={(e) => {
-                const d = dragging.current
-                if (!d) return
-                if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 3 && !d.moved) return
-                d.moved = true
-                if (d.kind === 'pan') {
-                  setPan({
-                    x: d.pan.x - (e.clientX - d.x) * d.sx,
-                    y: d.pan.y - (e.clientY - d.y) * d.sy,
-                  })
-                  return
-                }
-                const point = world(e, d.inverse)
-                if (d.kind === 'box') {
-                  setMarquee({ a: d.point, b: point })
-                  return
-                }
-                let changed
-                if (d.kind === 'rotate') {
-                  let delta =
-                    ((Math.atan2(point.y - d.pivot.y, point.x - d.pivot.x) -
-                      Math.atan2(d.point.y - d.pivot.y, d.point.x - d.pivot.x)) *
-                      180) /
-                    Math.PI
-                  if (e.shiftKey) delta = Math.round(delta / 5) * 5
-                  changed = transformFreeParts(d.base, d.indices, {
-                    degrees: delta,
-                    pivotX: d.pivot.x,
-                    pivotY: d.pivot.y,
-                  })
-                } else
-                  changed = transformFreeParts(d.base, d.indices, {
-                    dx: point.x - d.point.x,
-                    dy: point.y - d.point.y,
-                  })
-                const snapped = snapEnabled
-                  ? snapFreeParts(changed, d.indices, {
-                      distanceMm: Math.max(20, d.box[2] / 25),
-                    })
-                  : { plan: changed, snap: null }
-                d.result = snapped.plan
-                setDraft(snapped.plan)
-                setSnapHint(snapped.snap)
-              }}
-              onPointerUp={(e) => {
-                const d = dragging.current
-                if (d?.kind === 'box' && d.moved) {
-                  const indices = trackRectangleSelection(
-                    d.base,
-                    d.point,
-                    world(e, d.inverse),
-                    level === 'all' ? null : Number(level)
-                  )
-                  selectIndices([...new Set([...(d.additive ? d.previous : []), ...indices])])
-                  suppressClick.current = true
-                } else if (d?.moved && d.result) {
-                  suppressClick.current = true
-                  onChange(d.result)
-                } else if (d?.kind === 'move') onSelect(d.index)
-                else if (d && !d.moved && ['box', 'pan'].includes(d.kind)) {
-                  if (!storedPlan.pieces.length) {
-                    const p = world(e),
-                      result = editFreeParts(storedPlan, -1, 'after', chosen.types, {
-                        xMm: p.x,
-                        yMm: p.y,
-                        headingDegrees: 0,
-                      })
-                    onChange(result.plan)
-                    onSelect(result.selected)
-                  } else onSelect(-1)
-                }
-                dragging.current = null
-                setDraft(null)
-                setMarquee(null)
-                if (d?.kind === 'pan') setPan((p) => ({ ...p }))
-              }}
-              onPointerCancel={() => {
-                dragging.current = null
-                setDraft(null)
-                setMarquee(null)
-                setSnapHint(null)
-              }}
-            >
-              <defs>
-                <pattern id={gridId} width="100" height="100" patternUnits="userSpaceOnUse">
-                  <path
-                    d="M100 0H0V100"
-                    fill="none"
-                    stroke={background === 'paper' ? '#cbd5e1' : '#64748b'}
-                    strokeWidth="2"
-                  />
-                </pattern>
-              </defs>
-              <rect x={box[0]} y={box[1]} width={w} height={h} fill={`url(#${gridId})`} />
-              <TrackPlanPreview
-                plan={plan}
-                embedded
-                selected={pitPart ? -1 : selected}
-                selectedIndices={motion}
-                selectedPitPart={selectedPitPart}
-                onSelectPitPart={selectPitPart}
-                onSelectBorder={selectBorder}
-                realistic={realistic}
-                onSelect={onSelect}
-                colorParts={colors}
-                labels={labels}
-                visibleLevel={level === 'all' ? null : Number(level)}
-                connector={plan.pieces.length + chosen.types.length <= 2000 ? connector : null}
-                connectorRadius={
-                  activeSegment
-                    ? Math.max(
-                        24,
-                        Math.min(
-                          75,
-                          Math.hypot(
-                            activeSegment.end.x - activeSegment.start.x,
-                            activeSegment.end.y - activeSegment.start.y
-                          ) / 4
-                        )
-                      )
-                    : 75
-                }
-                onConnect={() => edit(side)}
-              />
-              {showConnections && (
-                <ConnectionHints
-                  plan={plan}
-                  indices={motion}
-                  endpointKey={endpointKey}
-                  width={w}
-                  onPort={(p) => {
-                    setEndpointKey(`${p.index}:${p.end}`)
-                    setSide(p.end ? 'after' : 'before')
-                    onSelect(p.index)
-                  }}
-                />
-              )}
-              {auditMarks?.plan === storedPlan &&
-                trace.segments
-                  .filter((s) => auditMarks.indices.includes(s.index))
-                  .map((s) => (
-                    <path
-                      key={s.index}
-                      data-testid={`audit-mark-${s.index}`}
-                      d={s.points[0].map((p, i) => `${i ? 'L' : 'M'}${p[0]} ${p[1]}`).join(' ')}
-                      fill="none"
-                      stroke="#dc2626"
-                      strokeOpacity=".5"
-                      strokeWidth="170"
-                      pointerEvents="none"
-                    />
-                  ))}
-              {auditMarks?.plan === storedPlan &&
-                auditMarks.auxiliary?.map((p, i) => (
-                  <circle
-                    key={i}
-                    data-testid={`audit-auxiliary-mark-${i}`}
-                    cx={p.x}
-                    cy={p.y}
-                    r="24"
-                    stroke="#dc2626"
-                    strokeWidth="6"
-                    fill="none"
-                    pointerEvents="none"
-                  />
-                ))}
-              {marquee && (
-                <rect
-                  data-testid="track-selection-rectangle"
-                  x={Math.min(marquee.a.x, marquee.b.x)}
-                  y={Math.min(marquee.a.y, marquee.b.y)}
-                  width={Math.abs(marquee.b.x - marquee.a.x)}
-                  height={Math.abs(marquee.b.y - marquee.a.y)}
-                  fill="#0d948833"
-                  stroke="#0f766e"
-                  strokeWidth={(3 * w) / 1200}
-                  strokeDasharray={`${(12 * w) / 1200} ${(6 * w) / 1200}`}
-                  pointerEvents="none"
-                />
-              )}
-              {snapHint && (
-                <circle
-                  data-testid="free-snap-indicator"
-                  cx={snapHint.x}
-                  cy={snapHint.y}
-                  r="65"
-                  fill="none"
-                  stroke="#22c55e"
-                  strokeWidth="12"
-                  pointerEvents="none"
-                />
-              )}
-              {handle && pivot && (
-                <g>
-                  <line
-                    x1={pivot.x}
-                    y1={pivot.y}
-                    x2={handle.x}
-                    y2={handle.y}
-                    stroke="#dc2626"
-                    strokeWidth="6"
-                    pointerEvents="none"
-                  />
-                  <circle
-                    data-testid="free-rotation-handle"
-                    data-rotation-handle="true"
-                    cx={handle.x}
-                    cy={handle.y}
-                    r="55"
-                    fill="#dc2626"
-                    stroke="white"
-                    strokeWidth="8"
-                    style={{ cursor: 'grab' }}
-                  >
-                    <title>{t('free.rotate')}</title>
-                  </circle>
-                </g>
-              )}
-              {!plan.pieces.length && (
-                <text
-                  x="0"
-                  y="-180"
-                  textAnchor="middle"
-                  fontSize="50"
-                  fill={background === 'paper' ? '#334155' : '#fff'}
-                  pointerEvents="none"
-                >
-                  {t('graph.start')}
-                </text>
-              )}
-            </svg>
-          </TrackImageExport>
-          {plan.freePlacement && (
-            <p role="status" data-testid="free-track-status">
-              {t(trace.connectivity.closed ? 'free.closed' : 'free.open', {
-                count: trace.connectivity.openPorts.length,
-                ambiguous: trace.connectivity.ambiguousPorts,
-                components: trace.connectivity.components,
-              })}
-            </p>
-          )}
-          <p data-testid="graphic-track-status" className="text-sm">
-            {t(plan.freePlacement && !trace.connectivity.closed ? 'free.material' : 'editor.lanes')}:{' '}
-            {trace.laneLengthsM.map((n) => n.toFixed(3)).join(' / ')} m ·{' '}
-            {plan.freePlacement
-              ? t('free.connections', {
-                  count: trace.connectivity.openPorts.length,
-                })
-              : `${t('editor.gap')}: ${trace.gapMm.toFixed(2)} mm`}
-          </p>
-          <p className="text-xs text-muted-foreground">{t('graph.gridNote')}</p>
-          {colors && <TrackTypeLegend plan={plan} />}
-          {pitParts.length > 0 && (
-            <section data-testid="pitlane-component-selection" className="border rounded p-2 text-sm space-y-2">
-              <strong>{t('pitParts.combination')}</strong>
-              <p>{t('pitParts.combinationNote')}</p>
-              <div className="flex flex-wrap gap-2">
-                {pitParts.map((p) => (
-                  <button
-                    type="button"
-                    key={p.id}
-                    data-testid={`select-pit-component-${p.id}`}
-                    aria-pressed={selectedPitPart === p.id}
-                    className={`border rounded px-2 py-1 ${selectedPitPart === p.id ? 'bg-teal-100 text-teal-950' : ''}`}
-                    onClick={() => selectPitPart(p.id)}
-                  >
-                    {p.short} · {p.article}
-                  </button>
-                ))}
-              </div>
-              {pitPart && (
-                <p data-testid="selected-pit-component">
-                  {t(`pitParts.${pitPart.kind}`)} · {pitPart.article} · {t('pitParts.componentSelection')}
-                  {pitPart.anchor !== undefined && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      data-testid="select-pit-carrier"
-                      onClick={() => onSelect(pitPart.anchor)}
-                    >
-                      {t('pitParts.carrier')}
-                    </Button>
-                  )}
-                </p>
-              )}
-            </section>
-          )}
-          <section
-            className="planner-transform-panel"
-            data-testid="track-transform-controls"
-            aria-label={t('graph.transformControls')}
-          >
-            <p data-testid="track-selection-count" className="text-sm">
-              {t('graph.multiple', { count: pickedIndices.length })}
-            </p>
-            <div className="planner-pose">
-              <label>
-                {t('graph.rotation')}{' '}
-                <input
-                  data-testid="track-rotation"
-                  type="number"
-                  className="border rounded w-20"
-                  min="-360"
-                  max="360"
-                  step="any"
-                  value={plan.startHeadingDegrees}
-                  onChange={(e) => onChange(rotateTrackPlan(plan, Number(e.target.value) - plan.startHeadingDegrees))}
-                />{' '}
-                °
-              </label>
-              {active && activeSegment && (
-                <>
-                  <label>
-                    X (mm){' '}
-                    <input
-                      data-testid="free-part-x"
-                      type="number"
-                      step="any"
-                      className="border rounded w-24"
-                      value={Number(activeSegment.start.x.toFixed(2))}
-                      onChange={(e) =>
-                        onChange(
-                          transformFreeParts(plan, motion, {
-                            dx: Math.max(-1000000, Math.min(1000000, Number(e.target.value))) - activeSegment.start.x,
-                          })
-                        )
-                      }
-                    />
-                  </label>
-                  <label>
-                    Y (mm){' '}
-                    <input
-                      data-testid="free-part-y"
-                      type="number"
-                      step="any"
-                      className="border rounded w-24"
-                      value={Number(activeSegment.start.y.toFixed(2))}
-                      onChange={(e) =>
-                        onChange(
-                          transformFreeParts(plan, motion, {
-                            dy: Math.max(-1000000, Math.min(1000000, Number(e.target.value))) - activeSegment.start.y,
-                          })
-                        )
-                      }
-                    />
-                  </label>
-                  <label>
-                    {t('free.angle')}{' '}
-                    <input
-                      data-testid="free-part-angle"
-                      type="number"
-                      min="-360"
-                      max="360"
-                      step="any"
-                      className="border rounded w-20"
-                      value={Number(activeHeading.toFixed(2))}
-                      onChange={(e) => rotate(Number(e.target.value) - activeHeading)}
-                    />
-                  </label>
-                  <Button
-                    type="button"
-                    data-testid="free-snap-now"
-                    variant="outline"
-                    onClick={() => {
-                      const result = snapFreeParts(plan, motion, {
-                        distanceMm: Math.max(20, w / 25),
-                      })
-                      onChange(result.plan)
-                      setSnapHint(result.snap)
-                    }}
-                  >
-                    {t('free.snapNow')}
-                  </Button>
-                </>
-              )}
-              {active && !plan.freePlacement && (
+              <p data-testid="track-selection-count" className="text-sm">
+                {t('graph.multiple', { count: pickedIndices.length })}
+              </p>
+              <div className="planner-pose">
                 <label>
-                  {t('editor.joint')}{' '}
+                  {t('graph.rotation')}{' '}
                   <input
+                    data-testid="track-rotation"
                     type="number"
                     className="border rounded w-20"
-                    min="-5"
-                    max="5"
+                    min="-360"
+                    max="360"
                     step="any"
-                    value={active.jointDegrees}
-                    onChange={(e) =>
-                      patch({
-                        jointDegrees: Math.max(-5, Math.min(5, Number(e.target.value))),
-                      })
-                    }
-                  />
+                    value={plan.startHeadingDegrees}
+                    onChange={(e) => onChange(rotateTrackPlan(plan, Number(e.target.value) - plan.startHeadingDegrees))}
+                  />{' '}
+                  °
                 </label>
+                {active && activeSegment && (
+                  <>
+                    <label>
+                      X (mm){' '}
+                      <input
+                        data-testid="free-part-x"
+                        type="number"
+                        step="any"
+                        className="border rounded w-24"
+                        value={Number(activeSegment.start.x.toFixed(2))}
+                        onChange={(e) =>
+                          onChange(
+                            transformFreeParts(plan, motion, {
+                              dx: Math.max(-1000000, Math.min(1000000, Number(e.target.value))) - activeSegment.start.x,
+                            })
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      Y (mm){' '}
+                      <input
+                        data-testid="free-part-y"
+                        type="number"
+                        step="any"
+                        className="border rounded w-24"
+                        value={Number(activeSegment.start.y.toFixed(2))}
+                        onChange={(e) =>
+                          onChange(
+                            transformFreeParts(plan, motion, {
+                              dy: Math.max(-1000000, Math.min(1000000, Number(e.target.value))) - activeSegment.start.y,
+                            })
+                          )
+                        }
+                      />
+                    </label>
+                    <label>
+                      {t('free.angle')}{' '}
+                      <input
+                        data-testid="free-part-angle"
+                        type="number"
+                        min="-360"
+                        max="360"
+                        step="any"
+                        className="border rounded w-20"
+                        value={Number(activeHeading.toFixed(2))}
+                        onChange={(e) => rotate(Number(e.target.value) - activeHeading)}
+                      />
+                    </label>
+                    <Button
+                      type="button"
+                      data-testid="free-snap-now"
+                      variant="outline"
+                      onClick={() => {
+                        const result = snapFreeParts(plan, motion, {
+                          distanceMm: Math.max(20, w / 25),
+                        })
+                        onChange(result.plan)
+                        setSnapHint(result.snap)
+                      }}
+                    >
+                      {t('free.snapNow')}
+                    </Button>
+                  </>
+                )}
+                {active && !plan.freePlacement && (
+                  <label>
+                    {t('editor.joint')}{' '}
+                    <input
+                      type="number"
+                      className="border rounded w-20"
+                      min="-5"
+                      max="5"
+                      step="any"
+                      value={active.jointDegrees}
+                      onChange={(e) =>
+                        patch({
+                          jointDegrees: Math.max(-5, Math.min(5, Number(e.target.value))),
+                        })
+                      }
+                    />
+                  </label>
+                )}
+              </div>
+            </section>{' '}
+            <div
+              className="planner-group-controls border rounded-lg p-2 flex flex-wrap items-center gap-2"
+              data-testid="track-group-controls"
+            >
+              <strong>{t('group.title')}</strong>
+              <span className="text-xs" data-testid="combination-status">
+                {pitPart ? t('group.singlePart') : t('group.members', { count: motion.length })}
+                {motion.length > 0 && pitParts.some((p) => motion.includes(p.anchor))
+                  ? ` · ${t('group.boxMembers', { count: pitParts.filter((p) => motion.includes(p.anchor)).length })}`
+                  : ''}
+              </span>
+              <Button
+                type="button"
+                variant={pickedIndices.length >= 2 ? 'default' : 'outline'}
+                data-testid="group-track-parts"
+                disabled={pickedIndices.length < 2}
+                title={t('group.note')}
+                onClick={() => {
+                  const next = groupTrackParts(plan, motion)
+                  onChange(next)
+                  selectIndices(motion)
+                }}
+              >
+                <span aria-hidden="true">▦</span> {t('group.combine')}
+              </Button>
+              <Button
+                type="button"
+                variant={motion.length >= 2 ? 'secondary' : 'outline'}
+                data-testid="ungroup-track-parts"
+                disabled={motion.length < 2}
+                onClick={() => {
+                  const next = ungroupTrackParts(plan, motion)
+                  onChange(next)
+                  selectIndices(selected < 0 ? [] : [selected])
+                }}
+              >
+                <span aria-hidden="true">⤢</span> {t('group.release')}
+              </Button>
+              {pitParts.length > 0 && (
+                <Button
+                  type="button"
+                  data-testid="select-whole-pit-combination"
+                  disabled={pitPart?.anchor === undefined}
+                  onClick={() => {
+                    if (pitPart?.anchor !== undefined) selectIndices(freeTrackSelection(plan, pitPart.anchor))
+                  }}
+                >
+                  {t('group.selectCombination')}
+                </Button>
               )}
             </div>
-          </section>
-        </div>
+            {(active || pitPart) && (
+              <details
+                data-testid="drawing-layer-controls"
+                className="flex flex-wrap items-center gap-2 border rounded-lg p-2 text-sm"
+              >
+                <summary>{t('drawLayers.title')}</summary>
+                {!pitPart && (
+                  <select
+                    data-testid="drawing-layer-target"
+                    value={layerTarget}
+                    onChange={(e) => setLayerTarget(e.target.value)}
+                  >
+                    {['rails', 'left', 'right', 'borders'].map((v) => (
+                      <option key={v} value={v}>
+                        {t(`drawLayers.${v}`)}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {pitPart && (
+                  <span>{t(pitPart.extraIndex === undefined ? 'drawLayers.pit' : 'drawLayers.component')}</span>
+                )}
+                <Button
+                  type="button"
+                  variant="outline"
+                  data-testid="drawing-layer-down"
+                  disabled={!drawObjects.length}
+                  onClick={() => drawStep(-1)}
+                >
+                  {t('drawLayers.down')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  data-testid="drawing-layer-up"
+                  disabled={!drawObjects.length}
+                  onClick={() => drawStep(1)}
+                >
+                  {t('drawLayers.up')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  data-testid="drawing-layer-reset"
+                  disabled={!drawObjects.length}
+                  onClick={() => drawStep(null)}
+                >
+                  {t('drawLayers.reset')}
+                </Button>
+                <span data-testid="drawing-layer-value">
+                  {drawValues.filter((n, i, a) => a.indexOf(n) === i).join(' / ')}
+                </span>
+                <small>{t('drawLayers.note')}</small>
+              </details>
+            )}
+            <p className="text-xs text-muted-foreground">{t('graph.gridNote')}</p>
+            {colors && <TrackTypeLegend plan={plan} />}
+            {pitParts.length > 0 && (
+              <details
+                open={!!pitPart}
+                data-testid="pitlane-component-selection"
+                className="border rounded p-2 text-sm space-y-2"
+              >
+                <summary>{t('pitParts.combination')}</summary>
+                <p>{t('pitParts.combinationNote')}</p>
+                <div className="flex flex-wrap gap-2">
+                  {pitParts.map((p) => (
+                    <button
+                      type="button"
+                      key={p.id}
+                      data-testid={`select-pit-component-${p.id}`}
+                      aria-pressed={selectedPitPart === p.id}
+                      className={`border rounded px-2 py-1 ${selectedPitPart === p.id ? 'bg-teal-100 text-teal-950' : ''}`}
+                      onClick={() => selectPitPart(p.id)}
+                    >
+                      {p.short} · {p.article}
+                    </button>
+                  ))}
+                </div>
+                {pitPart && (
+                  <p data-testid="selected-pit-component">
+                    {t(`pitParts.${pitPart.kind}`)} · {pitPart.article} · {t('pitParts.componentSelection')}
+                    {pitPart.anchor !== undefined && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        data-testid="select-pit-carrier"
+                        onClick={() => onSelect(pitPart.anchor)}
+                      >
+                        {t('pitParts.carrier')}
+                      </Button>
+                    )}
+                  </p>
+                )}
+              </details>
+            )}
+            {planDetails}
+          </div>
+        </aside>
       </div>
     </section>
   )

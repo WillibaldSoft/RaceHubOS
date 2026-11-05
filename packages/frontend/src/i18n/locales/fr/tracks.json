@@ -1,4 +1,11 @@
 {
+  "layout": {
+    "repeatPlace": "Pose multiple",
+    "repeatHint": "Choisir une pièce, puis cliquer sur le plan pour poser des exemplaires. Échap quitte ce mode.",
+    "catalogue": "Catalogue",
+    "selection": "Modifier la pièce",
+    "viewOptions": "Vue et outils"
+  },
   "tools": {
     "auxiliaryPorts": "Raccords libres des stands · cliquer pour marquer",
     "box": "Assistant des stands",

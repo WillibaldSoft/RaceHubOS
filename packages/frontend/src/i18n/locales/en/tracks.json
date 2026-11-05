@@ -1,4 +1,11 @@
 {
+  "layout": {
+    "repeatPlace": "Repeat placement",
+    "repeatHint": "Choose a part, then click the canvas to place copies. Further clicks place more copies. Escape exits this mode.",
+    "catalogue": "Catalogue",
+    "selection": "Edit part",
+    "viewOptions": "View & tools"
+  },
   "tools": {
     "auxiliaryPorts": "Open pit-part connections · click to highlight",
     "box": "Pit lane assistant",

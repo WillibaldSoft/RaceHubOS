@@ -83,3 +83,9 @@ Ein ausgewählter Prüfbefund markiert die betroffenen Hauptschienen rot. So lä
 Die Prüfung erfasst auch offene Slot-Enden nativer Boxenteile. Der rote Kreis zeigt den nach dem Entfernen einer Einfahrt entstandenen offenen Anschluss. Dies ergänzt die Prüfung der Hauptstrecke und ersetzt keine elektrische Prüfung.
 
 ![Offenen Anschluss eines Boxenteils finden](screenshots/track-planner/de/13-open-pit-connection.png)
+
+## 14. Mehrfachlegen und feste Bedienbereiche
+
+Im Katalog „Mehrfachlegen“ markieren und eine Schiene wählen. Die Vorschau folgt der Maus; jeder Klick setzt ein weiteres gleiches Teil. Nahe passende Anschlüsse rasten ein. R / Umschalt+R drehen die Vorschau, Escape beendet den Modus. Die Bahn bleibt zwischen Katalog links und Bedienfeldern rechts sichtbar; beide Seiten scrollen unabhängig. Auf kleinen Bildschirmen lassen sich die Bereiche unterhalb der Bahn öffnen.
+
+![Mehrfachlegen und feste Bedienbereiche](screenshots/track-planner/de/14-repeat-placement.png)

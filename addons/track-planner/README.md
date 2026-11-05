@@ -38,3 +38,5 @@ Settings select actual or scale km/h. The explicit scale-source option uses each
 `actual km/h = distance in metres × 3600 / lap time in milliseconds`
 
 Scale km/h multiply by 32 or 24. Missing/non-positive/non-finite distance or time shows `—`. A lap time is a lap average, not instantaneous telemetry; lane changes and pit routes make the nominal distance approximate. Car/controller speed settings are not changed.
+
+Layout and repeat-placement changes (DE/EN/FR), checks and limitations: [verification report](../../docs/TRACK-PLANNER-LAYOUT-20261105.md).
