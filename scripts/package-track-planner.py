@@ -36,7 +36,7 @@ common(linux)
 shutil.copy2(args.linux_node,linux/'node');(linux/'node').chmod(0o755)
 (linux/'Start.sh').write_text('#!/bin/sh\ncd -- "$(dirname -- "$0")" || exit 1\nexec ./node launcher.mjs\n')
 (linux/'Start.sh').chmod(0o755)
-with tarfile.open(output/'RaceHubOS-Streckenplaner-Linux-x64.tar.gz','w:gz') as archive:archive.add(linux,arcname=linux.name)
+with tarfile.open(output/'RaceHubOS-Streckenplaner-Linux-x64.tar.gz','w:gz',compresslevel=1) as archive:archive.add(linux,arcname=linux.name)
 if args.windows_node:
  windows=stage/'RaceHubOS-Streckenplaner-Windows-x64'
  common(windows)
@@ -54,6 +54,6 @@ desktop=deb/'usr/share/applications/racehubos-track-planner.desktop';desktop.par
 desktop.write_text('[Desktop Entry]\nType=Application\nName=RaceHubOS Track Planner\nName[de]=RaceHubOS Streckenplaner\nExec=racehubos-track-planner\nTerminal=true\nCategories=Game;Graphics;\n')
 control=deb/'DEBIAN';control.mkdir()
 (control/'control').write_text('Package: racehubos-track-planner\nVersion: 1.0.0\nArchitecture: amd64\nSection: games\nPriority: optional\nMaintainer: RaceHubOS contributors <noreply@localhost>\nDepends: libc6 (>= 2.28), libstdc++6, libgcc-s1, xdg-utils\nDescription: Independent offline track planner for Carrera layouts\n Separate optional planner with its own local plans and stock.\n No RaceHubOS installation or Python runtime required.\n')
-subprocess.run(['dpkg-deb','--threads-max=1','-Zgzip','-z6','--root-owner-group','--build',str(deb),str(output/'racehubos-track-planner_1.0.0_amd64.deb')],check=True)
+subprocess.run(['dpkg-deb','--threads-max=1','-Zgzip','-z1','--root-owner-group','--build',str(deb),str(output/'racehubos-track-planner_1.0.0_amd64.deb')],check=True)
 shutil.copy2(source/'track-planner.racehub-addon.json',output/'track-planner.racehub-addon.json')
 print(output)
