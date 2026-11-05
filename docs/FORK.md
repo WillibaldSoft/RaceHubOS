@@ -20,6 +20,8 @@ The script refuses to overwrite an existing database. Start the backend with DAT
 
 ![Original navigation and reset](screenshots/navigation.jpg)
 
+Track planner galleries: [Deutsch](TRACK-PLANNER-GALLERY.de.md) · [English](TRACK-PLANNER-GALLERY.en.md) · [Français](TRACK-PLANNER-GALLERY.fr.md). The localized galleries cover all new planner tools using synthetic plans.
+
 ## Existing lint debt
 
 The initial integration snapshot is recorded in `local-carrera/integration-baseline.json`. The check compares changed files with both upstream and this public ancestor so inherited extension warnings remain distinguishable from newly introduced problems. This baseline is for the integration branch; topical upstream pull requests must satisfy upstream checks independently.

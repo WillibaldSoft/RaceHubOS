@@ -316,6 +316,8 @@ Vibe codé avec [Claude Code](https://claude.ai/code)
 
 ## 📸 Screenshots
 
+Track planner / Rennbahnplaner / Planificateur de circuit: [Deutsch](docs/TRACK-PLANNER-GALLERY.de.md) · [English](docs/TRACK-PLANNER-GALLERY.en.md) · [Français](docs/TRACK-PLANNER-GALLERY.fr.md) — 39 screenshots with descriptions of all new planner features.
+
 | | |
 |---|---|
 | ![Dashboard](docs/screenshots/dashboard.jpg) **Dashboard** | ![Race](docs/screenshots/race.jpg) **Race** |

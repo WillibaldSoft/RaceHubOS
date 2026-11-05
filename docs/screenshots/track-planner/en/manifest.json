@@ -1,0 +1,101 @@
+{
+  "language": "en",
+  "viewport": {
+    "width": 1600,
+    "height": 1400
+  },
+  "syntheticData": true,
+  "screenshots": [
+    {
+      "id": "01-start-setup",
+      "file": "01-start-setup.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "6c7caef7d36aad8f6291c27b33a54176f4d2a2ef57561200f6d09a4e00699f85"
+    },
+    {
+      "id": "02-start-cu-two-bays",
+      "file": "02-start-cu-two-bays.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "caf408a2ee734c6241d53e50196041f36b667aec5b9a3e69095e7eaf646bea3f"
+    },
+    {
+      "id": "03-readable-rotated-cu",
+      "file": "03-readable-rotated-cu.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "62520d8ed695fd5c84df7260bdbc1bf1460fbbc002f69b129d932a2e4d1436aa"
+    },
+    {
+      "id": "04-cu-on-existing-straight",
+      "file": "04-cu-on-existing-straight.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "f61a59ea06885607d814b77cce73bbb4e91d6fbbfcd0a8d8bdf447b3a1403bf3"
+    },
+    {
+      "id": "05-optional-aks-marker",
+      "file": "05-optional-aks-marker.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "987d243c6d10d989ff6296cd435e7d7f5b2acd29a928ad96941f9cf7326cf60d"
+    },
+    {
+      "id": "06-pit-assistant-single-other-side",
+      "file": "06-pit-assistant-single-other-side.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "1125f20089ffdfa91a7e82787b698902b26e93249fbaeee9499270bca2f95fcc"
+    },
+    {
+      "id": "07-pit-assistant-replace-six",
+      "file": "07-pit-assistant-replace-six.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "bb011eb4c5b1b5e7ffe63eac4ce3510b38ef85328d1436ebcb4e00ead23f1b2c"
+    },
+    {
+      "id": "08-connection-gap-direction",
+      "file": "08-connection-gap-direction.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "476d7387c9dbe0faa6de22c18f20f17ff5413991e4b6ec913196f86cf4e27f7a"
+    },
+    {
+      "id": "09-assembly-templates",
+      "file": "09-assembly-templates.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "e11f7f70a1124c4ef0b4dedc8833ccf7617d01b3a32b01dd693e91ffacc529ac"
+    },
+    {
+      "id": "10-context-menu",
+      "file": "10-context-menu.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "19c36778685407fe2ac7cbd3c08a242544abb705fb378fdff634ed284ce864c0"
+    },
+    {
+      "id": "11-build-check-and-missing-parts",
+      "file": "11-build-check-and-missing-parts.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "fd56095c14bd77edc7283a5159cb99ac18b482cb3828704d1ad0b10e8f8e41d0"
+    },
+    {
+      "id": "12-highlighted-overlap",
+      "file": "12-highlighted-overlap.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "95bca1d57b8a970fc94715e51b62ad2f036b45c410c25bfbb2b3801c18bc628f"
+    },
+    {
+      "id": "13-open-pit-connection",
+      "file": "13-open-pit-connection.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "c2315ccb97d7367d8c6361fdef3b8967026a5129d00ee5e897e58e69ed75ffbd"
+    }
+  ]
+}
