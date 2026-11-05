@@ -1,4 +1,8 @@
 {
+  "quickStart": {
+    "note": "Create start/finish and Control Unit with a pit lane and two parallel fuel bays. Move or rotate the assembly together, or ungroup it. Continue building from the open ends.",
+    "create": "Insert start/finish + CU + 2 fuel bays"
+  },
   "searchPlaceholder": "Search for a track...",
   "addLabel": "New track",
   "emptyTitle": "No tracks",

@@ -40,6 +40,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
+      '@racehubos/shared': path.resolve(import.meta.dirname, '../../packages/shared/src/index.js'),
       '@core': path.resolve(import.meta.dirname, '../../packages/frontend/src'),
       '@': path.resolve(import.meta.dirname, '../../packages/frontend/src'),
     },

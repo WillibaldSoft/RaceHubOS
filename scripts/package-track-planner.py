@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Package already built planner and supplied Node runtimes. Never install."""
-INSTALLER_VERSION = 1
+INSTALLER_VERSION = 2
 import argparse
 import json
 from pathlib import Path
@@ -13,7 +13,7 @@ import zipfile
 parser=argparse.ArgumentParser()
 parser.add_argument('--output',required=True)
 parser.add_argument('--linux-node',required=True)
-parser.add_argument('--windows-node',required=True)
+parser.add_argument('--windows-node', help='Optional trusted Windows Node executable; omit for Linux-only builds')
 parser.add_argument('--node-license',required=True)
 args=parser.parse_args()
 root=Path(__file__).resolve().parents[1]
@@ -37,13 +37,14 @@ shutil.copy2(args.linux_node,linux/'node');(linux/'node').chmod(0o755)
 (linux/'Start.sh').write_text('#!/bin/sh\ncd -- "$(dirname -- "$0")" || exit 1\nexec ./node launcher.mjs\n')
 (linux/'Start.sh').chmod(0o755)
 with tarfile.open(output/'RaceHubOS-Streckenplaner-Linux-x64.tar.gz','w:gz') as archive:archive.add(linux,arcname=linux.name)
-windows=stage/'RaceHubOS-Streckenplaner-Windows-x64'
-common(windows)
-shutil.copy2(args.windows_node,windows/'node.exe')
-(windows/'Start.cmd').write_bytes(b'@echo off\r\ncd /d "%~dp0"\r\nnode.exe launcher.mjs\r\nif errorlevel 1 pause\r\n')
-with zipfile.ZipFile(output/'RaceHubOS-Streckenplaner-Windows-x64.zip','w',zipfile.ZIP_DEFLATED) as archive:
- for p in windows.rglob('*'):
-  if p.is_file():archive.write(p,p.relative_to(stage))
+if args.windows_node:
+ windows=stage/'RaceHubOS-Streckenplaner-Windows-x64'
+ common(windows)
+ shutil.copy2(args.windows_node,windows/'node.exe')
+ (windows/'Start.cmd').write_bytes(b'@echo off\r\ncd /d "%~dp0"\r\nnode.exe launcher.mjs\r\nif errorlevel 1 pause\r\n')
+ with zipfile.ZipFile(output/'RaceHubOS-Streckenplaner-Windows-x64.zip','w',zipfile.ZIP_DEFLATED) as archive:
+  for p in windows.rglob('*'):
+   if p.is_file():archive.write(p,p.relative_to(stage))
 deb=stage/'deb'
 app=deb/'opt/racehubos-track-planner'
 shutil.copytree(linux,app)

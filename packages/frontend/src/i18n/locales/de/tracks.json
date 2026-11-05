@@ -1,4 +1,8 @@
 {
+  "quickStart": {
+    "note": "Start/Ziel und Control Unit mit Boxengasse und zwei parallelen Tankplätzen anlegen. Die Baugruppe lässt sich gemeinsam bewegen, drehen und wieder trennen. Danach die offenen Enden weiterbauen.",
+    "create": "Start/Ziel + CU + 2 Tankplätze einfügen"
+  },
   "searchPlaceholder": "Strecke suchen …",
   "addLabel": "Neue Strecke",
   "emptyTitle": "Keine Strecken",

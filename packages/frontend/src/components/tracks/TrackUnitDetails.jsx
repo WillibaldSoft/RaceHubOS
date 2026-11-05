@@ -1,3 +1,14 @@
+// Keep lettering readable on screen while the housing and sensors follow the rail.
+function UnitText({ headingRadians, x, y, angle = 0, children, ...props }) {
+  const heading = ((((headingRadians * 180) / Math.PI + angle) % 360) + 360) % 360
+  const correction = heading > 90 && heading <= 270 ? 180 : 0
+  return (
+    <text {...props} x={x} y={y} transform={`rotate(${angle + correction} ${x} ${y})`}>
+      {children}
+    </text>
+  )
+}
+
 // Own SVG artwork derived from the functional layout and the user's photos.
 // No manufacturer bitmap, logo, or third-party SVG is embedded.
 export function UnitDetails({ segment, realistic = true }) {
@@ -28,41 +39,64 @@ export function UnitDetails({ segment, realistic = true }) {
             <g key={x}>
               <rect x={x - 15} y="-162" width="30" height="12" rx="4" fill="#08090a" />
               <rect x={x - 11} y="-160" width="22" height="7" rx="2" fill="#bb2638" />
-              <text x={x} y="-168" fontSize="8" fill="#c8cdd2" textAnchor="middle">
+              <UnitText headingRadians={segment.start.h} x={x} y="-168" fontSize="8" fill="#c8cdd2" textAnchor="middle">
                 {i + 1}
-              </text>
+              </UnitText>
             </g>
           ))}
           {['CODE', 'SPEED', 'BRAKE', 'FUEL'].map((label, i) => (
             <g key={label}>
               <circle cx={48 + i * 57} cy="-193" r="12" fill="#0a0b0e" stroke="#777e84" strokeWidth="2" />
-              <text x={48 + i * 57} y="-210" fontSize="8" fill="#e5e7eb" textAnchor="middle">
+              <UnitText
+                headingRadians={segment.start.h}
+                x={48 + i * 57}
+                y="-210"
+                fontSize="8"
+                fill="#e5e7eb"
+                textAnchor="middle"
+              >
                 {label}
-              </text>
+              </UnitText>
             </g>
           ))}
           <rect x="273" y="-207" width="42" height="28" rx="7" fill="#a62b35" stroke="#d46c73" strokeWidth="2" />
-          <text x="294" y="-187" fontSize="10" fill="white" textAnchor="middle">
+          <UnitText headingRadians={segment.start.h} x="294" y="-187" fontSize="10" fill="white" textAnchor="middle">
             START
-          </text>
+          </UnitText>
           {[85, 124, 163, 202].map((x) => (
             <g key={x}>
               <rect x={x - 14} y="-235" width="28" height="11" rx="2" fill="#040506" stroke="#565b60" strokeWidth="2" />
               <path d={`M${x - 8} -231h16`} stroke="#8c949b" strokeWidth="2" />
             </g>
           ))}
-          <text x="172" y="-107" fontSize="12" fontWeight="bold" textAnchor="middle" fill="#e5e7eb">
+          <UnitText
+            headingRadians={segment.start.h}
+            x="172"
+            y="-107"
+            fontSize="12"
+            fontWeight="bold"
+            textAnchor="middle"
+            fill="#e5e7eb"
+          >
             CONTROL UNIT
-          </text>
+          </UnitText>
           {Array.from({ length: 10 }, (_, i) => (
             <g key={i}>
               <rect x="159" y={-99 + i * 19.8} width="14" height="19.8" fill={i % 2 ? '#eee' : '#17191c'} />
               <rect x="173" y={-99 + i * 19.8} width="14" height="19.8" fill={i % 2 ? '#17191c' : '#eee'} />
             </g>
           ))}
-          <text x="155" y="0" transform="rotate(-90 155 0)" fill="#eee" fontSize="11" textAnchor="middle">
+          <UnitText
+            headingRadians={segment.start.h}
+            x="155"
+            y="0"
+            angle={-90}
+            fill="#eee"
+            fontSize="11"
+            textAnchor="middle"
+          >
             START / FINISH
-          </text>
+          </UnitText>
           {[-49.5, 49.5].map((y, i) => sensor(209, y, i))}
         </>
       )}
@@ -76,9 +110,17 @@ export function UnitDetails({ segment, realistic = true }) {
             </g>
           ))}
           <rect x="162" y="-33" width="23" height="66" rx="3" fill="#2a3339" />
-          <text x="176" y="0" transform="rotate(-90 176 0)" fontSize="11" fill="#e5e7eb" textAnchor="middle">
+          <UnitText
+            headingRadians={segment.start.h}
+            x="176"
+            y="0"
+            angle={-90}
+            fontSize="11"
+            fill="#e5e7eb"
+            textAnchor="middle"
+          >
             {type === 'Multistart' ? 'MULTI' : 'CHECK'}
-          </text>
+          </UnitText>
         </>
       )}
       {type === 'AdapterUnit' && (
@@ -97,9 +139,9 @@ export function UnitDetails({ segment, realistic = true }) {
               strokeWidth="2"
             />
           ))}
-          <text x="173" y="-114" fill="#dce1e5" fontSize="12" textAnchor="middle">
+          <UnitText headingRadians={segment.start.h} x="173" y="-114" fill="#dce1e5" fontSize="12" textAnchor="middle">
             ADAPTER
-          </text>
+          </UnitText>
         </>
       )}
     </g>

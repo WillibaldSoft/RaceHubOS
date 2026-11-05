@@ -14,6 +14,7 @@ import {
 } from '@racehubos/shared'
 import { Button } from '@core/components/ui/button'
 import { labelTrackPart as label } from '@core/components/tracks/trackPartLabel'
+import { createStartPitPlan } from './startPitPlan'
 import GraphicalTrackEditor from './GraphicalTrackEditor'
 import RoomPlanner, { SavedRoomPlan } from './RoomPlanner'
 
@@ -206,6 +207,21 @@ export default function TrackPlanEditor({
           </p>
         )}
         <div hidden={mode !== 'editor'} className="planner-graph-pane">
+          {!plan.pieces.length && (
+            <div className="planner-notice" data-testid="start-pit-setup">
+              <p>{t('quickStart.note')}</p>
+              <Button
+                type="button"
+                data-testid="start-pit-create"
+                onClick={() => {
+                  update(createStartPitPlan(plan))
+                  setSelected(2)
+                }}
+              >
+                {t('quickStart.create')}
+              </Button>
+            </div>
+          )}
           <GraphicalTrackEditor
             plan={plan}
             selected={selected}
