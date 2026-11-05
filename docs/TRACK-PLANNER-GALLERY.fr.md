@@ -2,7 +2,7 @@
 
 [Deutsch](TRACK-PLANNER-GALLERY.de.md) · [English](TRACK-PLANNER-GALLERY.en.md) · Français
 
-Captures réelles du planificateur autonome réalisées le 5 novembre 2026, avec interface française et données de démonstration exclusivement synthétiques. Toutes les images mesurent 1600 × 1400 pixels. L’apparence des rails n’a pas été modifiée pour les captures.
+Captures réelles du planificateur autonome réalisées le 6 novembre 2026, avec interface française et données de démonstration exclusivement synthétiques. Toutes les images mesurent 1600 × 1400 pixels. L’apparence des rails n’a pas été modifiée pour les captures.
 
 Utilisation et limites techniques : [outils de planification](TRACK-PLANNER-TOOLS.md) (allemand). Comparaison des sources : [rapport](TRACK-PLANNER-REVIEW-20261105.md) (allemand). Reproduction et vérification : [index des galeries](TRACK-PLANNER-GALLERY.md).
 
@@ -89,3 +89,15 @@ La vérification identifie aussi les extrémités de slot libres des éléments 
 Cocher la pose répétée dans le catalogue, puis choisir un rail. L’aperçu suit la souris ; chaque clic pose une nouvelle copie. Les raccords compatibles proches s’accrochent. R / Maj+R tournent l’aperçu ; Échap quitte ce mode. Le circuit reste visible entre le catalogue à gauche et les commandes à droite, qui défilent séparément. Sur petit écran, ces panneaux peuvent s’ouvrir sous le circuit.
 
 ![Pose répétée et commandes fixes](screenshots/track-planner/fr/14-repeat-placement.png)
+
+## 15. Remplacer directement et déplacer la suite
+
+Sélectionner un rail, puis cliquer sur une autre pièce du catalogue pour le remplacer immédiatement. La section suivante raccordée sans ambiguïté suit la rotation et le déplacement de la nouvelle sortie. L’entrée reste fixe. La pose multiple conserve la pose à la souris.
+
+![Remplacer directement et déplacer la suite](screenshots/track-planner/fr/15-replace-and-follow.png)
+
+## 16. Choisir la séparation après remplacement
+
+Choisir le point de séparation dans le panneau de droite : juste après la nouvelle pièce ou après un rail suivant. Le repère orange indique la séparation. La section jusqu’à ce point suit ; le reste demeure fixe. Chaque choix est recalculé depuis le circuit initial et peut être annulé.
+
+![Choisir la séparation après remplacement](screenshots/track-planner/fr/16-choose-cut-point.png)

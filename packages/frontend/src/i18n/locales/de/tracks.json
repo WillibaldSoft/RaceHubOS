@@ -57,7 +57,6 @@
     "errors": {
       "levelRange": "Die Vorlage würde eine Ebene außerhalb 0–2 benötigen. Einen Anschluss auf passender Ebene wählen.",
       "cuAtPitEnd": "Die CU liegt an Einfahrt oder Ausfahrt der geplanten Box. Einen Bereich wählen, in dem sie zwischen diesen Modulen oder außerhalb liegt.",
-
       "cuStraight": "Bitte eine Standardgerade auswählen.",
       "cuExists": "Der Plan enthält bereits eine CU. Diese auswählen und verschieben.",
       "invalidBays": "Bitte einen oder zwei Tankplätze wählen.",
@@ -72,7 +71,10 @@
       "failed": "Die Aktion konnte nicht ausgeführt werden."
     }
   },
-  "antiCollision": { "installed": "Anti-Kollisionsschaltung eingebaut", "show": "AKS-Markierungen anzeigen" },
+  "antiCollision": {
+    "installed": "Anti-Kollisionsschaltung eingebaut",
+    "show": "AKS-Markierungen anzeigen"
+  },
   "quickStart": {
     "note": "Start/Ziel und Control Unit mit Boxengasse und zwei parallelen Tankplätzen anlegen. Die Baugruppe lässt sich gemeinsam bewegen, drehen und wieder trennen. Danach die offenen Enden weiterbauen.",
     "create": "Start/Ziel + CU + 2 Tankplätze einfügen"
@@ -518,5 +520,13 @@
     "component": "Ausgewähltes Boxenteil / Randteil",
     "pit": "Gesamte schematische Pitlane",
     "note": "Ändert die Zeichenreihenfolge; Positionen und Spurlängen bleiben gleich."
+  },
+  "replacement": {
+    "cut": "Auftrennpunkt nach dem Austausch",
+    "afterNew": "Direkt nach dem neuen Teil",
+    "afterPart": "Nach Teil {{number}} · {{part}}",
+    "hint": "Der folgende verbundene Abschnitt bewegt sich bis hier mit. Orange markiert den Auftrennpunkt. Baugruppen bleiben zusammen. Weitere Änderungen beenden diese Auswahl.",
+    "done": "Auftrennpunkt übernehmen",
+    "catalogueHint": "Markiertes Bahnteil per Katalogklick austauschen: Der folgende Abschnitt folgt der neuen Geometrie. Mehrfachlegen behält die Mausplatzierung."
   }
 }

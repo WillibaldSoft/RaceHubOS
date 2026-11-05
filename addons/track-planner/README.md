@@ -40,3 +40,5 @@ Settings select actual or scale km/h. The explicit scale-source option uses each
 Scale km/h multiply by 32 or 24. Missing/non-positive/non-finite distance or time shows `—`. A lap time is a lap average, not instantaneous telemetry; lane changes and pit routes make the nominal distance approximate. Car/controller speed settings are not changed.
 
 Layout and repeat-placement changes (DE/EN/FR), checks and limitations: [verification report](../../docs/TRACK-PLANNER-LAYOUT-20261105.md).
+
+Catalogue replacement with following geometry and a selectable cut (DE/EN/FR): [replacement guide](../../docs/TRACK-PLANNER-REPLACEMENT-20261106.md).

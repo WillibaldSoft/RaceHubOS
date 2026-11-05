@@ -188,6 +188,16 @@ for (const [language, labels] of Object.entries(words)) {
       await expect(page.getByTestId('repeat-track-preview')).toBeVisible();
       await shot('14-repeat-placement', true);
       await page.keyboard.press('Escape');
+      await openPlan(straight(5));
+      await select(1);
+      await page.getByTestId('palette-Kurve_1_60_rechts').click();
+      await expect(page.getByTestId('replacement-cut-select')).toHaveValue('3');
+      await canvas();
+      await shot('15-replace-and-follow');
+      await page.getByTestId('replacement-cut-select').selectOption('1');
+      await expect(page.getByTestId('replacement-cut-marker')).toBeVisible();
+      await canvas();
+      await shot('16-choose-cut-point');
       expect(errors).toEqual([]);
       await fs.writeFile(
         path.join(output, language, 'manifest.json'),

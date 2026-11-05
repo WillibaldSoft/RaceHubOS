@@ -1,3 +1,4 @@
+import { replaceFollowingTrack } from './followingTrackReplacement'
 import { repeatedTrackPreview, placeRepeatedTrackPart } from './repeatTrackPlacement'
 import { trackViewport } from './trackViewport'
 import PlannerTools from './PlannerTools'
@@ -117,6 +118,8 @@ export default function GraphicalTrackEditor({
   planDetails,
 }) {
   const { t } = useTranslation('tracks')
+  const [replacement, setReplacement] = useState(null)
+  const currentReplacement = replacement?.result.plan === storedPlan ? replacement : null
   const [repeatPlacement, setRepeatPlacement] = useState(false)
   const [placementPoint, setPlacementPoint] = useState(null)
   const [placementHeading, setPlacementHeading] = useState(0)
@@ -336,6 +339,30 @@ export default function GraphicalTrackEditor({
       })
     }
   }
+  function replaceAndFollow(types) {
+    if (!active || pickedIndices.length !== 1 || pitPart) return false
+    if (plan.partGroups?.groups.some((g) => g.includes(selected))) return false
+    if (plan.pieces.length - selection.length + types.length > 2000) return false
+    if (selection.length === types.length && selection.every((i, n) => plan.pieces[i].type === types[n])) return true
+    try {
+      const result = replaceFollowingTrack(storedPlan, selected, types)
+      setReplacement({ base: storedPlan, index: selected, types, result })
+      onChange(result.plan)
+      onSelect(result.selected)
+      if (zoom === 1) setFrame(null)
+      return true
+    } catch {
+      return false
+    }
+  }
+  function changeReplacementCut(count) {
+    if (!currentReplacement) return
+    const { base, index, types } = currentReplacement
+    const result = replaceFollowingTrack(base, index, types, count)
+    setReplacement({ base, index, types, result })
+    onChange(result.plan)
+    if (zoom === 1) setFrame(null)
+  }
   function edit(action) {
     if (action === 'replace' && pitReplacement) {
       const prepared = editablePitlane(plan),
@@ -344,6 +371,7 @@ export default function GraphicalTrackEditor({
       setSelectedPitPart(`extra-${index}`)
       return
     }
+    if (action === 'replace' && replaceAndFollow(chosen.types)) return
     const result = (plan.freePlacement ? editFreeParts : editTrackPieces)(plan, selected, action, chosen.types)
     onChange(result.plan)
     onSelect(result.selected)
@@ -775,6 +803,7 @@ export default function GraphicalTrackEditor({
             />{' '}
             {t('layout.repeatPlace')}
           </label>
+          {!repeatPlacement && <p className="planner-replacement-hint">{t('replacement.catalogueHint')}</p>}
           {repeatPlacement && (
             <p className="planner-repeat-hint" role="status" data-testid="repeat-placement-hint">
               {t('layout.repeatHint')}
@@ -839,11 +868,12 @@ export default function GraphicalTrackEditor({
                       className={`planner-part ${p.id === part ? 'is-selected' : ''}`}
                       onClick={() => {
                         setPart(p.id)
+                        if (!repeatPlacement) replaceAndFollow(p.types)
                         if (panel === 'catalogue') setPanel(repeatPlacement ? 'none' : 'inspector')
                         setPlacementPoint(null)
                       }}
                       onDoubleClick={() => {
-                        if (repeatPlacement) return
+                        if (repeatPlacement || active || pitPart) return
                         if (plan.pieces.length + p.types.length > 2000) return
                         const result = (plan.freePlacement ? editFreeParts : editTrackPieces)(
                           plan,
@@ -1161,6 +1191,29 @@ export default function GraphicalTrackEditor({
                 }
                 onConnect={() => edit(side)}
               />
+              {currentReplacement && (
+                <g data-testid="replacement-cut-marker" pointerEvents="none">
+                  {currentReplacement.result.hasFixedNeighbour && (
+                    <line
+                      x1={currentReplacement.result.boundary.x}
+                      y1={currentReplacement.result.boundary.y}
+                      x2={currentReplacement.result.fixed.x}
+                      y2={currentReplacement.result.fixed.y}
+                      stroke="#ea580c"
+                      strokeWidth={Math.max(5, w / 300)}
+                      strokeDasharray="18 12"
+                    />
+                  )}
+                  <circle
+                    cx={currentReplacement.result.boundary.x}
+                    cy={currentReplacement.result.boundary.y}
+                    r={Math.max(20, w / 65)}
+                    fill="white"
+                    stroke="#ea580c"
+                    strokeWidth={Math.max(5, w / 300)}
+                  />
+                </g>
+              )}
               {stamp && (
                 <g
                   data-testid="repeat-track-preview"
@@ -1342,6 +1395,38 @@ export default function GraphicalTrackEditor({
               />{' '}
               {t('antiCollision.show')}
             </label>
+            {currentReplacement && (
+              <div className="planner-replacement-cut" data-testid="replacement-cut-controls">
+                <label>
+                  {t('replacement.cut')}
+                  <select
+                    data-testid="replacement-cut-select"
+                    value={currentReplacement.result.count}
+                    onChange={(e) => changeReplacementCut(Number(e.target.value))}
+                  >
+                    {currentReplacement.result.choices.map((c) => (
+                      <option key={c.count} value={c.count}>
+                        {c.count === 0
+                          ? t('replacement.afterNew')
+                          : t('replacement.afterPart', {
+                              number: c.index + 1,
+                              part: labelTrackPart(plan.pieces[c.index].type),
+                            })}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <p>{t('replacement.hint')}</p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  data-testid="replacement-cut-done"
+                  onClick={() => setReplacement(null)}
+                >
+                  {t('replacement.done')}
+                </Button>
+              </div>
+            )}
             <select
               data-testid="track-insert-side"
               aria-label={t('graph.insertSide')}

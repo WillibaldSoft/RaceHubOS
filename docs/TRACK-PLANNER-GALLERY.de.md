@@ -2,7 +2,7 @@
 
 Deutsch · [English](TRACK-PLANNER-GALLERY.en.md) · [Français](TRACK-PLANNER-GALLERY.fr.md)
 
-Echte Bildschirmaufnahmen des eigenständigen Planers vom 5. November 2026, mit deutscher Oberfläche und ausschließlich synthetischen Demodaten. Alle Bilder wurden bei 1600 × 1400 Pixeln aufgenommen. Die Schienenoptik wurde für die Aufnahmen nicht verändert.
+Echte Bildschirmaufnahmen des eigenständigen Planers vom 6. November 2026, mit deutscher Oberfläche und ausschließlich synthetischen Demodaten. Alle Bilder wurden bei 1600 × 1400 Pixeln aufgenommen. Die Schienenoptik wurde für die Aufnahmen nicht verändert.
 
 Bedienung und technische Grenzen: [Bedienhilfen](TRACK-PLANNER-TOOLS.md). Quellenvergleich: [Prüfbericht](TRACK-PLANNER-REVIEW-20261105.md). Reproduktion und Prüfstand: [Galerieübersicht](TRACK-PLANNER-GALLERY.md).
 
@@ -89,3 +89,15 @@ Die Prüfung erfasst auch offene Slot-Enden nativer Boxenteile. Der rote Kreis z
 Im Katalog „Mehrfachlegen“ markieren und eine Schiene wählen. Die Vorschau folgt der Maus; jeder Klick setzt ein weiteres gleiches Teil. Nahe passende Anschlüsse rasten ein. R / Umschalt+R drehen die Vorschau, Escape beendet den Modus. Die Bahn bleibt zwischen Katalog links und Bedienfeldern rechts sichtbar; beide Seiten scrollen unabhängig. Auf kleinen Bildschirmen lassen sich die Bereiche unterhalb der Bahn öffnen.
 
 ![Mehrfachlegen und feste Bedienbereiche](screenshots/track-planner/de/14-repeat-placement.png)
+
+## 15. Direkt austauschen und Bahn nachführen
+
+Ein Bahnteil markieren und eine andere Schiene im Katalog anklicken: Sie ersetzt das markierte Teil sofort. Der eindeutig angeschlossene Folgeabschnitt übernimmt die Drehung und Verschiebung des neuen Ausgangs. Der Eingang bleibt stehen. „Mehrfachlegen“ behält die Mausplatzierung.
+
+![Direkt austauschen und Bahn nachführen](screenshots/track-planner/de/15-replace-and-follow.png)
+
+## 16. Auftrennpunkt nach dem Austausch wählen
+
+Rechts lässt sich der Auftrennpunkt nachträglich auswählen – direkt hinter dem neuen Teil oder hinter einer Schiene des Folgeabschnitts. Orange markiert die Trennung. Der Abschnitt bis zum gewählten Punkt folgt; dahinter bleibt die Bahn stehen. Die Wahl wird aus dem ursprünglichen Zustand neu berechnet und lässt sich rückgängig machen.
+
+![Auftrennpunkt nach dem Austausch wählen](screenshots/track-planner/de/16-choose-cut-point.png)

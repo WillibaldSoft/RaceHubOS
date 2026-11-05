@@ -57,7 +57,6 @@
     "errors": {
       "levelRange": "Le modèle nécessiterait un niveau hors de 0–2. Choisir un raccord à un niveau approprié.",
       "cuAtPitEnd": "La CU occupe le module prévu pour l’entrée ou la sortie des stands. Choisir une zone avec la CU entre ces modules ou en dehors.",
-
       "cuStraight": "Sélectionner une droite standard.",
       "cuExists": "Le plan contient déjà une CU. La sélectionner et la déplacer.",
       "invalidBays": "Choisir un ou deux postes.",
@@ -72,7 +71,10 @@
       "failed": "L’action n’a pas pu être effectuée."
     }
   },
-  "antiCollision": { "installed": "Circuit anti-collision installé", "show": "Afficher les repères anti-collision" },
+  "antiCollision": {
+    "installed": "Circuit anti-collision installé",
+    "show": "Afficher les repères anti-collision"
+  },
   "quickStart": {
     "note": "Créer le départ/arrivée et la Control Unit avec une voie des stands et deux postes de ravitaillement parallèles. Déplacer ou tourner le groupe, ou le dissocier. Continuer aux extrémités ouvertes.",
     "create": "Insérer départ/arrivée + CU + 2 postes"
@@ -518,5 +520,13 @@
     "component": "Pièce de stand / bordure sélectionnée",
     "pit": "Ensemble des stands schématiques",
     "note": "Modifie l’ordre du dessin, sans changer les positions ni les longueurs."
+  },
+  "replacement": {
+    "cut": "Point de séparation après remplacement",
+    "afterNew": "Juste après la nouvelle pièce",
+    "afterPart": "Après la pièce {{number}} · {{part}}",
+    "hint": "La section raccordée suivante suit jusqu’à ce point. Le repère orange indique la séparation. Les ensembles restent groupés. Une autre modification termine ce choix.",
+    "done": "Conserver la séparation",
+    "catalogueHint": "Cliquer sur une pièce du catalogue pour remplacer le rail sélectionné et déplacer la section suivante raccordée. La pose multiple conserve la pose à la souris."
   }
 }

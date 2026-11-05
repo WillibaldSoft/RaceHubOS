@@ -2,7 +2,7 @@
 
 [Deutsch](TRACK-PLANNER-GALLERY.de.md) · English · [Français](TRACK-PLANNER-GALLERY.fr.md)
 
-Actual screenshots of the standalone planner captured on 5 November 2026, with the English interface and synthetic demo data only. All images are 1600 × 1400 pixels. The rail appearance was not altered for the captures.
+Actual screenshots of the standalone planner captured on 6 November 2026, with the English interface and synthetic demo data only. All images are 1600 × 1400 pixels. The rail appearance was not altered for the captures.
 
 Operation and technical limits: [planner tools](TRACK-PLANNER-TOOLS.md) (German). Source comparison: [review](TRACK-PLANNER-REVIEW-20261105.md) (German). Reproduction and verification: [gallery index](TRACK-PLANNER-GALLERY.md).
 
@@ -89,3 +89,15 @@ The check also identifies open slot ends on native pit components. A red circle 
 Check “Repeat placement” in the catalogue and choose a rail. Its preview follows the mouse; each click places another copy. Nearby compatible ports snap together. R / Shift+R rotate the preview; Escape exits the mode. The track stays visible between the catalogue on the left and controls on the right, with independently scrolling sidebars. Small screens can open these panels below the track.
 
 ![Repeat placement and fixed controls](screenshots/track-planner/en/14-repeat-placement.png)
+
+## 15. Replace directly and carry the following track
+
+Select a rail and click another catalogue part to replace it immediately. The unambiguously connected following section rotates and shifts with the new outgoing end. The incoming end stays fixed. Repeat placement retains mouse stamping.
+
+![Replace directly and carry the following track](screenshots/track-planner/en/15-replace-and-follow.png)
+
+## 16. Choose the cut after replacement
+
+Choose the cut in the right sidebar after replacing: immediately after the new part or after a following rail. Orange marks the separation. The section up to that point follows; the remaining track stays fixed. Each choice is recomputed from the original layout and supports undo.
+
+![Choose the cut after replacement](screenshots/track-planner/en/16-choose-cut-point.png)

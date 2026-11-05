@@ -1097,3 +1097,30 @@
     padding: 5px 8px;
   }
 }
+
+.planner-replacement-cut {
+  flex: 1 0 100%;
+  padding: 8px;
+  border: 1px solid #ea580c;
+  border-radius: 8px;
+}
+.planner-replacement-cut label {
+  display: block;
+  font-weight: 600;
+}
+.planner-replacement-cut select {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+}
+.planner-replacement-cut p,
+.planner-replacement-hint {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--muted-foreground);
+  margin: 5px 0;
+}
+.planner-replacement-hint {
+  flex: 0 0 auto;
+  padding: 0 8px;
+}

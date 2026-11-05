@@ -57,7 +57,6 @@
     "errors": {
       "levelRange": "The template would require a level outside 0–2. Choose a connection on a suitable level.",
       "cuAtPitEnd": "The CU occupies the planned pit entry or exit module. Choose a range with the CU between these modules or outside it.",
-
       "cuStraight": "Select a standard straight.",
       "cuExists": "This plan already has a CU. Select and move it.",
       "invalidBays": "Choose one or two fuel bays.",
@@ -72,7 +71,10 @@
       "failed": "The action could not be completed."
     }
   },
-  "antiCollision": { "installed": "Anti-collision circuit installed", "show": "Show anti-collision markers" },
+  "antiCollision": {
+    "installed": "Anti-collision circuit installed",
+    "show": "Show anti-collision markers"
+  },
   "quickStart": {
     "note": "Create start/finish and Control Unit with a pit lane and two parallel fuel bays. Move or rotate the assembly together, or ungroup it. Continue building from the open ends.",
     "create": "Insert start/finish + CU + 2 fuel bays"
@@ -518,5 +520,13 @@
     "component": "Selected pit / shoulder part",
     "pit": "Entire schematic pitlane",
     "note": "Changes drawing order; positions and lane lengths remain unchanged."
+  },
+  "replacement": {
+    "cut": "Cut point after replacement",
+    "afterNew": "Immediately after the new part",
+    "afterPart": "After part {{number}} · {{part}}",
+    "hint": "The connected following section moves up to this point. Orange marks the cut. Assemblies remain together. Further edits end this selection.",
+    "done": "Keep cut point",
+    "catalogueHint": "Click a catalogue part to replace the selected rail and move the connected following section. Repeat placement keeps mouse stamping."
   }
 }

@@ -11,91 +11,91 @@
       "file": "01-start-setup.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "02cb0935015c04f687d5b2e3f3ae9eb824676a0e9c1c2c22e484de42eaa63162"
+      "sha256": "83c314d886d6e25f80fbd72146ea8a19badfb59dc43a5ce907b78f528cb7a30d"
     },
     {
       "id": "02-start-cu-two-bays",
       "file": "02-start-cu-two-bays.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "689061278007c1ed40c821683d9449e55d1bcf47a6a39d4a493d865a3b22596a"
+      "sha256": "2de29dc677dbc4ac11ac53708048d42e2816a2f48469c2528b9c4e9c2fb3c1bd"
     },
     {
       "id": "03-readable-rotated-cu",
       "file": "03-readable-rotated-cu.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "2a76a70d10dbe92c6fa613769b8ae96ffd449de03919543bd6fc313a0d97fae8"
+      "sha256": "cf0c5e0a21c9c3c56c953effcbce6bd22ff3b79d6f16e0578a64b8e78b4cf64f"
     },
     {
       "id": "04-cu-on-existing-straight",
       "file": "04-cu-on-existing-straight.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "5167fb4ff3344450acf1ded0927c83ebdc2fa1d9bca18affacb88ec756ebd2c4"
+      "sha256": "58e8af86ed9d69b51aa6ab02eec13070461322dba07d1f81ab80e5a72afd13b7"
     },
     {
       "id": "05-optional-aks-marker",
       "file": "05-optional-aks-marker.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "fb68a381e6ff0853cc5f84be73c6dc6c864ee2e1e58e870b7f8e4a75175af64b"
+      "sha256": "1b6931238dec536373cf4689c65ce66c971f52521a35d89f5df93b7d19262f1c"
     },
     {
       "id": "06-pit-assistant-single-other-side",
       "file": "06-pit-assistant-single-other-side.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "2cd0facf428d91ab6c3e5c97530d9f933906f047080c696ec9e7cc989d3b96dc"
+      "sha256": "8168c4030240451f8af2b2990109313ace044f48c5d728ef9b0c6e36b6d243a6"
     },
     {
       "id": "07-pit-assistant-replace-six",
       "file": "07-pit-assistant-replace-six.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "2be06f4b8c529356afbe2d32d514e9ca3dcc3820211c63609351892843711a54"
+      "sha256": "494a6812f8233d179b37b4633e1deb35fc4eb6852e9a741cab900a0287aa7f65"
     },
     {
       "id": "08-connection-gap-direction",
       "file": "08-connection-gap-direction.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "2b2eae7bce2469a417461a7a00694aa87e414d197d8d82a361188a8301940dca"
+      "sha256": "b6c13702e8c54c2cd4fd64076fe2cb8e9e6f62d259dd4cb311689ae1885d19cf"
     },
     {
       "id": "09-assembly-templates",
       "file": "09-assembly-templates.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "979d86cc594ac27b952bde36301733b4e89282f62d3f2d98b19c195303928d36"
+      "sha256": "fcb6ad4baa40808665b7a5ef8f7489f6d119a5a0345b7d68c45142d6784573f7"
     },
     {
       "id": "10-context-menu",
       "file": "10-context-menu.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "e8922398bcf76d4a09771e7af908d6c8ecbea4204530af6271ad25120b89a568"
+      "sha256": "4decc84c602f9913049c99f4a3874b584ae4e76aa33bc3b487d5d8d4b6992404"
     },
     {
       "id": "11-build-check-and-missing-parts",
       "file": "11-build-check-and-missing-parts.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "aa80c4efb511c4ed7bc87e5fe0ac3efb832f872716fb2cc50c82b8b6ea0348f0"
+      "sha256": "bc0f2f679546e6bba289c7cbc97a55f879966b2e39d91c8e1fc82b84100d7e94"
     },
     {
       "id": "12-highlighted-overlap",
       "file": "12-highlighted-overlap.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "9198183b483ba1d807b3da8541aab816e61047d6f800293919926b52d1bede0b"
+      "sha256": "6982562ad8fbc160f33ff7186054fef63ed13975d57a2639d82071a274bfe7b1"
     },
     {
       "id": "13-open-pit-connection",
       "file": "13-open-pit-connection.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "1d968776fe91b4702a6893cb3e9b2760cf878e6430ea694790d68c8c5b246830"
+      "sha256": "ab3d64003e0b119ccea07ee132d265b8b8819fad710ab4ec90fc7a6e1741d7bb"
     },
     {
       "id": "14-repeat-placement",
@@ -103,6 +103,20 @@
       "width": 1600,
       "height": 1400,
       "sha256": "93c1753839c262bcf9207e176458b882f1e5106230c67c2c2f17bc26900e8cb6"
+    },
+    {
+      "id": "15-replace-and-follow",
+      "file": "15-replace-and-follow.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "4e1a1b7e7ce070f485038d31575e0a82cf6234ed2b8e76b81dfa93ca1b2f0971"
+    },
+    {
+      "id": "16-choose-cut-point",
+      "file": "16-choose-cut-point.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "86791bf7f14ac9eb8cae862b83ebb3c46d1816f40b6832a566feb7cff41d259b"
     }
   ]
 }
