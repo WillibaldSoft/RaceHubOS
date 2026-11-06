@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { emptyTrackPlan, readTrackPlan, trackPlanFields } from '@racehubos/shared'
 import TrackPlanEditor from './components/TrackPlanEditor'
 import { Button } from '@core/components/ui/button'
+import PlannerThemeToggle from './components/PlannerThemeToggle'
 export default function StandalonePlanner() {
   const { t, i18n } = useTranslation('addons')
   const [tracks, setTracks] = useState([]),
@@ -84,7 +85,10 @@ export default function StandalonePlanner() {
         </form>
       ) : (
         <section className="mx-auto max-w-3xl p-6 space-y-6" data-testid="standalone-home">
-          <h1 className="text-2xl font-bold">{t('standaloneTitle')}</h1>
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="text-2xl font-bold">{t('standaloneTitle')}</h1>
+            <PlannerThemeToggle />
+          </div>
           <p>{t('standaloneHelp')}</p>
           <label>
             {t('language')}{' '}

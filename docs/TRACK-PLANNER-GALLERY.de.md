@@ -113,3 +113,9 @@ Je eine Schiene der beiden getrennten Abschnitte mit Strg/⌘+Klick markieren. D
 „Zusammenfügen“ dreht und verschiebt den gesamten zweiten Abschnitt, bis die gewählten Anschlüsse passen. Interne Geometrie, Baugruppen und angeheftete Zusatzteile bleiben zusammen. Rückgängig/Wiederholen wird unterstützt. Passen auch die anderen freien Enden, schließt sich der Rundkurs; sonst bleibt dort die verbleibende Lücke sichtbar.
 
 ![Verbundenen Folgeabschnitt ausrichten](screenshots/track-planner/de/18-joined-sections.png)
+
+## 19. RaceHubOS-Design und Dunkelansicht
+
+Die Bedienoberfläche verwendet dieselben Designvariablen und den shadcn/ui-Button wie RaceHubOS. Der eigenständige Planer wechselt zwischen System, Hell und Dunkel und merkt sich die Wahl. Eingebettet übernimmt er Darstellung und Sprache vom Host. Die Schienenzeichnung bleibt erhalten; die neue offizielle Plugin-Schnittstelle ist weiterhin in Abstimmung.
+
+![RaceHubOS-Design und Dunkelansicht](screenshots/track-planner/de/19-racehubos-dark-theme.png)

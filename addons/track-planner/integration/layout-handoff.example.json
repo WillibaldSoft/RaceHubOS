@@ -1,0 +1,110 @@
+{
+  "schema": "carrera-track-layout/v1",
+  "name": "Synthetic sector example",
+  "plan": {
+    "kind": "racehubos.track-plan",
+    "version": 1,
+    "pieces": [
+      {
+        "type": "Control_unit",
+        "level": 0,
+        "jointDegrees": 0
+      },
+      {
+        "type": "Standardgerade",
+        "level": 0,
+        "jointDegrees": 0
+      },
+      {
+        "type": "Kurve_1_60_rechts",
+        "level": 0,
+        "jointDegrees": 0
+      }
+    ],
+    "pit": {
+      "enabled": false,
+      "entry": 0,
+      "merge": 0,
+      "spacingMm": 345,
+      "bayLengthMm": 690
+    },
+    "measuredLaneLengthsM": null,
+    "geometryProfile": "planner2022",
+    "startHeadingDegrees": 0
+  },
+  "geometry": {
+    "units": "mm",
+    "laneLengthsM": [1.0549483465920144, 0.9512757890235511],
+    "rails": [
+      {
+        "index": 0,
+        "type": "Control_unit",
+        "level": 0,
+        "start": {
+          "xMm": 0,
+          "yMm": 0,
+          "headingDegrees": 0
+        },
+        "end": {
+          "xMm": 345,
+          "yMm": 0,
+          "headingDegrees": 0
+        }
+      },
+      {
+        "index": 1,
+        "type": "Standardgerade",
+        "level": 0,
+        "start": {
+          "xMm": 345,
+          "yMm": 0,
+          "headingDegrees": 0
+        },
+        "end": {
+          "xMm": 690,
+          "yMm": 0,
+          "headingDegrees": 0
+        }
+      },
+      {
+        "index": 2,
+        "type": "Kurve_1_60_rechts",
+        "level": 0,
+        "start": {
+          "xMm": 690,
+          "yMm": 0,
+          "headingDegrees": 0
+        },
+        "end": {
+          "xMm": 948.9415957315471,
+          "yMm": 149.49999999999997,
+          "headingDegrees": 59.99999999999999
+        }
+      }
+    ]
+  },
+  "sectors": [
+    {
+      "id": "start",
+      "label": "Start / finish",
+      "railIndex": 0,
+      "end": 0,
+      "position": {
+        "xMm": 0,
+        "yMm": 0,
+        "headingDegrees": 0
+      }
+    },
+    {
+      "id": "sector-1",
+      "label": "Sector 1",
+      "railIndex": 1,
+      "end": 1,
+      "position": {
+        "xMm": 690,
+        "yMm": 0,
+        "headingDegrees": 0
+      }
+    }
+  ]
+}

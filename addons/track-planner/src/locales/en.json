@@ -1,0 +1,4 @@
+{
+  "identity": "Carrera · Track planner",
+  "theme": { "light": "Light", "dark": "Dark", "system": "System", "change": "Change appearance · currently {{theme}}" }
+}

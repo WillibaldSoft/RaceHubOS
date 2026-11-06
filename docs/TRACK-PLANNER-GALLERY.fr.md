@@ -113,3 +113,9 @@ Sélectionner un rail de chaque section séparée avec Ctrl/⌘+clic. La premiè
 « Raccorder les sections » tourne et déplace toute la deuxième section jusqu’à faire coïncider les raccords choisis. Géométrie interne, groupes et accessoires ancrés restent ensemble. Annuler/rétablir est disponible. Si les autres extrémités correspondent également, le circuit se ferme ; sinon, l’écart restant demeure visible.
 
 ![Aligner toute la section suivante](screenshots/track-planner/fr/18-joined-sections.png)
+
+## 19. Style RaceHubOS et apparence sombre
+
+Les commandes utilisent les mêmes variables de thème et le bouton shadcn/ui que RaceHubOS. Le planificateur autonome mémorise Système, Clair ou Sombre. Le mode intégré suit l’apparence et la langue de l’hôte. Le dessin des rails est conservé ; la nouvelle interface officielle reste à convenir avec le mainteneur.
+
+![Style RaceHubOS et apparence sombre](screenshots/track-planner/fr/19-racehubos-dark-theme.png)

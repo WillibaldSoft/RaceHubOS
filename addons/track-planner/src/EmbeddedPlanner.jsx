@@ -1,31 +1,30 @@
-import { useEffect, useState } from 'react'
-import i18n from '@core/i18n'
+import { useEffect, useState, useRef } from 'react'
+import i18n from './i18n'
+import { connectLegacyHost } from './host/legacyBridge'
 import TrackPlanEditor from './components/TrackPlanEditor'
 const targetOrigin = new URLSearchParams(window.location.hash.slice(1)).get('host') || window.location.origin
-export default function EmbeddedPlanner() {
+export default function EmbeddedPlanner({ connectHost = connectLegacyHost } = {}) {
+  const bridge = useRef(null)
   const [draft, setDraft] = useState(null)
   const [status, setStatus] = useState({})
   useEffect(() => {
-    function receive(event) {
-      if (
-        event.source !== window.parent ||
-        event.origin !== targetOrigin ||
-        event.data?.channel !== 'racehubos:track-planner:1'
-      )
-        return
-      if (event.data.type === 'init') {
-        i18n.changeLanguage(event.data.language)
-        document.documentElement.classList.toggle('dark', !!event.data.dark)
-        setDraft(event.data.draft)
-      }
-      if (event.data.type === 'status') setStatus(event.data.status)
+    bridge.current = connectHost({
+      surface: window,
+      origin: targetOrigin,
+      onInitialize({ draft, language, dark }) {
+        i18n.changeLanguage(language)
+        document.documentElement.classList.toggle('dark', dark)
+        setDraft(draft)
+      },
+      onStatus: setStatus,
+    })
+    return () => {
+      bridge.current?.dispose()
+      bridge.current = null
     }
-    window.addEventListener('message', receive)
-    window.parent.postMessage({ channel: 'racehubos:track-planner:1', type: 'ready' }, targetOrigin)
-    return () => window.removeEventListener('message', receive)
-  }, [])
+  }, [connectHost])
   function send(type, next = draft) {
-    window.parent.postMessage({ channel: 'racehubos:track-planner:1', type, draft: next }, targetOrigin)
+    bridge.current?.send(type, next)
   }
   function update(patch) {
     const next = { ...draft, ...patch }

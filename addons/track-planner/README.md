@@ -1,10 +1,14 @@
-# Optional track planner / eigenständiger Streckenplaner
+# Carrera track planner / eigenständiger Streckenplaner
 
 The editable UI is built separately from RaceHubOS. Read-only saved-plan rendering and the documented version-1 plan format stay in the host for compatibility. The host has no imports of the editor or room-search worker. The add-on package includes its own JavaScript, CSS, worker, fonts and reference plans; installation needs no npm download.
 
-## Add-on in RaceHubOS
+## Independent repository and Anselme’s integration
 
-Requires the host changes on `feat/optional-track-planner-speed` (host API 1). In the host repository:
+The planner is prepared as an independent repository. Anselme owns the future official plugin interface, download/start UI and core add-on support. No host patch is required to build or run the standalone planner. See the [integration preparation](../../docs/TRACK-PLANNER-INTEGRATION-20261106.md). The current compatibility adapter and layout/sector handoff proposal are explicitly experimental and await his contract.
+
+## Existing experimental RaceHubOS compatibility
+
+The commands below describe the existing experimental host API 1 used on the local race PC. They are not instructions to patch RaceHubOS for the future official plugin interface. Only an already compatible host can use them:
 
 ```sh
 node scripts/build-track-planner.mjs

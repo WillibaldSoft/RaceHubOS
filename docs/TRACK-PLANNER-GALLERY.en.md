@@ -113,3 +113,9 @@ Select one rail in each separate section with Ctrl/⌘+click. The first selected
 “Join sections” rotates and moves the entire second section until the selected ends meet. Internal geometry, groups and anchored extras stay together. Undo/redo is supported. If the other free ends also match, the circuit closes; otherwise the remaining gap stays visible.
 
 ![Align the complete following section](screenshots/track-planner/en/18-joined-sections.png)
+
+## 19. RaceHubOS design and dark appearance
+
+The controls use the same theme tokens and shadcn/ui Button as RaceHubOS. The independent planner remembers System, Light or Dark appearance. Embedded mode follows the host’s theme and language. Rail artwork is preserved; the new official plugin interface remains pending maintainer agreement.
+
+![RaceHubOS design and dark appearance](screenshots/track-planner/en/19-racehubos-dark-theme.png)

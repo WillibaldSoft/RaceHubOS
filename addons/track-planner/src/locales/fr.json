@@ -1,0 +1,9 @@
+{
+  "identity": "Carrera · Planificateur",
+  "theme": {
+    "light": "Clair",
+    "dark": "Sombre",
+    "system": "Système",
+    "change": "Changer l’apparence · actuellement {{theme}}"
+  }
+}

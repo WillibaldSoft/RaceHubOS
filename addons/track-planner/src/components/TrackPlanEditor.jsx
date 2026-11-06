@@ -1,4 +1,5 @@
 import './trackPlanner.css'
+import PlannerThemeToggle from './PlannerThemeToggle'
 import { Route, FolderOpen, Save, Minimize2, Maximize2, Upload, Download, FileJson, ArrowLeft } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -260,7 +261,9 @@ export default function TrackPlanEditor({
             <Route size={23} />
           </span>
           <div>
-            <span className="planner-eyebrow">RaceHubOS · {t('work.offline')}</span>
+            <span className="planner-eyebrow">
+              {t('plannerIntegration:identity')} · {t('work.offline')}
+            </span>
             <input
               className="planner-name"
               title={trackName}
@@ -273,6 +276,7 @@ export default function TrackPlanEditor({
           </div>
         </div>
         <div className="planner-header-actions">
+          <PlannerThemeToggle />
           <select
             data-testid="planner-mode"
             aria-label={t('room.mode')}

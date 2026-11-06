@@ -1,0 +1,24 @@
+{
+  "status": "proposal-awaiting-maintainer",
+  "plannerId": "carrera-track-planner",
+  "requiresHostPatches": false,
+  "standalone": {
+    "command": "node",
+    "arguments": ["addons/track-planner/launcher.mjs"],
+    "network": "loopback-only"
+  },
+  "compatibilityAdapter": {
+    "id": "legacy-racehubos-v1",
+    "entry": "src/host/legacyBridge.js",
+    "experimental": true,
+    "officialPluginApi": false
+  },
+  "handoffProposal": "carrera-track-layout/v1",
+  "requestedCapabilities": ["receive-initial-layout", "save-layout", "receive-theme-and-language"],
+  "pendingMaintainerAgreement": [
+    "official-plugin-manifest",
+    "download-and-update-mechanism",
+    "capability-and-auth-model",
+    "finished-layout-and-sector-contract"
+  ]
+}

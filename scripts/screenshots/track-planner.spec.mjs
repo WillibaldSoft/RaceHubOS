@@ -211,6 +211,11 @@ for (const [language, labels] of Object.entries(words)) {
       await expect(page.locator('[data-testid^="open-port-"]')).toHaveCount(2);
       await canvas();
       await shot('18-joined-sections');
+      await expect(page.getByTestId('planner-theme-toggle')).toHaveAttribute('data-theme', 'system');
+      await page.getByTestId('planner-theme-toggle').click();
+      await page.getByTestId('planner-theme-toggle').click();
+      await expect(page.locator('html')).toHaveClass(/dark/);
+      await shot('19-racehubos-dark-theme');
       expect(errors).toEqual([]);
       await fs.writeFile(
         path.join(output, language, 'manifest.json'),

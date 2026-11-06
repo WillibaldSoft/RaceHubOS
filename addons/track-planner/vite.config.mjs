@@ -30,6 +30,20 @@ export default defineConfig({
             if (fs.statSync(file).isFile()) notice += fs.readFileSync(file, 'utf8') + '\n';
           }
         }
+        if (process.env.RACEHUBOS_PLANNER_SOURCE_LIST) {
+          const root = path.resolve(import.meta.dirname, '../..');
+          const sources = [...this.getModuleIds()]
+            .map((id) => id.split('?')[0])
+            .filter(
+              (id) =>
+                id.startsWith(root + path.sep) &&
+                !id.includes(path.sep + 'node_modules' + path.sep) &&
+                fs.existsSync(id) &&
+                fs.statSync(id).isFile()
+            )
+            .map((id) => path.relative(root, id));
+          fs.writeFileSync(process.env.RACEHUBOS_PLANNER_SOURCE_LIST, JSON.stringify([...new Set(sources)], null, 2));
+        }
         this.emitFile({
           type: 'asset',
           fileName: 'THIRD-PARTY-NOTICES.txt',
