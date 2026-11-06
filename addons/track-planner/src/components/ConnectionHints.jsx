@@ -22,13 +22,13 @@ export default function ConnectionHints({ plan, indices, endpointKey, onPort, wi
             strokeWidth="3"
             onClick={(e) => {
               e.stopPropagation()
-              onPort(p)
+              onPort(p, e)
             }}
             onKeyDown={(e) => {
               if (['Enter', ' '].includes(e.key)) {
                 e.preventDefault()
                 e.stopPropagation()
-                onPort(p)
+                onPort(p, e)
               }
             }}
           />

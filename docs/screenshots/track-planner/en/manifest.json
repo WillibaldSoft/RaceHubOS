@@ -11,112 +11,126 @@
       "file": "01-start-setup.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "315617695756932993a1569c8d8f77cf237d488c2fb9c6d2a2fe0ab944e90773"
+      "sha256": "3510611f42a0ab7f03facfa0c460a5e0085e97d77ed0682376eceec0d9eaf491"
     },
     {
       "id": "02-start-cu-two-bays",
       "file": "02-start-cu-two-bays.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "0b07a5e8fc49944259344fe85751dca4f260d925f964e14a3f6577d50c43e5e8"
+      "sha256": "6c0f2680f59d1cc3d366821743b1f989837c65f9e9f91a4b136c39d009951b94"
     },
     {
       "id": "03-readable-rotated-cu",
       "file": "03-readable-rotated-cu.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "3845bab474642afb6fd6c2c37997e78721044fba83453784b124b6ccfd8b64a9"
+      "sha256": "54419e097e9bfd34803a29208f897f4a9e15f0bb537bde6f7b3e2926152f0766"
     },
     {
       "id": "04-cu-on-existing-straight",
       "file": "04-cu-on-existing-straight.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "450ee7a72ae65c72570a3973adff2fa2032d508492bf014b896d98e244cf719c"
+      "sha256": "6541ab3a6b58fa3752a868a3abe800e8f4dd2de5e808649f3ca0fcf21127d788"
     },
     {
       "id": "05-optional-aks-marker",
       "file": "05-optional-aks-marker.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "67bce853a50d7aacf643dbe7cef7713745db8c168d570fbfab3083ab0a9ddcda"
+      "sha256": "7c5aa836173678c7adf6c7c0bd6bd99c424a1ee216d9f51d8412cccc92edbeae"
     },
     {
       "id": "06-pit-assistant-single-other-side",
       "file": "06-pit-assistant-single-other-side.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "175b2a456b9b3c3c6d101fc1d5b403142d69e58887ff8e674604de1fff571ffd"
+      "sha256": "9d4a1f3ee31e14f29adaab95933bbfb260dbe28b92226dc11067c546cef0aa53"
     },
     {
       "id": "07-pit-assistant-replace-six",
       "file": "07-pit-assistant-replace-six.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "c5d8859b7de1dca6857a0f48e907af69271000a212ddcfb425391b39b857f821"
+      "sha256": "99b0db709f7a60649641449832586cd29bb363c186f2174b46668cd9db5e1cca"
     },
     {
       "id": "08-connection-gap-direction",
       "file": "08-connection-gap-direction.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "81864abbf7e1c099230dc2b4c28b6b903b82b609345638febc4988fb3603037d"
+      "sha256": "1a6207196fba17c9e73897543fc780b81101c3783c6328ae1a358bdd42e04fe8"
     },
     {
       "id": "09-assembly-templates",
       "file": "09-assembly-templates.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "8403b88aac9675620d1f78dd8b373807c517b371f91836ccae0d0dfd12cbb3db"
+      "sha256": "c1f5f66b46b0a4ed346f08988560eeba99fe0e1a4bede07863b4b0bab809ac5b"
     },
     {
       "id": "10-context-menu",
       "file": "10-context-menu.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "96672bcc3cd20763aa9da78caf45288115948fb2bb3c1ca443f1cdbfed36b0a9"
+      "sha256": "8e831d24f9f3c89e2e625340c51207874be707432949554f142d73f8e98211f0"
     },
     {
       "id": "11-build-check-and-missing-parts",
       "file": "11-build-check-and-missing-parts.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "18d77205020cfcba53cf1b49b3605aad2bcf931a210ce5162c51d94677d326dd"
+      "sha256": "ac4b37a3a98355e4a50604dff0706bebcb753237c82457cfeaf81961e1bba83f"
     },
     {
       "id": "12-highlighted-overlap",
       "file": "12-highlighted-overlap.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "0a75da6377fe32742982d43a48d880f7add54472d2031fef21f49de03f8ebb32"
+      "sha256": "9bdc5c7b5a9232f35cc6af3ee5ca94e477e2874d475dbde793a4be9c3bbf67b7"
     },
     {
       "id": "13-open-pit-connection",
       "file": "13-open-pit-connection.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "eb040475bc06a7641ccb1d20bc0a109260bf4cf8603f7f485b4aaa030ea59149"
+      "sha256": "25f8def7f6e20f48a80567598de27d815e961c61244c1d79bd1424d42ed544f3"
     },
     {
       "id": "14-repeat-placement",
       "file": "14-repeat-placement.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "9ff28e53cbbb085cfe0477b33fbe28338577b259480ad681c5545753bafe73cf"
+      "sha256": "313b1e0d1801ce48d2461598e867ba228b7d4d441e4269021229bf9d0c6870af"
     },
     {
       "id": "15-replace-and-follow",
       "file": "15-replace-and-follow.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "ca5e854648178382241545e3249caffb2e18f6f43144b7deb098a46bc23f282d"
+      "sha256": "8b9466015504f7aeea1fe7f97205746aa7b6968d9bfbd659483160b8007a953f"
     },
     {
       "id": "16-choose-cut-point",
       "file": "16-choose-cut-point.png",
       "width": 1600,
       "height": 1400,
-      "sha256": "3ca7c11e5ce1a4529b0b7195fffc154739a46bd911e5ea3a0cf488d737f94686"
+      "sha256": "fb9dd60d7c980bab4d5c938ecbb052b3b39d6d4a91a0d8191e7799e91c4916c5"
+    },
+    {
+      "id": "17-join-sections-preview",
+      "file": "17-join-sections-preview.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "4bf01313d09f53879714e8b65f76f5081601f85ed24e8f9b2e22dd41fe297bfe"
+    },
+    {
+      "id": "18-joined-sections",
+      "file": "18-joined-sections.png",
+      "width": 1600,
+      "height": 1400,
+      "sha256": "283093e81aaa3e9aeb173ef23970998e8747d5f11fabfe202eddb6eb234fabe6"
     }
   ]
 }

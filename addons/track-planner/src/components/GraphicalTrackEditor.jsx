@@ -1,3 +1,4 @@
+import { trackSectionJoinOptions, joinTrackSections } from './joinTrackSections'
 import { replaceFollowingTrack } from './followingTrackReplacement'
 import { repeatedTrackPreview, placeRepeatedTrackPart } from './repeatTrackPlacement'
 import { trackViewport } from './trackViewport'
@@ -6,7 +7,7 @@ import ConnectionHints from './ConnectionHints'
 import { pitlaneComponents } from '@core/components/tracks/pitlaneComponents'
 import TrackPartsManager from './TrackPartsManager'
 import TrackBorders from './TrackBorders'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   TRACK_PARTS,
@@ -118,6 +119,8 @@ export default function GraphicalTrackEditor({
   planDetails,
 }) {
   const { t } = useTranslation('tracks')
+  const [joinKey, setJoinKey] = useState('')
+  const [joinedPlan, setJoinedPlan] = useState(null)
   const [replacement, setReplacement] = useState(null)
   const currentReplacement = replacement?.result.plan === storedPlan ? replacement : null
   const [repeatPlacement, setRepeatPlacement] = useState(false)
@@ -199,6 +202,16 @@ export default function GraphicalTrackEditor({
         : plan.pieces[selected]
           ? [selected]
           : []
+  const joinOptions = useMemo(() => trackSectionJoinOptions(storedPlan, pickedIndices), [storedPlan, selected, picked])
+  const joinPair = joinOptions.pairs.find((p) => p.key === joinKey) ?? joinOptions.pairs[0]
+  function joinSelectedSections() {
+    if (!joinPair) return
+    const result = joinTrackSections(storedPlan, pickedIndices, joinPair.key)
+    onChange(result.plan)
+    setJoinedPlan(result.plan)
+    setJoinKey('')
+    if (zoom === 1) setFrame(null)
+  }
   function onSelect(index, event) {
     if (event?.type === 'click' && suppressClick.current) {
       suppressClick.current = false
@@ -1191,6 +1204,30 @@ export default function GraphicalTrackEditor({
                 }
                 onConnect={() => edit(side)}
               />
+              {joinPair && (
+                <g data-testid="join-sections-preview" pointerEvents="none">
+                  <line
+                    x1={joinPair.fixed.x}
+                    y1={joinPair.fixed.y}
+                    x2={joinPair.moving.x}
+                    y2={joinPair.moving.y}
+                    stroke="#2563eb"
+                    strokeWidth={Math.max(5, w / 300)}
+                    strokeDasharray="18 12"
+                  />
+                  {[joinPair.fixed, joinPair.moving].map((p, i) => (
+                    <circle
+                      key={i}
+                      cx={p.x}
+                      cy={p.y}
+                      r={Math.max(24, w / 65)}
+                      fill="none"
+                      stroke={i ? '#ea580c' : '#16a34a'}
+                      strokeWidth={Math.max(6, w / 250)}
+                    />
+                  ))}
+                </g>
+              )}
               {currentReplacement && (
                 <g data-testid="replacement-cut-marker" pointerEvents="none">
                   {currentReplacement.result.hasFixedNeighbour && (
@@ -1235,13 +1272,17 @@ export default function GraphicalTrackEditor({
                 <g pointerEvents={repeatPlacement ? 'none' : undefined}>
                   <ConnectionHints
                     plan={plan}
-                    indices={motion}
+                    indices={joinPair ? [] : motion}
                     endpointKey={endpointKey}
                     width={w}
-                    onPort={(p) => {
+                    onPort={(p, event) => {
+                      if ((event?.ctrlKey || event?.metaKey) && endpointKey) {
+                        const [first] = endpointKey.split(':').map(Number)
+                        if (first === pickedIndices[0]) setJoinKey(`${endpointKey}/${p.index}:${p.end}`)
+                      } else setJoinKey('')
                       setEndpointKey(`${p.index}:${p.end}`)
                       setSide(p.end ? 'after' : 'before')
-                      onSelect(p.index)
+                      onSelect(p.index, event)
                     }}
                   />
                 </g>
@@ -1395,6 +1436,46 @@ export default function GraphicalTrackEditor({
               />{' '}
               {t('antiCollision.show')}
             </label>
+            <div className="planner-join-sections" data-testid="join-sections-controls">
+              <Button
+                type="button"
+                data-testid="join-track-sections"
+                disabled={!joinPair}
+                onClick={joinSelectedSections}
+              >
+                {t('joinSections.action')}
+              </Button>
+              {joinPair && (
+                <label>
+                  {t('joinSections.ports')}
+                  <select
+                    data-testid="join-sections-pair"
+                    value={joinPair.key}
+                    onChange={(e) => setJoinKey(e.target.value)}
+                  >
+                    {joinOptions.pairs.map((p) => (
+                      <option key={p.key} value={p.key}>
+                        {t('joinSections.pair', {
+                          fixed: p.fixed.index + 1,
+                          fixedEnd: t(p.fixed.end ? 'tools.end' : 'tools.start'),
+                          moving: p.moving.index + 1,
+                          movingEnd: t(p.moving.end ? 'tools.end' : 'tools.start'),
+                        })}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+              <p role="status" data-testid="join-sections-status">
+                {t(
+                  joinedPlan === storedPlan
+                    ? 'joinSections.joined'
+                    : joinPair
+                      ? 'joinSections.ready'
+                      : `joinSections.${joinOptions.reason}`
+                )}
+              </p>
+            </div>
             {currentReplacement && (
               <div className="planner-replacement-cut" data-testid="replacement-cut-controls">
                 <label>

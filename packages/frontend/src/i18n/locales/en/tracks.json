@@ -528,5 +528,16 @@
     "hint": "The connected following section moves up to this point. Orange marks the cut. Assemblies remain together. Further edits end this selection.",
     "done": "Keep cut point",
     "catalogueHint": "Click a catalogue part to replace the selected rail and move the connected following section. Repeat placement keeps mouse stamping."
+  },
+  "joinSections": {
+    "action": "Join sections",
+    "ports": "Choose connections",
+    "pair": "Fixed: part {{fixed}} {{fixedEnd}} → moving: part {{moving}} {{movingEnd}}",
+    "selectTwo": "Select two separate sections with Ctrl/⌘+click. The first selected section stays fixed.",
+    "sameSection": "The selection already belongs to one connected section or shared assembly.",
+    "noOpenPorts": "Both sections need an unambiguous free connection.",
+    "differentLevels": "The free connections are on different levels.",
+    "ready": "Green stays fixed. The orange section rotates and moves as a whole. Other connection pairs are available.",
+    "joined": "Sections joined. Undo separates them again."
   }
 }

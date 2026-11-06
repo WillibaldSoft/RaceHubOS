@@ -528,5 +528,16 @@
     "hint": "La section raccordée suivante suit jusqu’à ce point. Le repère orange indique la séparation. Les ensembles restent groupés. Une autre modification termine ce choix.",
     "done": "Conserver la séparation",
     "catalogueHint": "Cliquer sur une pièce du catalogue pour remplacer le rail sélectionné et déplacer la section suivante raccordée. La pose multiple conserve la pose à la souris."
+  },
+  "joinSections": {
+    "action": "Raccorder les sections",
+    "ports": "Choisir les raccords",
+    "pair": "Fixe : pièce {{fixed}} {{fixedEnd}} → mobile : pièce {{moving}} {{movingEnd}}",
+    "selectTwo": "Sélectionner deux sections séparées avec Ctrl/⌘+clic. La première section reste fixe.",
+    "sameSection": "La sélection appartient déjà à une section raccordée ou à un ensemble commun.",
+    "noOpenPorts": "Les deux sections doivent avoir un raccord libre sans ambiguïté.",
+    "differentLevels": "Les raccords libres sont à des niveaux différents.",
+    "ready": "Le vert reste fixe. La section orange tourne et se déplace en entier. D’autres paires de raccords sont proposées.",
+    "joined": "Sections raccordées. Annuler les sépare à nouveau."
   }
 }

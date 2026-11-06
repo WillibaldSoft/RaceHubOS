@@ -42,3 +42,5 @@ Scale km/h multiply by 32 or 24. Missing/non-positive/non-finite distance or tim
 Layout and repeat-placement changes (DE/EN/FR), checks and limitations: [verification report](../../docs/TRACK-PLANNER-LAYOUT-20261105.md).
 
 Catalogue replacement with following geometry and a selectable cut (DE/EN/FR): [replacement guide](../../docs/TRACK-PLANNER-REPLACEMENT-20261106.md).
+
+Join two selected track sections (DE/EN/FR): [joining guide](../../docs/TRACK-PLANNER-JOIN-20261106.md).

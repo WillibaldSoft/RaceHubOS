@@ -528,5 +528,16 @@
     "hint": "Der folgende verbundene Abschnitt bewegt sich bis hier mit. Orange markiert den Auftrennpunkt. Baugruppen bleiben zusammen. Weitere Änderungen beenden diese Auswahl.",
     "done": "Auftrennpunkt übernehmen",
     "catalogueHint": "Markiertes Bahnteil per Katalogklick austauschen: Der folgende Abschnitt folgt der neuen Geometrie. Mehrfachlegen behält die Mausplatzierung."
+  },
+  "joinSections": {
+    "action": "Zusammenfügen",
+    "ports": "Anschlüsse wählen",
+    "pair": "Fest: Teil {{fixed}} {{fixedEnd}} → beweglich: Teil {{moving}} {{movingEnd}}",
+    "selectTwo": "Zwei getrennte Abschnitte mit Strg/⌘+Klick markieren. Der zuerst markierte Abschnitt bleibt stehen.",
+    "sameSection": "Die Auswahl gehört bereits zu einem verbundenen Abschnitt oder einer gemeinsamen Baugruppe.",
+    "noOpenPorts": "Beide Abschnitte benötigen einen eindeutigen freien Anschluss.",
+    "differentLevels": "Die freien Anschlüsse liegen auf unterschiedlichen Ebenen.",
+    "ready": "Grün bleibt stehen. Der orange markierte Abschnitt wird vollständig gedreht und verschoben. Andere Anschlusskombinationen sind wählbar.",
+    "joined": "Abschnitte zusammengefügt. Rückgängig macht die Verbindung wieder auf."
   }
 }

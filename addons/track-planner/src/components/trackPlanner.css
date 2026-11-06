@@ -1124,3 +1124,22 @@
   flex: 0 0 auto;
   padding: 0 8px;
 }
+
+.planner-join-sections {
+  flex: 1 0 100%;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.planner-join-sections label,
+.planner-join-sections select {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+}
+.planner-join-sections p {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--muted-foreground);
+  margin: 4px 0 0;
+}

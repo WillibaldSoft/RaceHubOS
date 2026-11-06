@@ -101,3 +101,15 @@ Select a rail and click another catalogue part to replace it immediately. The un
 Choose the cut in the right sidebar after replacing: immediately after the new part or after a following rail. Orange marks the separation. The section up to that point follows; the remaining track stays fixed. Each choice is recomputed from the original layout and supports undo.
 
 ![Choose the cut after replacement](screenshots/track-planner/en/16-choose-cut-point.png)
+
+## 17. Join two track sections
+
+Select one rail in each separate section with Ctrl/⌘+click. The first selected section stays fixed. Green and orange show the proposed connections; choose another pair in the connection selector. Free connection markers also support Ctrl/⌘+click selection.
+
+![Join two track sections](screenshots/track-planner/en/17-join-sections-preview.png)
+
+## 18. Align the complete following section
+
+“Join sections” rotates and moves the entire second section until the selected ends meet. Internal geometry, groups and anchored extras stay together. Undo/redo is supported. If the other free ends also match, the circuit closes; otherwise the remaining gap stays visible.
+
+![Align the complete following section](screenshots/track-planner/en/18-joined-sections.png)

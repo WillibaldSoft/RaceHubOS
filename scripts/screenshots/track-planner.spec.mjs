@@ -198,6 +198,19 @@ for (const [language, labels] of Object.entries(words)) {
       await expect(page.getByTestId('replacement-cut-marker')).toBeVisible();
       await canvas();
       await shot('16-choose-cut-point');
+      await openPlan(transformFreeParts(straight(5), [2, 3, 4], { degrees: 60, dx: 800, dy: 400 }));
+      await select(0);
+      const movingRail = page.getByTestId('graph-track-canvas').getByTestId('rail-3');
+      await movingRail.focus();
+      await movingRail.press('Control+Enter');
+      await expect(page.getByTestId('join-track-sections')).toBeEnabled();
+      await page.getByTestId('join-sections-pair').selectOption('1:1/2:0');
+      await canvas();
+      await shot('17-join-sections-preview');
+      await page.getByTestId('join-track-sections').click();
+      await expect(page.locator('[data-testid^="open-port-"]')).toHaveCount(2);
+      await canvas();
+      await shot('18-joined-sections');
       expect(errors).toEqual([]);
       await fs.writeFile(
         path.join(output, language, 'manifest.json'),

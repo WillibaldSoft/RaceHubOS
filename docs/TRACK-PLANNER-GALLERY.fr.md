@@ -101,3 +101,15 @@ Sélectionner un rail, puis cliquer sur une autre pièce du catalogue pour le re
 Choisir le point de séparation dans le panneau de droite : juste après la nouvelle pièce ou après un rail suivant. Le repère orange indique la séparation. La section jusqu’à ce point suit ; le reste demeure fixe. Chaque choix est recalculé depuis le circuit initial et peut être annulé.
 
 ![Choisir la séparation après remplacement](screenshots/track-planner/fr/16-choose-cut-point.png)
+
+## 17. Raccorder deux sections du circuit
+
+Sélectionner un rail de chaque section séparée avec Ctrl/⌘+clic. La première section reste fixe. Vert et orange montrent les raccords proposés ; une autre paire peut être choisie. Les repères des raccords libres acceptent aussi Ctrl/⌘+clic.
+
+![Raccorder deux sections du circuit](screenshots/track-planner/fr/17-join-sections-preview.png)
+
+## 18. Aligner toute la section suivante
+
+« Raccorder les sections » tourne et déplace toute la deuxième section jusqu’à faire coïncider les raccords choisis. Géométrie interne, groupes et accessoires ancrés restent ensemble. Annuler/rétablir est disponible. Si les autres extrémités correspondent également, le circuit se ferme ; sinon, l’écart restant demeure visible.
+
+![Aligner toute la section suivante](screenshots/track-planner/fr/18-joined-sections.png)

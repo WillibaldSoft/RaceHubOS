@@ -101,3 +101,15 @@ Ein Bahnteil markieren und eine andere Schiene im Katalog anklicken: Sie ersetzt
 Rechts lässt sich der Auftrennpunkt nachträglich auswählen – direkt hinter dem neuen Teil oder hinter einer Schiene des Folgeabschnitts. Orange markiert die Trennung. Der Abschnitt bis zum gewählten Punkt folgt; dahinter bleibt die Bahn stehen. Die Wahl wird aus dem ursprünglichen Zustand neu berechnet und lässt sich rückgängig machen.
 
 ![Auftrennpunkt nach dem Austausch wählen](screenshots/track-planner/de/16-choose-cut-point.png)
+
+## 17. Zwei Streckenabschnitte zusammenfügen
+
+Je eine Schiene der beiden getrennten Abschnitte mit Strg/⌘+Klick markieren. Der zuerst markierte Abschnitt bleibt fest. Grün und Orange zeigen die vorgeschlagenen Anschlüsse; im Feld „Anschlüsse wählen“ kann eine andere Kombination gewählt werden. Auch freie Anschlussmarkierungen lassen sich mit Strg/⌘+Klick auswählen.
+
+![Zwei Streckenabschnitte zusammenfügen](screenshots/track-planner/de/17-join-sections-preview.png)
+
+## 18. Verbundenen Folgeabschnitt ausrichten
+
+„Zusammenfügen“ dreht und verschiebt den gesamten zweiten Abschnitt, bis die gewählten Anschlüsse passen. Interne Geometrie, Baugruppen und angeheftete Zusatzteile bleiben zusammen. Rückgängig/Wiederholen wird unterstützt. Passen auch die anderen freien Enden, schließt sich der Rundkurs; sonst bleibt dort die verbleibende Lücke sichtbar.
+
+![Verbundenen Folgeabschnitt ausrichten](screenshots/track-planner/de/18-joined-sections.png)
