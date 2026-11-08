@@ -153,7 +153,7 @@ All contributions are welcome — whether it's a feature, a bug fix, a design id
 
 ## 📄 License
 
-Apache-2.0
+AGPL-3.0-only — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 ## 🙏 Credits
 
@@ -295,7 +295,7 @@ Le projet est en développement actif et ouvert aux contributions :
 
 ### Licence
 
-Apache-2.0
+AGPL-3.0-only — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 ### Crédits
 

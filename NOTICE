@@ -1,0 +1,24 @@
+RaceHubOS — licensing notice (2026-11-08)
+
+SPDX-License-Identifier: AGPL-3.0-only
+
+The current project as a whole, including the Track Planner and project-owned
+add-ons, is distributed under the GNU Affero General Public License version 3
+only. See LICENSE. This distribution includes modifications to the previously
+Apache-2.0-licensed sources.
+
+RaceHubOS upstream: https://github.com/AnselmeSDR/RaceHubOS
+Fork: https://github.com/WillibaldSoft/RaceHubOS
+Track Planner: https://github.com/WillibaldSoft/Carrera-Track-Planner
+Original copyright, attribution and provenance notices remain applicable.
+Previously received Apache-2.0 versions retain their original license grants.
+The Apache-2.0 terms for incorporated upstream material are retained in
+LICENSES/Apache-2.0.txt (and vendor/racehubos/LICENSE where present).
+Dependencies, fonts, sounds, runtimes and voice models retain their respective
+licenses. AGPL does not replace those component licenses.
+
+Corresponding Source: use the source archive for the exact release tag in the
+repository above, including build scripts and dependency lockfiles. Distributors
+must provide the Corresponding Source matching their binary and modifications.
+If you run a modified version for remote users, prominently offer those users
+its Corresponding Source as required by AGPL section 13.
