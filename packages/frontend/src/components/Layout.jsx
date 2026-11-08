@@ -172,7 +172,14 @@ export default function Layout() {
               )}
             </>
           )}
-        <a className="ml-auto underline" href="https://github.com/WillibaldSoft/RaceHubOS" target="_blank" rel="noreferrer">AGPL-3.0 · Source</a>
+          <a
+            className="ml-auto underline"
+            href="https://github.com/WillibaldSoft/RaceHubOS"
+            target="_blank"
+            rel="noreferrer"
+          >
+            AGPL-3.0 · Source
+          </a>
         </footer>
       </SidebarInset>
 
