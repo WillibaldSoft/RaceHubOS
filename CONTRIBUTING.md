@@ -57,3 +57,7 @@ npm test -w @racehubos/backend
 - One PR = one topic, based on the latest `main`.
 - Every translation key exists in every language (`fr`, `en`, `de`…), checked by `npm run check`.
 - Enable **Allow edits by maintainers**, so small fixes can be made directly on your branch.
+
+## License
+
+Contributions to this version are licensed under AGPL-3.0-only. Preserve upstream and third-party notices; see LICENSE and NOTICE.

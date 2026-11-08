@@ -4,5 +4,5 @@
   "private": true,
   "type": "module",
   "description": "Optional track-planner add-on and independent offline planner",
-  "license": "Apache-2.0"
+  "license": "AGPL-3.0-only"
 }

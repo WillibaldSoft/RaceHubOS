@@ -26,7 +26,9 @@ def common(target):
  target.mkdir(parents=True)
  shutil.copytree(source/'dist',target/'dist')
  for name in ['standalone-server.mjs','launcher.mjs','README.md']:shutil.copy2(source/name,target/name)
- shutil.copy2(source/'LICENSE',target/'LICENSE')
+ shutil.copy2(root/'LICENSE',target/'LICENSE')
+ shutil.copy2(root/'NOTICE',target/'NOTICE')
+ shutil.copytree(root/'LICENSES',target/'LICENSES')
  shutil.copy2(args.node_license,target/'NODE-LICENSE')
  notices=source/'dist/THIRD-PARTY-NOTICES.txt'
  if notices.exists():shutil.copy2(notices,target/'THIRD-PARTY-NOTICES.txt')
