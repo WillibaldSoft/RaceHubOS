@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Package already built planner and supplied Node runtimes. Never install."""
-INSTALLER_VERSION = 2
+INSTALLER_VERSION = 3
 import argparse
 import json
 from pathlib import Path

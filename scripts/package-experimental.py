@@ -14,7 +14,7 @@ import subprocess
 import tempfile
 import zipfile
 
-INSTALLER_VERSION = 4
+INSTALLER_VERSION = 5
 ROOT = Path(__file__).resolve().parents[1]
 
 
